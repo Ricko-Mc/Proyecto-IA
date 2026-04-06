@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  swipl:
+    image: swipl:latest
+    container_name: swipl-prod
+    working_dir: /app
+    volumes:
+      - ./backend/prolog:/app/prolog:ro
+    restart: always
+    networks:
+      - lenguaia-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: lenguaia-backend-prod
+    expose:
+      - "8000"
+    volumes:
+      - ./backend/src:/app/src:ro
+    environment:
+      - PYTHONUNBUFFERED=1
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
+      - GCS_BUCKET_NAME=${GCS_BUCKET_NAME}
+      - GCS_CREDENTIALS_PATH=${GCS_CREDENTIALS_PATH}
+      - ENVIRONMENT=production
+      - DEBUG=False
+    command: python server.py
+    depends_on:
+      - swipl
+    restart: always
+    networks:
+      - lenguaia-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: lenguaia-frontend-prod
+    expose:
+      - "80"
+    restart: always
+    networks:
+      - lenguaia-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: lenguaia-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    restart: always
+    networks:
+      - lenguaia-network
+
+networks:
+  lenguaia-network:
+    driver: bridge
