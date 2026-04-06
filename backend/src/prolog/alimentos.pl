@@ -1,0 +1,10 @@
+signo(agua, alimentos, 'ALI001').
+signo(tamal, alimentos, 'ALI002').
+signo(cafe, alimentos, 'ALI003').
+signo(tortilla, alimentos, 'ALI004').
+signo(pan, alimentos, 'ALI005').
+signo(arroz, alimentos, 'ALI006').
+signo(queso, alimentos, 'ALI007').
+signo(huevo, alimentos, 'ALI008').
+signo(frijol, alimentos, 'ALI009').
+signo(chile, alimentos, 'ALI010').

@@ -1,4 +1,4 @@
-.PHONY: help dev prod build logs stop clean install shell-frontend logs-frontend
+.PHONY: help dev prod build logs stop clean install backend-dev backend-shell shell-backend shell-frontend logs-backend logs-frontend
 
 help:
 	@echo "LenguaIA - Comandos disponibles"
@@ -8,17 +8,21 @@ help:
 	@echo "  make prod             - Ejecutar en modo producción"
 	@echo "  make build            - Construir imágenes Docker"
 	@echo "  make logs             - Ver logs en tiempo real"
+	@echo "  make logs-backend     - Ver logs del backend"
 	@echo "  make logs-frontend    - Ver logs del frontend"
 	@echo "  make stop             - Detener contenedores"
 	@echo "  make clean            - Limpiar contenedores e imágenes"
 	@echo ""
 	@echo "Local:"
 	@echo "  make install          - Instalar dependencias locales"
+	@echo "  make backend-dev      - Ejecutar backend localmente (python servidor.py)"
+	@echo "  make shell-backend    - Acceder a shell del backend (Docker)"
 	@echo "  make shell-frontend   - Acceder a shell del frontend (Docker)"
 
 dev:
 	docker-compose up -d
 	@echo "LenguaIA en desarrollo disponible en http://localhost:5173"
+	@echo "Backend disponible en http://localhost:8000"
 
 prod:
 	docker-compose -f docker-compose.prod.yml up -d
@@ -30,6 +34,9 @@ build:
 
 logs:
 	docker-compose logs -f
+
+logs-backend:
+	docker-compose logs -f backend
 
 logs-frontend:
 	docker-compose logs -f frontend
@@ -43,7 +50,17 @@ clean:
 	@echo "Contenedores e imágenes limpios"
 
 install:
+	cd backend && pip install -r requirements.txt
 	cd frontend && npm install
+
+shell-backend:
+	docker-compose exec backend sh
 
 shell-frontend:
 	docker-compose exec frontend sh
+
+backend-dev:
+	cd backend && python servidor.py
+
+backend-shell:
+	docker-compose exec backend sh

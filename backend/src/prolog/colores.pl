@@ -1,0 +1,10 @@
+signo(rojo, colores, 'COL001').
+signo(azul, colores, 'COL002').
+signo(verde, colores, 'COL003').
+signo(amarillo, colores, 'COL004').
+signo(negro, colores, 'COL005').
+signo(blanco, colores, 'COL006').
+signo(rosado, colores, 'COL007').
+signo(morado, colores, 'COL008').
+signo(anaranjado, colores, 'COL009').
+signo(cafe, colores, 'COL010').
