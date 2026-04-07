@@ -24,6 +24,7 @@ interface SidebarProps {
   currentConversationId?: string;
   userName: string;
   userEmail: string;
+  avatarUrl?: string | null;
   onNewConversation: () => void;
   onSelectConversation: (id: string) => void;
   onDeleteConversation: (id: string) => void;
@@ -69,6 +70,7 @@ export function Sidebar({
   currentConversationId,
   userName,
   userEmail,
+  avatarUrl,
   onNewConversation,
   onSelectConversation,
   onDeleteConversation,
@@ -191,6 +193,7 @@ export function Sidebar({
         <UserProfileDropdown
           userName={userName}
           userEmail={userEmail}
+          avatarUrl={avatarUrl}
           onLogout={onLogout}
         />
       </div>

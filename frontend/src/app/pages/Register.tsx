@@ -108,8 +108,8 @@ export function Register() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={isLoading}
-              className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white placeholder-white/70 pl-8 pb-2 pt-2 focus:outline-none focus:border-white transition-all duration-200 ease-in-out text-[1rem]"
-              style={{ fontWeight: 400, fontSize: 'max(16px, 0.9375rem)' }}
+              className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white placeholder-white/70 pl-8 pb-2 pt-2 focus:outline-none focus:border-white transition-all duration-200 ease-in-out text-[0.9rem]"
+              style={{ fontWeight: 400, fontSize: 'max(14px, 0.82rem)' }}
             />
           </div>
 
@@ -124,8 +124,8 @@ export function Register() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
-              className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white placeholder-white/70 pl-8 pb-2 pt-2 focus:outline-none focus:border-white transition-all duration-200 ease-in-out text-[1rem]"
-              style={{ fontWeight: 400, fontSize: 'max(16px, 0.9375rem)' }}
+              className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white placeholder-white/70 pl-8 pb-2 pt-2 focus:outline-none focus:border-white transition-all duration-200 ease-in-out text-[0.9rem]"
+              style={{ fontWeight: 400, fontSize: 'max(14px, 0.82rem)' }}
             />
           </div>
 
@@ -140,8 +140,8 @@ export function Register() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
-              className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white placeholder-white/70 pl-8 pr-10 pb-2 pt-2 focus:outline-none focus:border-white transition-all duration-200 ease-in-out text-[1rem]"
-              style={{ fontWeight: 400, fontSize: 'max(16px, 0.9375rem)' }}
+              className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white placeholder-white/70 pl-8 pr-10 pb-2 pt-2 focus:outline-none focus:border-white transition-all duration-200 ease-in-out text-[0.9rem]"
+              style={{ fontWeight: 400, fontSize: 'max(14px, 0.82rem)' }}
             />
             <button
               type="button"
@@ -168,8 +168,8 @@ export function Register() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={isLoading}
-              className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white placeholder-white/70 pl-8 pr-10 pb-2 pt-2 focus:outline-none focus:border-white transition-all duration-200 ease-in-out text-[1rem]"
-              style={{ fontWeight: 400, fontSize: 'max(16px, 0.9375rem)' }}
+              className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white placeholder-white/70 pl-8 pr-10 pb-2 pt-2 focus:outline-none focus:border-white transition-all duration-200 ease-in-out text-[0.9rem]"
+              style={{ fontWeight: 400, fontSize: 'max(14px, 0.82rem)' }}
             />
             <button
               type="button"
@@ -203,7 +203,7 @@ export function Register() {
         </form>
 
         {/* Sign In Link */}
-        <div className="text-center mt-5 md:mt-6 text-white text-[0.8125rem]" style={{ fontWeight: 400 }}>
+        <div className="text-center mt-5 md:mt-6 text-white text-[0.72rem] md:text-[0.76rem]" style={{ fontWeight: 400 }}>
           <span>¿Ya tienes cuenta? </span>
           <Link
             to="/"
@@ -214,10 +214,7 @@ export function Register() {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-10 md:mt-12 text-white/80 text-[0.75rem] space-y-1" style={{ fontWeight: 300 }}>
-          <p>Educación inclusiva para todos</p>
-          <p>SEGUA v1.0.0 · Marzo 2026</p>
-        </div>
+
       </div>
     </div>
   );

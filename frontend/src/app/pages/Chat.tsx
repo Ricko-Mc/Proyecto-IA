@@ -35,7 +35,7 @@ const WELCOME_PHRASES = [
 
 export function Chat() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; email: string; avatar_url?: string | null } | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -233,6 +233,7 @@ export function Chat() {
           currentConversationId={currentConversationId}
           userName={user.name}
           userEmail={user.email}
+          avatarUrl={user.avatar_url}
           onNewConversation={handleNewConversation}
           onSelectConversation={handleSelectConversation}
           onDeleteConversation={handleDeleteConversationFromSidebar}
@@ -248,6 +249,7 @@ export function Chat() {
             currentConversationId={currentConversationId}
             userName={user.name}
             userEmail={user.email}
+            avatarUrl={user.avatar_url}
             onNewConversation={handleNewConversation}
             onSelectConversation={handleSelectConversation}
             onDeleteConversation={handleDeleteConversationFromSidebar}
@@ -340,6 +342,7 @@ export function Chat() {
             <UserProfileDropdown
               userName={user.name}
               userEmail={user.email}
+              avatarUrl={user.avatar_url}
               onLogout={handleLogout}
               mobileOnly={true}
             />

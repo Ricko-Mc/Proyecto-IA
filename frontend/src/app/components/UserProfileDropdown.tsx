@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { User, Settings, HelpCircle, Info } from 'lucide-react';
-import { Avatar, AvatarFallback } from './ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +12,7 @@ import {
 interface UserProfileDropdownProps {
   userName: string;
   userEmail: string;
+  avatarUrl?: string | null;
   onLogout: () => void;
   mobileOnly?: boolean;
 }
@@ -19,6 +20,7 @@ interface UserProfileDropdownProps {
 export function UserProfileDropdown({
   userName,
   userEmail,
+  avatarUrl,
   onLogout,
   mobileOnly = false,
 }: UserProfileDropdownProps) {
@@ -30,6 +32,7 @@ export function UserProfileDropdown({
         {mobileOnly ? (
           <button className="h-6 w-6 rounded-full transition-all duration-200 ease-in-out hover:opacity-80">
             <Avatar className="h-6 w-6">
+              <AvatarImage src={avatarUrl ?? undefined} alt={userName} />
               <AvatarFallback className="bg-[#4997D0] text-white text-[10px]">
                 <User className="w-3 h-3" />
               </AvatarFallback>
@@ -38,6 +41,7 @@ export function UserProfileDropdown({
         ) : (
           <button className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-sidebar-accent transition-all duration-200 ease-in-out w-full">
             <Avatar className="w-9 h-9">
+              <AvatarImage src={avatarUrl ?? undefined} alt={userName} />
               <AvatarFallback className="bg-[#4997D0] text-white">
                 <User className="w-4 h-4" />
               </AvatarFallback>
@@ -52,9 +56,9 @@ export function UserProfileDropdown({
       <DropdownMenuContent
         align="end"
         side={mobileOnly ? "bottom" : "top"}
-        className="w-[220px] bg-white rounded-xl p-2.5 z-50"
+        className="w-[220px] rounded-xl p-2.5 z-50 bg-popover text-popover-foreground border border-border"
         style={{
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.18)',
           fontFamily: 'Poppins, sans-serif',
           position: 'relative',
         }}
@@ -62,13 +66,14 @@ export function UserProfileDropdown({
         {/* User Info */}
         <div className="flex flex-col items-center gap-1.5 mb-2 pt-1">
           <Avatar className="w-9 h-9">
+            <AvatarImage src={avatarUrl ?? undefined} alt={userName} />
             <AvatarFallback className="bg-[#4997D0] text-white">
               <User className="w-4 h-4" />
             </AvatarFallback>
           </Avatar>
           <div className="text-center">
             <p className="text-xs font-bold" style={{ fontFamily: 'Poppins, sans-serif' }}>{userName}</p>
-            <p className="text-[10px] text-gray-500" style={{ fontFamily: 'Poppins, sans-serif' }}>{userEmail}</p>
+            <p className="text-[10px] text-muted-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>{userEmail}</p>
           </div>
         </div>
 
@@ -77,25 +82,25 @@ export function UserProfileDropdown({
         {/* Menu Items */}
         <DropdownMenuItem
           onClick={() => navigate('/settings')}
-          className="px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-md transition-all duration-200 ease-in-out"
+          className="px-3 py-2 cursor-pointer rounded-md transition-all duration-200 ease-in-out focus:bg-accent focus:text-accent-foreground"
         >
-          <Settings className="w-4 h-4 mr-2 text-gray-600" />
+          <Settings className="w-4 h-4 mr-2 text-muted-foreground" />
           <span className="text-xs" style={{ fontFamily: 'Poppins, sans-serif' }}>Ajustes</span>
         </DropdownMenuItem>
 
         <DropdownMenuItem
           onClick={() => navigate('/help')}
-          className="px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-md transition-all duration-200 ease-in-out"
+          className="px-3 py-2 cursor-pointer rounded-md transition-all duration-200 ease-in-out focus:bg-accent focus:text-accent-foreground"
         >
-          <HelpCircle className="w-4 h-4 mr-2 text-gray-600" />
+          <HelpCircle className="w-4 h-4 mr-2 text-muted-foreground" />
           <span className="text-xs" style={{ fontFamily: 'Poppins, sans-serif' }}>Obtener ayuda</span>
         </DropdownMenuItem>
 
         <DropdownMenuItem
           onClick={() => navigate('/about')}
-          className="px-3 py-2 cursor-pointer hover:bg-gray-100 rounded-md transition-all duration-200 ease-in-out"
+          className="px-3 py-2 cursor-pointer rounded-md transition-all duration-200 ease-in-out focus:bg-accent focus:text-accent-foreground"
         >
-          <Info className="w-4 h-4 mr-2 text-gray-600" />
+          <Info className="w-4 h-4 mr-2 text-muted-foreground" />
           <span className="text-xs" style={{ fontFamily: 'Poppins, sans-serif' }}>Más información</span>
         </DropdownMenuItem>
 

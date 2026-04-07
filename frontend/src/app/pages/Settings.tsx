@@ -5,13 +5,22 @@ import { BottomNav } from '../components/BottomNav';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { ArrowLeft, Moon, Sun, Monitor } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
+import { ArrowLeft, Moon, Sun, Monitor, Camera, Trash2, User } from 'lucide-react';
+
+type StoredUser = {
+  name: string;
+  email: string;
+  avatar_url?: string | null;
+  [key: string]: unknown;
+};
 
 export function Settings() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [user, setUser] = useState<StoredUser | null>(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
 
   useEffect(() => {
@@ -20,10 +29,11 @@ export function Settings() {
       navigate('/');
       return;
     }
-    const parsedUser = JSON.parse(userData);
+    const parsedUser = JSON.parse(userData) as StoredUser;
     setUser(parsedUser);
     setName(parsedUser.name);
     setEmail(parsedUser.email);
+    setAvatarUrl((parsedUser.avatar_url as string | null | undefined) ?? null);
 
     // Load theme preference
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' || 'system';
@@ -49,10 +59,37 @@ export function Settings() {
 
   const handleSave = () => {
     if (!user) return;
-    const updatedUser = { name, email };
+    const updatedUser: StoredUser = {
+      ...user,
+      name,
+      email,
+      avatar_url: avatarUrl,
+    };
     localStorage.setItem('user', JSON.stringify(updatedUser));
     setUser(updatedUser);
     navigate('/chat');
+  };
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = typeof reader.result === 'string' ? reader.result : null;
+      setAvatarUrl(result);
+    };
+    reader.readAsDataURL(file);
+
+    e.currentTarget.value = '';
+  };
+
+  const handleRemovePhoto = () => {
+    setAvatarUrl(null);
   };
 
   if (!user) return null;
@@ -121,6 +158,42 @@ export function Settings() {
           {/* User Info Section */}
           <div className="space-y-3">
             <h2 className="text-sm font-semibold">Información personal</h2>
+            <div className="rounded-xl border border-border p-3 sm:p-4 space-y-3">
+              <Label className="text-xs">Foto de perfil</Label>
+              <div className="flex items-center gap-3">
+                <Avatar className="w-14 h-14 border border-border">
+                  <AvatarImage src={avatarUrl ?? undefined} alt="Foto de perfil" />
+                  <AvatarFallback className="bg-[#4997D0] text-white">
+                    <User className="w-5 h-5" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-wrap gap-2">
+                  <Label
+                    htmlFor="avatar-upload"
+                    className="inline-flex items-center gap-2 h-9 px-3 rounded-md border border-border cursor-pointer text-xs hover:bg-muted"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                    Subir foto
+                  </Label>
+                  <input
+                    id="avatar-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleRemovePhoto}
+                    className="h-9 text-xs"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                    Quitar
+                  </Button>
+                </div>
+              </div>
+            </div>
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <Label htmlFor="name" className="text-xs">Nombre</Label>

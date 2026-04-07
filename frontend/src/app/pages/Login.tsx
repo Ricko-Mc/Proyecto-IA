@@ -4,6 +4,7 @@ import { Button } from "../components/ui/button";
 import { Chrome, Eye, EyeOff, User, Lock } from "lucide-react";
 import backgroundImage from "../../assets/839a08a8647a60638301e92960eee6e1607ac796.png";
 import { api } from "../../services/api";
+import { ForgotPassword } from "../components/ForgotPassword";
 
 export function Login() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
@@ -106,7 +108,7 @@ export function Login() {
             </div>
             <input
               type="text"
-              placeholder="Correo o Usuario"
+              placeholder="Correo Electronico"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               disabled={isLoading}
@@ -155,9 +157,13 @@ export function Login() {
               />
               <span style={{ fontFamily: 'Poppins', color: 'white', fontSize: '10px' }}>Recuérdame</span>
             </label>
-            <Link to="/forgot-password" className="text-white hover:underline transition-all duration-200 ease-in-out">
+            <button
+              type="button"
+              onClick={() => setForgotPasswordOpen(true)}
+              className="text-white text-[0.55rem] md:text-[0.6rem] hover:underline transition-all duration-200 ease-in-out"
+            >
               ¿Olvidaste tu contraseña?
-            </Link>
+            </button>
           </div>
 
           {/* Login Button */}
@@ -215,11 +221,13 @@ export function Login() {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-8 md:mt-10 text-white/80 text-[0.6rem] space-y-1" style={{ fontWeight: 300 }}>
-          <p>Educación inclusiva para todos</p>
-          <p>SEGUA v1.0.0 · Marzo 2026</p>
-        </div>
+
       </div>
+
+      <ForgotPassword
+        open={forgotPasswordOpen}
+        onOpenChange={setForgotPasswordOpen}
+      />
     </div>
   );
 }
