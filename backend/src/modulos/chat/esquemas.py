@@ -3,10 +3,12 @@ from pydantic import BaseModel
 
 class MensajeChatRequest(BaseModel):
     mensaje: str
+    conversacion_id: str | None = None
 
 
 class RespuestaChatResponse(BaseModel):
     mensaje_usuario: str
+    conversacion_id: str
     palabra_clave: str
     signo_encontrado: bool
     signo_id: str | None = None

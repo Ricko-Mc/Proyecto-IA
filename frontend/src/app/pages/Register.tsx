@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router";
 import { Button } from "../components/ui/button";
 import { Eye, EyeOff, User, Mail, Lock } from "lucide-react";
-import logoImage from "../../assets/2fd799fcfa27e9132df8742af86005490667831b.png";
+import logoImage from "../../assets/2196c88c8e6b71450386427e39960842b5b3abc1.png";
 import backgroundImage from "../../assets/839a08a8647a60638301e92960eee6e1607ac796.png";
+import { api } from "../../services/api";
 
 export function Register() {
   const navigate = useNavigate();
@@ -14,8 +15,9 @@ export function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !password || !confirmPassword) return;
 
@@ -25,16 +27,30 @@ export function Register() {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
+    setError("");
+    try {
+      const respuesta = await api.register({
+        nombre_completo: name,
+        email,
+        password,
+        confirmar_password: confirmPassword,
+      });
+      localStorage.setItem("access_token", respuesta.access_token || "");
       localStorage.setItem(
         "user",
         JSON.stringify({
-          name: name,
-          email: email,
+          id: respuesta.usuario_id,
+          name: respuesta.nombre_completo,
+          email: respuesta.email,
+          roles: respuesta.roles,
         }),
       );
       navigate("/chat");
-    }, 1000);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No se pudo crear la cuenta");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -178,6 +194,12 @@ export function Register() {
           >
             {isLoading ? "Creando cuenta..." : "Crear cuenta"}
           </Button>
+
+          {error && (
+            <p className="text-red-200 text-xs text-center" style={{ fontWeight: 500 }}>
+              {error}
+            </p>
+          )}
         </form>
 
         {/* Sign In Link */}

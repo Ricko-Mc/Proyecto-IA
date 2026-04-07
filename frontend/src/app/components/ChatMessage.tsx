@@ -59,11 +59,25 @@ export function ChatMessage({ message, onRequestWord }: ChatMessageProps) {
           </div>
         ) : message.videos && message.videos.length > 0 ? (
           <div className="space-y-2">
+            {message.text ? (
+              <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
+                <p className="text-sm text-foreground">{message.text}</p>
+              </div>
+            ) : null}
             <VideoCarousel items={message.videos} />
           </div>
         ) : message.videoUrl && message.signLabel ? (
           <div className="space-y-2">
+            {message.text ? (
+              <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
+                <p className="text-sm text-foreground">{message.text}</p>
+              </div>
+            ) : null}
             <VideoPlayer videoUrl={message.videoUrl} signLabel={message.signLabel} />
+          </div>
+        ) : message.text ? (
+          <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
+            <p className="text-sm text-foreground">{message.text}</p>
           </div>
         ) : null}
       </div>

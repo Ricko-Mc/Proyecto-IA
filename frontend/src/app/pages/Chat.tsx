@@ -22,6 +22,7 @@ import {
 import { Send, Menu, Trash2, Eraser, BookOpen, User } from 'lucide-react';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { UserProfileDropdown } from '../components/UserProfileDropdown';
+import { api } from '../../services/api';
 
 
 const WELCOME_PHRASES = [
@@ -91,16 +92,8 @@ export function Chat() {
   }, [messages]);
 
   const handleNewConversation = () => {
-    const newConvId = `conv-${Date.now()}`;
-    setCurrentConversationId(newConvId);
+    setCurrentConversationId('');
     setMessages([]);
-    const newConv: Conversation = {
-      id: newConvId,
-      name: 'Nueva conversación',
-      lastMessage: '',
-      timestamp: new Date()
-    };
-    setConversations([newConv, ...conversations]);
   };
 
   const handleSelectConversation = (id: string) => {
@@ -145,6 +138,7 @@ export function Chat() {
 
   const handleLogout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('access_token');
     navigate('/');
   };
 
@@ -153,16 +147,18 @@ export function Chat() {
     setShowNotFoundDialog(true);
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputText.trim()) return;
+
+    const mensajeActual = inputText;
 
     const userMessage: Message = {
       id: `msg-${Date.now()}`,
       type: 'user',
-      text: inputText
+      text: mensajeActual
     };
 
-    setMessages([...messages, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
 
     // Simulate processing
     const loadingMessage: Message = {
@@ -174,57 +170,57 @@ export function Chat() {
 
     setMessages(prev => [...prev, loadingMessage]);
 
-    // Simulate API response
-    setTimeout(() => {
+    try {
+      const respuesta = await api.chat(mensajeActual, currentConversationId || undefined);
+
+      if (!currentConversationId && respuesta.conversacion_id) {
+        setCurrentConversationId(respuesta.conversacion_id);
+        const nuevaConv: Conversation = {
+          id: respuesta.conversacion_id,
+          name: mensajeActual.slice(0, 30),
+          lastMessage: mensajeActual,
+          timestamp: new Date(),
+        };
+        setConversations((prev) => [nuevaConv, ...prev]);
+      }
+
       setMessages(prev => {
         const filtered = prev.filter(m => !m.isLoading);
-        
-        // Split input into words to check if multiple words
-        const words = inputText.trim().split(/\s+/);
-        
-        // Check if we have videos for the words
-        const videosFound = words.map(word => {
-          const normalizedWord = word.toLowerCase();
-          const videoUrl = VIDEO_URLS[normalizedWord];
-          return videoUrl ? { word, videoUrl } : null;
-        }).filter(Boolean);
-        
-        let systemMessage: Message;
-        
-        if (videosFound.length > 0) {
-          if (videosFound.length > 1) {
-            // Multiple words - show carousel
-            systemMessage = {
+        const textoAsistente = respuesta.url_video
+          ? respuesta.respuesta_ia
+          : `${respuesta.respuesta_ia}\n\nAun no hay video disponible para esta sena.`;
+        const systemMessage: Message = respuesta.signo_encontrado
+          ? {
               id: `msg-${Date.now()}-response`,
               type: 'system',
-              text: '',
-              videos: videosFound as Array<{ word: string; videoUrl: string }>
-            };
-          } else {
-            // Single word - show single video
-            const video = videosFound[0]!;
-            systemMessage = {
+              text: textoAsistente,
+              videoUrl: respuesta.url_video || undefined,
+              signLabel: respuesta.palabra_clave || undefined,
+            }
+          : {
               id: `msg-${Date.now()}-response`,
               type: 'system',
-              text: '',
-              videoUrl: video.videoUrl,
-              signLabel: video.word
+              text: respuesta.respuesta_ia,
+              notFound: true,
+              notFoundWord: mensajeActual,
             };
-          }
-        } else {
-          // Not found - show message with button (no auto-popup)
-          systemMessage = {
-            id: `msg-${Date.now()}-response`,
+        return [...filtered, systemMessage];
+      });
+    } catch (_error) {
+      setMessages(prev => {
+        const filtered = prev.filter(m => !m.isLoading);
+        return [
+          ...filtered,
+          {
+            id: `msg-${Date.now()}-error`,
             type: 'system',
             text: '',
             notFound: true,
-            notFoundWord: inputText
-          };
-        }
-
-        return [...filtered, systemMessage];
+            notFoundWord: 'No se pudo conectar con el backend',
+          },
+        ];
       });
-    }, 1500);
+    }
 
     // Update conversation
     if (currentConversationId) {
@@ -232,17 +228,14 @@ export function Chat() {
         prev.map(conv =>
           conv.id === currentConversationId
             ? { 
-                ...conv, 
-                lastMessage: inputText, 
-                name: messages.length === 0 ? inputText.slice(0, 30) : conv.name,
+                ...conv,
+                lastMessage: mensajeActual,
+                name: messages.length === 0 ? mensajeActual.slice(0, 30) : conv.name,
                 timestamp: new Date()
               }
             : conv
         )
       );
-    } else {
-      // Create new conversation if none exists
-      handleNewConversation();
     }
 
     setInputText('');

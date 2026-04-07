@@ -8,6 +8,13 @@ from src.modulos.chat.enrutador import set_servicio_chat
 from src.modulos.chat.servicio import ServicioChat
 from src.modulos.signos.enrutador import set_servicio_signos
 from src.modulos.signos.servicio import ServicioSignos
+from src.modulos.auth.servicio import ServicioAuth, set_servicio_auth
+from src.modulos.favoritos.enrutador import set_servicio_favoritos
+from src.modulos.favoritos.servicio import ServicioFavoritos
+from src.modulos.reportes.enrutador import set_servicio_reportes
+from src.modulos.reportes.servicio import ServicioReportes
+from src.modulos.estadisticas.enrutador import set_servicio_estadisticas
+from src.modulos.estadisticas.servicio import ServicioEstadisticas
 
 
 def configurar_servicios() -> None:
@@ -29,6 +36,10 @@ def configurar_servicios() -> None:
 
     set_servicio_chat(ServicioChat(puente_prolog, agente_ia, cliente_gcs))
     set_servicio_signos(ServicioSignos(puente_prolog, cliente_gcs))
+    set_servicio_auth(ServicioAuth())
+    set_servicio_favoritos(ServicioFavoritos())
+    set_servicio_reportes(ServicioReportes())
+    set_servicio_estadisticas(ServicioEstadisticas())
 
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router";
 import { Button } from "../components/ui/button";
 import { Chrome, Eye, EyeOff, User, Lock } from "lucide-react";
 import backgroundImage from "../../assets/839a08a8647a60638301e92960eee6e1607ac796.png";
+import { api } from "../../services/api";
 
 export function Login() {
   const navigate = useNavigate();
@@ -11,38 +12,47 @@ export function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    setTimeout(() => {
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          name: "Usuario Demo",
-          email: "demo@segua.gt",
-        }),
-      );
-      navigate("/chat");
-    }, 1000);
+    setError("");
+    try {
+      const { url } = await api.loginGoogle();
+      window.location.href = url;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No se pudo iniciar con Google");
+      setIsLoading(false);
+    }
   };
 
-  const handleEmailLogin = (e: React.FormEvent) => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username || !password) return;
 
     setIsLoading(true);
-    setTimeout(() => {
+    setError("");
+    try {
+      const respuesta = await api.login({
+        email: username.includes("@") ? username : `${username}@segua.gt`,
+        password,
+      });
+      localStorage.setItem("access_token", respuesta.access_token || "");
       localStorage.setItem(
         "user",
         JSON.stringify({
-          name: username,
-          email: username.includes("@")
-            ? username
-            : `${username}@segua.gt`,
+          id: respuesta.usuario_id,
+          name: respuesta.nombre_completo,
+          email: respuesta.email,
+          roles: respuesta.roles,
         }),
       );
       navigate("/chat");
-    }, 1000);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No se pudo iniciar sesion");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -61,9 +71,9 @@ export function Login() {
         {/* Logo */}
         <div className="flex justify-center mb-4">
           <img
-            src="/logo.png"
+            src="/logowhite.png"
             alt="SEGUA Logo"
-            className="h-[64px] md:h-[72px] w-auto drop-shadow-lg"
+            className="h-[110px] md:h-[130px] w-auto drop-shadow-lg"
             style={{ filter: 'drop-shadow(0px 2px 10px rgba(0,0,0,0.2))' }}
           />
         </div>
@@ -159,6 +169,12 @@ export function Login() {
           >
             {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
           </Button>
+
+          {error && (
+            <p className="text-red-200 text-xs text-center" style={{ fontWeight: 500 }}>
+              {error}
+            </p>
+          )}
         </form>
 
         {/* Divider */}

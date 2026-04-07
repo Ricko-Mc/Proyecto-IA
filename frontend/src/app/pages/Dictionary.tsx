@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { VideoPlayer } from '../components/VideoPlayer';
 import { BottomNav } from '../components/BottomNav';
@@ -13,55 +13,20 @@ import {
   SelectValue,
 } from '../components/ui/select';
 import { ArrowLeft, Search, BookOpen, Filter } from 'lucide-react';
-import logoImage from "../../assets/e41c511fb5325848e3b94c419443d02ff6cd7e02.png";
+import logoImage from "../../assets/2196c88c8e6b71450386427e39960842b5b3abc1.png";
+import { api } from '../../services/api';
 
 interface DictionaryWord {
   id: string;
   word: string;
   category: string;
-  videoUrl: string;
+  videoUrl: string | null;
 }
 
-const CATEGORIES = [
-  'Todos',
-  'Abecedario',
-  'Saludos',
-  'Colores',
-  'Números',
-  'Familia',
-  'Emociones',
-  'Animales',
-  'Alimentos',
-  'Verbos comunes'
-];
-
-const DICTIONARY_WORDS: DictionaryWord[] = [
-  { id: '1', word: 'Hola', category: 'Saludos', videoUrl: 'hola.mp4' },
-  { id: '2', word: 'Buenos días', category: 'Saludos', videoUrl: 'buenos-dias.mp4' },
-  { id: '3', word: 'Buenas tardes', category: 'Saludos', videoUrl: 'buenas-tardes.mp4' },
-  { id: '4', word: 'Buenas noches', category: 'Saludos', videoUrl: 'buenas-noches.mp4' },
-  { id: '5', word: 'Gracias', category: 'Saludos', videoUrl: 'gracias.mp4' },
-  { id: '6', word: 'Por favor', category: 'Saludos', videoUrl: 'por-favor.mp4' },
-  { id: '7', word: 'Adiós', category: 'Saludos', videoUrl: 'adios.mp4' },
-  { id: '8', word: 'A', category: 'Abecedario', videoUrl: 'letra-a.mp4' },
-  { id: '9', word: 'B', category: 'Abecedario', videoUrl: 'letra-b.mp4' },
-  { id: '10', word: 'C', category: 'Abecedario', videoUrl: 'letra-c.mp4' },
-  { id: '11', word: 'Rojo', category: 'Colores', videoUrl: 'rojo.mp4' },
-  { id: '12', word: 'Azul', category: 'Colores', videoUrl: 'azul.mp4' },
-  { id: '13', word: 'Verde', category: 'Colores', videoUrl: 'verde.mp4' },
-  { id: '14', word: 'Amarillo', category: 'Colores', videoUrl: 'amarillo.mp4' },
-  { id: '15', word: 'Uno', category: 'Números', videoUrl: 'uno.mp4' },
-  { id: '16', word: 'Dos', category: 'Números', videoUrl: 'dos.mp4' },
-  { id: '17', word: 'Tres', category: 'Números', videoUrl: 'tres.mp4' },
-  { id: '18', word: 'Mamá', category: 'Familia', videoUrl: 'mama.mp4' },
-  { id: '19', word: 'Papá', category: 'Familia', videoUrl: 'papa.mp4' },
-  { id: '20', word: 'Hermano', category: 'Familia', videoUrl: 'hermano.mp4' },
-  { id: '21', word: 'Feliz', category: 'Emociones', videoUrl: 'feliz.mp4' },
-  { id: '22', word: 'Triste', category: 'Emociones', videoUrl: 'triste.mp4' },
-  { id: '23', word: 'Enojado', category: 'Emociones', videoUrl: 'enojado.mp4' },
-  { id: '24', word: 'Perro', category: 'Animales', videoUrl: 'perro.mp4' },
-  { id: '25', word: 'Gato', category: 'Animales', videoUrl: 'gato.mp4' },
-];
+const formatearEtiqueta = (valor: string): string =>
+  valor
+    .replaceAll('_', ' ')
+    .replace(/\b\w/g, (letra) => letra.toUpperCase());
 
 interface DictionaryLayoutProps {
   onBack: () => void;
@@ -104,12 +69,54 @@ export function Dictionary() {
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedWord, setSelectedWord] = useState<DictionaryWord | null>(null);
+  const [words, setWords] = useState<DictionaryWord[]>([]);
+  const [categories, setCategories] = useState<string[]>(['Todos']);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const filteredWords = DICTIONARY_WORDS.filter((word) => {
-    const matchesCategory = selectedCategory === 'Todos' || word.category === selectedCategory;
-    const matchesSearch = word.word.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  useEffect(() => {
+    const cargarDiccionario = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const [respuestaSignos, respuestaCategorias] = await Promise.all([
+          api.obtenerTodosLosSignos(),
+          api.obtenerCategorias(),
+        ]);
+
+        const wordsData: DictionaryWord[] = respuestaSignos.signos.map((signo) => ({
+          id: signo.signo_id,
+          word: formatearEtiqueta(signo.palabra),
+          category: formatearEtiqueta(signo.categoria),
+          videoUrl: signo.url_video ?? null,
+        }));
+
+        const categoriasData = [
+          'Todos',
+          ...respuestaCategorias.categorias.map((categoria) => formatearEtiqueta(categoria)),
+        ];
+
+        setWords(wordsData);
+        setCategories(categoriasData);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'No se pudo cargar el diccionario');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void cargarDiccionario();
+  }, []);
+
+  const filteredWords = useMemo(
+    () =>
+      words.filter((word) => {
+        const matchesCategory = selectedCategory === 'Todos' || word.category === selectedCategory;
+        const matchesSearch = word.word.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+      }),
+    [words, selectedCategory, searchQuery]
+  );
 
   const handleBack = () => {
     navigate('/chat');
@@ -173,7 +180,7 @@ export function Dictionary() {
                   <SelectValue placeholder="Selecciona una categoría" />
                 </SelectTrigger>
                 <SelectContent>
-                  {CATEGORIES.map((category) => (
+                  {categories.map((category) => (
                     <SelectItem key={category} value={category}>
                       {category}
                     </SelectItem>
@@ -195,6 +202,12 @@ export function Dictionary() {
           <h3 className="text-sm md:text-lg font-semibold">
             Resultados ({filteredWords.length})
           </h3>
+          {loading ? (
+            <p className="text-xs text-muted-foreground mt-1">Cargando diccionario...</p>
+          ) : null}
+          {error ? (
+            <p className="text-xs text-red-500 mt-1">{error}</p>
+          ) : null}
         </div>
 
         {/* Word Grid */}
@@ -217,7 +230,7 @@ export function Dictionary() {
           ))}
         </div>
 
-        {filteredWords.length === 0 && (
+        {!loading && filteredWords.length === 0 && (
           <div className="text-center py-8 md:py-12">
             <p className="text-xs md:text-sm text-muted-foreground">
               No se encontraron resultados para tu búsqueda
@@ -239,10 +252,16 @@ export function Dictionary() {
               </div>
 
               <div className="flex justify-center">
-                <VideoPlayer
-                  videoUrl={selectedWord.videoUrl}
-                  signLabel={selectedWord.word}
-                />
+                {selectedWord.videoUrl ? (
+                  <VideoPlayer
+                    videoUrl={selectedWord.videoUrl}
+                    signLabel={selectedWord.word}
+                  />
+                ) : (
+                  <div className="bg-muted rounded-lg p-6 text-sm text-muted-foreground text-center">
+                    Aun no hay video disponible para esta sena.
+                  </div>
+                )}
               </div>
 
               <div className="bg-muted rounded-lg p-4">

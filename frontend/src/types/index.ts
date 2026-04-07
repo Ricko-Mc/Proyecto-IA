@@ -1,5 +1,6 @@
 export interface RespuestaChat {
   mensaje_usuario: string;
+  conversacion_id: string;
   palabra_clave: string;
   signo_encontrado: boolean;
   signo_id: string | null;
@@ -46,4 +47,26 @@ export interface HealthCheck {
   prolog_disponible: boolean;
   ia_disponible: boolean;
   gcs_disponible: boolean;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  nombre_completo: string;
+  email: string;
+  password: string;
+  confirmar_password: string;
+}
+
+export interface AuthResponse {
+  usuario_id: string;
+  email: string;
+  nombre_completo: string;
+  avatar_url: string | null;
+  access_token: string;
+  proveedor: string;
+  roles: string[];
 }

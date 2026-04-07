@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
+import { AuthCallback } from './pages/AuthCallback';
 import { Chat } from './pages/Chat';
 import { Dictionary } from './pages/Dictionary';
 import { Settings } from './pages/Settings';
@@ -16,6 +17,10 @@ export const router = createBrowserRouter([
   {
     path: '/register',
     Component: Register,
+  },
+  {
+    path: '/auth/callback',
+    Component: AuthCallback,
   },
   {
     path: '/chat',
