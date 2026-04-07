@@ -33,32 +33,6 @@ const WELCOME_PHRASES = [
   "Te quiero"
 ];
 
-// Real videos from Firebase
-const VIDEO_URLS: Record<string, string> = {
-  'conejo': 'https://firebasestorage.googleapis.com/v0/b/lensegua-20316.appspot.com/o/00003%2F00011%2Fconejo.webm?alt=media&token=34084c16-5095-4707-8875-4028b7df5e12',
-  'buenos días': 'https://firebasestorage.googleapis.com/v0/b/lensegua-20316.appspot.com/o/00003%2F00012%2Fbuenos%20di%CC%81as.webm?alt=media&token=4772ec8f-c69e-4852-bf15-32b0fe278bfb',
-  'cómo estás': 'https://firebasestorage.googleapis.com/v0/b/lensegua-20316.appspot.com/o/00003%2F00012%2Fcomo%20esta%CC%81s.webm?alt=media&token=190cd44c-1be8-42c4-9aaa-f829e4067848',
-  'hola': 'https://firebasestorage.googleapis.com/v0/b/lensegua-20316.appspot.com/o/00003%2F00012%2Fbuenos%20di%CC%81as.webm?alt=media&token=4772ec8f-c69e-4852-bf15-32b0fe278bfb',
-};
-
-// Default example messages with carousel
-const EXAMPLE_MESSAGES: Message[] = [
-  {
-    id: 'demo-1',
-    type: 'user',
-    text: 'buenos días cómo estás'
-  },
-  {
-    id: 'demo-2',
-    type: 'system',
-    text: '',
-    videos: [
-      { word: 'Buenos días', videoUrl: VIDEO_URLS['buenos días'] },
-      { word: 'Cómo estás', videoUrl: VIDEO_URLS['cómo estás'] }
-    ]
-  }
-];
-
 export function Chat() {
   const navigate = useNavigate();
   const [user, setUser] = useState<{ name: string; email: string } | null>(null);
@@ -98,12 +72,7 @@ export function Chat() {
 
   const handleSelectConversation = (id: string) => {
     setCurrentConversationId(id);
-    // Load default messages for demo conversation
-    if (id === 'conv-default') {
-      setMessages(EXAMPLE_MESSAGES);
-    } else {
-      setMessages([]);
-    }
+    setMessages([]);
   };
 
   const handleDeleteConversation = () => {
