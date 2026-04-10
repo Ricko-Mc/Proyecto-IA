@@ -56,10 +56,7 @@ class AgenteIA:
         """Genera respuesta contextual sobre el signo encontrado usando Claude o fallback."""
         if self.client is None:
             if signo_info.get("encontrado"):
-                msg = (
-                    "Encontre un signo relacionado. "
-                    "Te muestro la opcion disponible para que la practiques."
-                )
+                msg = "Aqui tienes la seña disponible para practicar."
                 return msg
             return (
                 "No encontre ese signo por ahora. "
@@ -85,10 +82,7 @@ class AgenteIA:
             AttributeError,
         ):
             if signo_info.get("encontrado"):
-                msg = (
-                    "Encontre un signo relacionado. "
-                    "Te muestro la opcion disponible para que la practiques."
-                )
+                msg = "Aqui tienes la seña disponible para practicar."
                 return msg
             return (
                 "No encontre ese signo por ahora. "

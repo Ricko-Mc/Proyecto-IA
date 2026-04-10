@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { MessageSquarePlus, User, Settings, HelpCircle, Info, Search, Trash2, X } from 'lucide-react';
+import { MessageSquarePlus, User, Settings, HelpCircle, Info, Search, Trash2, X, ShieldCheck } from 'lucide-react';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Input } from './ui/input';
@@ -80,6 +80,17 @@ export function Sidebar({
 }: SidebarProps) {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const roles = (() => {
+    try {
+      const userRaw = localStorage.getItem('user');
+      if (!userRaw) return [] as string[];
+      const parsed = JSON.parse(userRaw) as { roles?: string[] };
+      return parsed.roles || [];
+    } catch {
+      return [] as string[];
+    }
+  })();
+  const esAdminOModerador = roles.includes('admin') || roles.includes('moderador');
 
   const handleSelectConversation = (id: string) => {
     onSelectConversation(id);
@@ -190,6 +201,38 @@ export function Sidebar({
 
       {/* User profile */}
       <div className="p-2 border-t border-sidebar-border">
+        {esAdminOModerador ? (
+          <div className="space-y-2 mb-2">
+            <Button
+              variant="outline"
+              className="w-full h-8 text-xs"
+              onClick={() => {
+                navigate('/admin/reportes');
+                if (isMobile && onClose) {
+                  onClose();
+                }
+              }}
+            >
+              <ShieldCheck className="w-3.5 h-3.5 mr-1.5" />
+              Gestionar solicitudes
+            </Button>
+            {roles.includes('admin') ? (
+              <Button
+                variant="outline"
+                className="w-full h-8 text-xs"
+                onClick={() => {
+                  navigate('/admin/usuarios');
+                  if (isMobile && onClose) {
+                    onClose();
+                  }
+                }}
+              >
+                <User className="w-3.5 h-3.5 mr-1.5" />
+                Gestionar usuarios
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
         <UserProfileDropdown
           userName={userName}
           userEmail={userEmail}

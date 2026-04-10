@@ -23,9 +23,6 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - GCP_PROJECT_ID=${GCP_PROJECT_ID}
-      - GCS_BUCKET_NAME=${GCS_BUCKET_NAME}
-      - GCS_CREDENTIALS_PATH=${GCS_CREDENTIALS_PATH}
       - ENVIRONMENT=production
       - DEBUG=False
     command: python servidor.py

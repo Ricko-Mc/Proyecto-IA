@@ -148,13 +148,25 @@ class ServicioAuth:
             "roles": roles,
         }
 
-    def login_google(self) -> dict[str, str]:
+    def _resolver_frontend_url(self, frontend_origin: str | None) -> str:
+        if frontend_origin and frontend_origin in configuracion.origenes_permitidos:
+            return frontend_origin
+        if (
+            frontend_origin
+            and configuracion.ENVIRONMENT == "development"
+            and frontend_origin.startswith("http://localhost")
+        ):
+            return frontend_origin
+        return configuracion.FRONTEND_URL
+
+    def login_google(self, frontend_origin: str | None = None) -> dict[str, str]:
         cliente = self._supabase_requerido()
+        frontend_url = self._resolver_frontend_url(frontend_origin)
         respuesta = cliente.auth.sign_in_with_oauth(
             {
                 "provider": "google",
                 "options": {
-                    "redirect_to": f"{configuracion.FRONTEND_URL}/auth/callback",
+                    "redirect_to": f"{frontend_url}/auth/callback",
                 },
             }
         )

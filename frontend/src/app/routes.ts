@@ -8,6 +8,8 @@ import { Settings } from './pages/Settings';
 import { Help } from './pages/Help';
 import { About } from './pages/About';
 import { NotFound } from './pages/NotFound';
+import { AdminReportes } from './pages/AdminReportes';
+import { AdminUsuarios } from './pages/AdminUsuarios';
 
 export const router = createBrowserRouter([
   {
@@ -41,6 +43,14 @@ export const router = createBrowserRouter([
   {
     path: '/about',
     Component: About,
+  },
+  {
+    path: '/admin/reportes',
+    Component: AdminReportes,
+  },
+  {
+    path: '/admin/usuarios',
+    Component: AdminUsuarios,
   },
   {
     path: '*',

@@ -22,6 +22,11 @@ class PuenteProlog:
         """Convierte texto normalizado a un átomo Prolog entre comillas simples."""
         return f"'{self.normalizar(texto)}'"
 
+    def _atomizar_literal(self, texto: str) -> str:
+        """Convierte texto literal a átomo Prolog preservando mayúsculas y símbolos."""
+        texto_escapado = texto.replace("'", "''")
+        return f"'{texto_escapado}'"
+
     def _ejecutar(self, goal: str) -> str:
         """Ejecuta una consulta Prolog en el proceso swipl y retorna la salida."""
         try:
@@ -49,7 +54,12 @@ class PuenteProlog:
         goal = f"(buscar_signo({atom}, SigID) -> format('~w', [SigID]) ; true)"
         salida = self._ejecutar(goal)
         if salida:
-            return {"encontrado": True, "palabra": palabra_normalizada, "signo_id": salida}
+            return {
+                "encontrado": True,
+                "palabra": palabra_normalizada,
+                "signo_id": salida,
+                "youtube_referencia": self.obtener_youtube_referencia_por_signo(salida),
+            }
         return {"encontrado": False, "palabra": palabra_normalizada, "signo_id": None}
 
     def buscar_categoria(self, palabra: str) -> dict:
@@ -103,3 +113,13 @@ class PuenteProlog:
             palabra, categoria, signo_id = linea.split("|", 2)
             signos.append({"palabra": palabra, "categoria": categoria, "signo_id": signo_id})
         return signos
+
+    def obtener_youtube_referencia_por_signo(self, signo_id: str) -> str | None:
+        """Obtiene referencia de YouTube (ID o URL) asociada a un signo."""
+        signo_atom = self._atomizar_literal(signo_id)
+        goal = (
+            f"(buscar_youtube_video_por_signo({signo_atom}, YoutubeRef) "
+            f"-> format('~w', [YoutubeRef]) ; true)"
+        )
+        salida = self._ejecutar(goal)
+        return salida or None

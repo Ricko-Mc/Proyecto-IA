@@ -33,6 +33,9 @@ const WELCOME_PHRASES = [
   "Te quiero"
 ];
 
+const CAROUSEL_TEST_VIDEO = 'https://youtu.be/52CEhBDG0VU';
+const VIDEO_TEST_WORDS = new Set(['hola', 'daniel']);
+
 export function Chat() {
   const navigate = useNavigate();
   const [user, setUser] = useState<{ name: string; email: string; avatar_url?: string | null } | null>(null);
@@ -155,16 +158,27 @@ export function Chat() {
 
       setMessages(prev => {
         const filtered = prev.filter(m => !m.isLoading);
-        const textoAsistente = respuesta.url_video
-          ? respuesta.respuesta_ia
-          : `${respuesta.respuesta_ia}\n\nAun no hay video disponible para esta sena.`;
+        const mensajeNormalizado = mensajeActual.trim().toLowerCase();
+        const mostrarVideo = VIDEO_TEST_WORDS.has(mensajeNormalizado) || mensajeNormalizado === 'hola daniel';
+        const urlVideoPermitida = mostrarVideo ? respuesta.url_video : null;
+        const videosPrueba =
+          urlVideoPermitida && mensajeNormalizado === 'hola daniel'
+            ? [
+                { word: 'hola', videoUrl: urlVideoPermitida },
+                { word: 'daniel', videoUrl: CAROUSEL_TEST_VIDEO },
+              ]
+            : undefined;
+
         const systemMessage: Message = respuesta.signo_encontrado
           ? {
               id: `msg-${Date.now()}-response`,
               type: 'system',
-              text: textoAsistente,
-              videoUrl: respuesta.url_video || undefined,
+              text: urlVideoPermitida ? respuesta.respuesta_ia : '',
+              videoUrl: urlVideoPermitida || undefined,
               signLabel: respuesta.palabra_clave || undefined,
+              noVideoAvailable: !urlVideoPermitida,
+              suggestionWord: mensajeActual,
+              videos: videosPrueba,
             }
           : {
               id: `msg-${Date.now()}-response`,
@@ -223,6 +237,9 @@ export function Chat() {
   const showWelcome = messages.length === 0;
   const charCount = inputText.length;
   const maxChars = 500;
+  const activeVideoMessageId = [...messages]
+    .reverse()
+    .find((message) => message.type === 'system' && (Boolean(message.videoUrl) || Boolean(message.videos?.length)))?.id;
 
   return (
     <div className="flex h-screen bg-background">
@@ -426,6 +443,7 @@ export function Chat() {
                     key={message.id}
                     message={message}
                     onRequestWord={handleRequestWord}
+                    isActiveVideo={message.id === activeVideoMessageId}
                   />
                 ))}
                 <div ref={messagesEndRef} />
