@@ -46,7 +46,6 @@ export interface HealthCheck {
   version: string;
   prolog_disponible: boolean;
   ia_disponible: boolean;
-  gcs_disponible: boolean;
 }
 
 export interface LoginRequest {
@@ -69,4 +68,49 @@ export interface AuthResponse {
   access_token: string;
   proveedor: string;
   roles: string[];
+}
+
+export interface Reporte {
+  id: string;
+  signo_id: string;
+  motivo: string;
+  estado: string;
+  created_at: string;
+}
+
+export interface CrearReporteRequest {
+  signo_id: string;
+  motivo: string;
+  descripcion?: string | null;
+}
+
+export interface ActualizarReporteRequest {
+  estado: string;
+}
+
+export interface RolSistema {
+  id: number;
+  nombre: string;
+  descripcion?: string | null;
+}
+
+export interface UsuarioAdmin {
+  id: string;
+  email: string;
+  nombre_completo: string;
+  rol: string;
+  created_at?: string | null;
+  last_seen?: string | null;
+}
+
+export interface CrearUsuarioAdminRequest {
+  nombre_completo: string;
+  email: string;
+  password: string;
+  rol: string;
+}
+
+export interface AsignarRolUsuarioRequest {
+  email: string;
+  rol: string;
 }

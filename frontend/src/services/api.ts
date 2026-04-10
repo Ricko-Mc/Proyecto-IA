@@ -9,6 +9,13 @@ import {
   LoginRequest,
   RegisterRequest,
   AuthResponse,
+  Reporte,
+  CrearReporteRequest,
+  ActualizarReporteRequest,
+  RolSistema,
+  UsuarioAdmin,
+  CrearUsuarioAdminRequest,
+  AsignarRolUsuarioRequest,
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -100,5 +107,35 @@ export const api = {
 
   perfil: async (): Promise<AuthResponse> => {
     return requestAPI<AuthResponse>('get', '/api/auth/me');
+  },
+
+  crearReporte: async (data: CrearReporteRequest): Promise<Reporte> => {
+    return requestAPI<Reporte>('post', '/api/reportes', data);
+  },
+
+  listarReportes: async (estado?: string): Promise<Reporte[]> => {
+    const suffix = estado ? `?estado=${encodeURIComponent(estado)}` : '';
+    return requestAPI<Reporte[]>('get', `/api/reportes${suffix}`);
+  },
+
+  actualizarReporte: async (reporteId: string, data: ActualizarReporteRequest): Promise<Reporte> => {
+    return requestAPI<Reporte>('patch', `/api/reportes/${encodeURIComponent(reporteId)}`, data);
+  },
+
+  listarRolesSistema: async (): Promise<RolSistema[]> => {
+    return requestAPI<RolSistema[]>('get', '/api/admin/usuarios/roles');
+  },
+
+  listarUsuariosAdmin: async (email?: string): Promise<UsuarioAdmin[]> => {
+    const suffix = email ? `?email=${encodeURIComponent(email)}` : '';
+    return requestAPI<UsuarioAdmin[]>('get', `/api/admin/usuarios${suffix}`);
+  },
+
+  crearUsuarioAdmin: async (data: CrearUsuarioAdminRequest): Promise<UsuarioAdmin> => {
+    return requestAPI<UsuarioAdmin>('post', '/api/admin/usuarios', data);
+  },
+
+  asignarRolUsuario: async (data: AsignarRolUsuarioRequest): Promise<UsuarioAdmin> => {
+    return requestAPI<UsuarioAdmin>('patch', '/api/admin/usuarios/rol', data);
   },
 };

@@ -8,6 +8,8 @@ from src.modulos.auth import enrutador as auth_enrutador
 from src.modulos.favoritos import enrutador as favoritos_enrutador
 from src.modulos.reportes import enrutador as reportes_enrutador
 from src.modulos.estadisticas import enrutador as estadisticas_enrutador
+from src.modulos.admin_usuarios import enrutador as admin_usuarios_enrutador
+from servidor import configurar_servicios
 
 
 def crear_aplicacion() -> FastAPI:
@@ -24,11 +26,10 @@ def crear_aplicacion() -> FastAPI:
     aplicacion.include_router(favoritos_enrutador.router)
     aplicacion.include_router(reportes_enrutador.router)
     aplicacion.include_router(estadisticas_enrutador.router)
+    aplicacion.include_router(admin_usuarios_enrutador.router)
     return aplicacion
 
 
 app = crear_aplicacion()
-
-from servidor import configurar_servicios
 
 configurar_servicios()

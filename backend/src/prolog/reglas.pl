@@ -1,5 +1,7 @@
 :- multifile signo/3.
 :- discontiguous signo/3.
+:- multifile video_youtube/2.
+:- discontiguous video_youtube/2.
 
 :- consult('src/prolog/saludos.pl').
 :- consult('src/prolog/alimentos.pl').
@@ -10,6 +12,9 @@
 
 sinonimo(madre, mama).
 sinonimo(padre, papa).
+
+% Video de prueba por defecto para cualquier signo sin mapeo especifico.
+video_youtube(_, 'UruEbwWgZfE').
 
 buscar_signo(Palabra, SigID) :-
     signo(Palabra, _, SigID), !.
@@ -22,3 +27,6 @@ buscar_categoria(Palabra, Categoria) :-
 buscar_categoria(Palabra, Categoria) :-
     sinonimo(Palabra, Sinonimo),
     signo(Sinonimo, Categoria, _), !.
+
+buscar_youtube_video_por_signo(SigID, YoutubeRef) :-
+    video_youtube(SigID, YoutubeRef), !.

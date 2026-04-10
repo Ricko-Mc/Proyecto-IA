@@ -6,12 +6,13 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
-import { ArrowLeft, Moon, Sun, Monitor, Camera, Trash2, User } from 'lucide-react';
+import { ArrowLeft, Moon, Sun, Monitor, Camera, Trash2, User, ShieldCheck } from 'lucide-react';
 
 type StoredUser = {
   name: string;
   email: string;
   avatar_url?: string | null;
+  roles?: string[];
   [key: string]: unknown;
 };
 
@@ -226,6 +227,34 @@ export function Settings() {
           >
             Guardar cambios
           </Button>
+
+          {user.roles?.some((rol) => rol === 'admin' || rol === 'moderador') ? (
+            <div className="rounded-xl border border-border p-3 sm:p-4 space-y-2">
+              <h2 className="text-sm font-semibold flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#4997D0]" />
+                Modo administrador
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Revisa y gestiona las solicitudes de señas enviadas por los usuarios.
+              </p>
+              <Button
+                onClick={() => navigate('/admin/reportes')}
+                variant="outline"
+                className="w-full"
+              >
+                Ir a gestión de solicitudes
+              </Button>
+              {user.roles?.includes('admin') ? (
+                <Button
+                  onClick={() => navigate('/admin/usuarios')}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Ir a gestión de usuarios
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </div>
 

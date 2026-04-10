@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
+import { Loader2 } from 'lucide-react';
 
 import { api } from '../../services/api';
 
@@ -61,9 +62,9 @@ export function AuthCallback() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="max-w-md w-full text-center space-y-4">
-        <h1 className="text-xl font-semibold">Iniciando sesion con Google...</h1>
         {error ? (
           <div className="space-y-3">
+            <h1 className="text-xl font-semibold">No se pudo iniciar sesion</h1>
             <p className="text-sm text-red-500">{error}</p>
             <button
               type="button"
@@ -74,7 +75,13 @@ export function AuthCallback() {
             </button>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">Estamos validando tu cuenta, espera un momento.</p>
+          <div className="space-y-4">
+            <div className="mx-auto w-16 h-16 rounded-full bg-[#4997D0]/10 flex items-center justify-center">
+              <Loader2 className="w-8 h-8 text-[#4997D0] animate-spin" />
+            </div>
+            <h1 className="text-xl font-semibold">Iniciando sesion con Google...</h1>
+            <p className="text-sm text-muted-foreground">Estamos validando tu cuenta, espera un momento.</p>
+          </div>
         )}
       </div>
     </div>

@@ -1,39 +1,37 @@
-import { useRef, useEffect } from 'react';
+import { toYouTubeEmbedUrl, toYouTubeThumbnailUrl } from '../../services/youtube';
+import { LazyYouTubeFrame } from './LazyYouTubeFrame';
 
 interface VideoPlayerProps {
   videoUrl: string;
   signLabel: string;
+  active?: boolean;
 }
 
-export function VideoPlayer({ videoUrl, signLabel }: VideoPlayerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+export function VideoPlayer({ videoUrl, signLabel, active = true }: VideoPlayerProps) {
+  const embedUrl = toYouTubeEmbedUrl(videoUrl);
+  const thumbnailUrl = toYouTubeThumbnailUrl(videoUrl);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    // Auto play when video loads
-    video.play().catch(() => {
-      // Ignore autoplay errors (some browsers block autoplay)
-    });
-  }, [videoUrl]);
+  if (!embedUrl) {
+    return (
+      <div className="w-full max-w-sm md:max-w-2xl">
+        <div className="relative bg-gray-900 rounded-[12px] overflow-hidden aspect-video shadow-sm flex items-center justify-center p-4">
+          <p className="text-white/80 text-sm text-center">No se pudo cargar el video de YouTube.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full max-w-sm md:max-w-lg">
-      <div className="relative bg-gray-900 rounded-lg md:rounded-xl overflow-hidden aspect-video shadow-lg">
-        {/* Video element - behaves like a GIF */}
-        <video
-          ref={videoRef}
-          src={videoUrl}
-          className="w-full h-full object-cover"
-          playsInline
-          autoPlay
-          loop
-          muted
-          preload="auto"
+    <div className="w-full max-w-sm md:max-w-2xl">
+      <div className="relative bg-gray-900 rounded-[12px] overflow-hidden aspect-video shadow-sm">
+        <LazyYouTubeFrame
+          src={embedUrl}
+          title={`Video de seña: ${signLabel}`}
+          className="w-full h-full"
+          thumbnailUrl={thumbnailUrl}
+          active={active}
         />
-        
-        {/* Optional label overlay */}
+
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 md:p-3">
           <p className="text-white text-xs md:text-sm font-medium text-center">
             {signLabel}

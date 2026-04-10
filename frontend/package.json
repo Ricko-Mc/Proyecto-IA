@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "dev": "vite"
+    "dev": "vite --host --force",
+    "dev:clean": "powershell -NoProfile -Command \"if (Test-Path node_modules/.vite) { Remove-Item -Recurse -Force node_modules/.vite }; if (Test-Path .vite-cache) { Remove-Item -Recurse -Force .vite-cache }; vite --host --force\""
   },
   "dependencies": {
     "@emotion/react": "11.14.0",
@@ -69,7 +70,7 @@
     "@tailwindcss/vite": "4.1.12",
     "@vitejs/plugin-react": "4.7.0",
     "tailwindcss": "4.1.12",
-    "vite": "6.3.5"
+    "vite": "6.4.2"
   },
   "peerDependencies": {
     "react": "18.3.1",
@@ -85,7 +86,7 @@
   },
   "pnpm": {
     "overrides": {
-      "vite": "6.3.5"
+      "vite": "6.4.2"
     }
   }
 }

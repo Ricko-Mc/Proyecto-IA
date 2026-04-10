@@ -3,7 +3,6 @@ import uvicorn
 from src.config.configuracion import configuracion
 from src.utilidades.puente_prolog import PuenteProlog
 from src.utilidades.agente_ia import AgenteIA
-from src.utilidades.cliente_gcs import ClienteGCS
 from src.modulos.chat.enrutador import set_servicio_chat
 from src.modulos.chat.servicio import ServicioChat
 from src.modulos.signos.enrutador import set_servicio_signos
@@ -15,6 +14,8 @@ from src.modulos.reportes.enrutador import set_servicio_reportes
 from src.modulos.reportes.servicio import ServicioReportes
 from src.modulos.estadisticas.enrutador import set_servicio_estadisticas
 from src.modulos.estadisticas.servicio import ServicioEstadisticas
+from src.modulos.admin_usuarios.enrutador import set_servicio_admin_usuarios
+from src.modulos.admin_usuarios.servicio import ServicioAdminUsuarios
 
 
 def configurar_servicios() -> None:
@@ -26,20 +27,13 @@ def configurar_servicios() -> None:
     puente_prolog = PuenteProlog(ruta_reglas)
     agente_ia = AgenteIA(configuracion.ANTHROPIC_API_KEY)
 
-    cliente_gcs = None
-    if configuracion.GCP_PROJECT_ID and configuracion.GCS_BUCKET_NAME:
-        cliente_gcs = ClienteGCS(
-            project_id=configuracion.GCP_PROJECT_ID,
-            bucket_name=configuracion.GCS_BUCKET_NAME,
-            credentials_path=configuracion.GCS_CREDENTIALS_PATH,
-        )
-
-    set_servicio_chat(ServicioChat(puente_prolog, agente_ia, cliente_gcs))
-    set_servicio_signos(ServicioSignos(puente_prolog, cliente_gcs))
+    set_servicio_chat(ServicioChat(puente_prolog, agente_ia))
+    set_servicio_signos(ServicioSignos(puente_prolog))
     set_servicio_auth(ServicioAuth())
     set_servicio_favoritos(ServicioFavoritos())
     set_servicio_reportes(ServicioReportes())
     set_servicio_estadisticas(ServicioEstadisticas())
+    set_servicio_admin_usuarios(ServicioAdminUsuarios())
 
 
 if __name__ == "__main__":

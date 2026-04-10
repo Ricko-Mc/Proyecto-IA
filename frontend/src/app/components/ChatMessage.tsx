@@ -1,7 +1,7 @@
 import { VideoPlayer } from './VideoPlayer';
 import { VideoCarousel } from './VideoCarousel';
 import { Button } from './ui/button';
-import { Loader2, Send } from 'lucide-react';
+import { Loader2, Send, Clapperboard } from 'lucide-react';
 
 export interface Message {
   id: string;
@@ -12,15 +12,28 @@ export interface Message {
   isLoading?: boolean;
   notFound?: boolean;
   notFoundWord?: string;
+  noVideoAvailable?: boolean;
+  suggestionWord?: string;
   videos?: Array<{ word: string; videoUrl: string }>;
 }
 
 interface ChatMessageProps {
   message: Message;
   onRequestWord?: (word: string) => void;
+  isActiveVideo?: boolean;
 }
 
-export function ChatMessage({ message, onRequestWord }: ChatMessageProps) {
+function InactiveVideoPlaceholder() {
+  return (
+    <div className="block w-[420px] min-w-[420px] h-[80px] bg-[#eeeeee] rounded-[16px] border-0">
+      <div className="w-full h-full flex items-center justify-center">
+        <Clapperboard className="w-4 h-4 text-muted-foreground/60" />
+      </div>
+    </div>
+  );
+}
+
+export function ChatMessage({ message, onRequestWord, isActiveVideo = false }: ChatMessageProps) {
   if (message.type === 'user') {
     return (
       <div className="flex justify-end mb-4">
@@ -57,6 +70,23 @@ export function ChatMessage({ message, onRequestWord }: ChatMessageProps) {
               Solicitar esta palabra
             </Button>
           </div>
+        ) : message.noVideoAvailable ? (
+          <div className="space-y-3 bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
+            <p className="text-sm text-destructive font-medium">
+              Aun no hay video disponible para esta seña
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Puedes enviarnos la sugerencia para agregar esta seña al sistema.
+            </p>
+            <Button
+              onClick={() => onRequestWord?.(message.suggestionWord || message.signLabel || '')}
+              size="sm"
+              className="w-full bg-[#4997D0] hover:bg-[#3A7FB8]"
+            >
+              <Send className="w-4 h-4 mr-2" />
+              Enviar sugerencia de seña
+            </Button>
+          </div>
         ) : message.videos && message.videos.length > 0 ? (
           <div className="space-y-2">
             {message.text ? (
@@ -64,7 +94,11 @@ export function ChatMessage({ message, onRequestWord }: ChatMessageProps) {
                 <p className="text-sm text-foreground">{message.text}</p>
               </div>
             ) : null}
-            <VideoCarousel items={message.videos} />
+            {isActiveVideo ? (
+              <VideoCarousel items={message.videos} active={isActiveVideo} />
+            ) : (
+              <InactiveVideoPlaceholder />
+            )}
           </div>
         ) : message.videoUrl && message.signLabel ? (
           <div className="space-y-2">
@@ -73,7 +107,11 @@ export function ChatMessage({ message, onRequestWord }: ChatMessageProps) {
                 <p className="text-sm text-foreground">{message.text}</p>
               </div>
             ) : null}
-            <VideoPlayer videoUrl={message.videoUrl} signLabel={message.signLabel} />
+            {isActiveVideo ? (
+              <VideoPlayer videoUrl={message.videoUrl} signLabel={message.signLabel} active={isActiveVideo} />
+            ) : (
+              <InactiveVideoPlaceholder />
+            )}
           </div>
         ) : message.text ? (
           <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3">

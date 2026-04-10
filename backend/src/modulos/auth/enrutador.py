@@ -19,8 +19,8 @@ async def login_usuario(datos: LoginRequest, request: Request):
 
 
 @router.get("/google")
-async def login_google(servicio: ServicioAuth = Depends(get_servicio_auth)):
-    return servicio.login_google()
+async def login_google(request: Request, servicio: ServicioAuth = Depends(get_servicio_auth)):
+    return servicio.login_google(request.headers.get("origin"))
 
 
 @router.get("/me", response_model=AuthResponse)
