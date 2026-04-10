@@ -24,6 +24,8 @@ wheels/
 *.egg
 
 node_modules/
+.vite-cache/
+frontend/.vite-cache/
 dist/
 build/
 *.log
