@@ -30,18 +30,27 @@ class PuenteProlog:
 
     def _ejecutar(self, goal: str) -> str:
         """Ejecuta una consulta Prolog en el proceso swipl y retorna la salida."""
-        try:
-            resultado = subprocess.run(
-                ["swipl", "-q", "-s", self.ruta_reglas_abs, "-g", goal, "-t", "halt"],
-                cwd=self.base_dir,
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-        except FileNotFoundError as exc:
+        swipl_paths = [
+            r"C:\Program Files\swipl\bin\swipl.exe",
+            "swipl",
+        ]
+        
+        for swipl_path in swipl_paths:
+            try:
+                resultado = subprocess.run(
+                    [swipl_path, "-q", "-s", self.ruta_reglas_abs, "-g", goal, "-t", "halt"],
+                    cwd=self.base_dir,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                break
+            except FileNotFoundError:
+                continue
+        else:
             raise RuntimeError(
-                "No se encontro el ejecutable 'swipl'. Instala SWI-Prolog y agrega swipl al PATH."
-            ) from exc
+                "No se encontro el ejecutable 'swipl'. Instala SWI-Prolog en C:\\Program Files\\swipl\\ o agrega swipl al PATH."
+            )
 
         if resultado.returncode != 0:
             error = resultado.stderr.strip() or resultado.stdout.strip()
