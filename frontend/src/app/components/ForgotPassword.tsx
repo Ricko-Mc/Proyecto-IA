@@ -19,7 +19,6 @@ export function ForgotPassword({ open, onOpenChange }: ForgotPasswordProps) {
     if (!email) return;
 
     setIsLoading(true);
-    // Simulate sending recovery email
     setTimeout(() => {
       setIsSubmitted(true);
       setIsLoading(false);

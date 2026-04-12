@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.config.configuracion import configuracion
 
-
 def configurar_cors(app: FastAPI) -> None:
     """Configura CORS middleware con orígenes permitidos desde configuración."""
     allow_origin_regex = r"https?://localhost(:\d+)?$" if configuracion.ENVIRONMENT == "development" else None

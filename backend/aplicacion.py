@@ -11,7 +11,6 @@ from src.modulos.estadisticas import enrutador as estadisticas_enrutador
 from src.modulos.admin_usuarios import enrutador as admin_usuarios_enrutador
 from servidor import configurar_servicios
 
-
 def crear_aplicacion() -> FastAPI:
     aplicacion = FastAPI(
         title=configuracion.PROJECT_NAME,
@@ -28,7 +27,6 @@ def crear_aplicacion() -> FastAPI:
     aplicacion.include_router(estadisticas_enrutador.router)
     aplicacion.include_router(admin_usuarios_enrutador.router)
     return aplicacion
-
 
 app = crear_aplicacion()
 

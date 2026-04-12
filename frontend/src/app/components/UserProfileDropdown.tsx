@@ -63,7 +63,7 @@ export function UserProfileDropdown({
           position: 'relative',
         }}
       >
-        {/* User Info */}
+        
         <div className="flex flex-col items-center gap-1.5 mb-2 pt-1">
           <Avatar className="w-9 h-9">
             <AvatarImage src={avatarUrl ?? undefined} alt={userName} />
@@ -79,7 +79,7 @@ export function UserProfileDropdown({
 
         <DropdownMenuSeparator className="my-1.5" />
 
-        {/* Menu Items */}
+        
         <DropdownMenuItem
           onClick={() => navigate('/settings')}
           className="px-3 py-2 cursor-pointer rounded-md transition-all duration-200 ease-in-out focus:bg-accent focus:text-accent-foreground"
@@ -106,7 +106,7 @@ export function UserProfileDropdown({
 
         <DropdownMenuSeparator className="my-1.5" />
 
-        {/* Logout Button */}
+        
         <div className="px-2 pt-0.5">
           <button
             onClick={onLogout}

@@ -33,7 +33,7 @@ export function LazyYouTubeFrame({ src, title, className, thumbnailUrl, active =
           className="w-full h-full border-0"
           allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
           allowFullScreen
-          loading="lazy"
+          loading={active ? 'eager' : 'lazy'}
           referrerPolicy="strict-origin-when-cross-origin"
           onLoad={() => setLoaded(true)}
         />

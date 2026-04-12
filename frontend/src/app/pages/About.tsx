@@ -20,7 +20,7 @@ export function About() {
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
-      {/* Header */}
+      
       <div className="border-b border-border bg-background sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-3 sm:px-4 py-2.5 flex items-center gap-2.5">
           <Button
@@ -36,10 +36,10 @@ export function About() {
         </div>
       </div>
 
-      {/* Content */}
+      
       <div className="max-w-3xl mx-auto px-3 sm:px-4 py-4">
         <div className="space-y-4">
-          {/* Logo and Title */}
+          
           <div className="text-center py-3">
             <img
               src={logoImage}
@@ -50,7 +50,7 @@ export function About() {
             <p className="text-[11px] text-muted-foreground">Versión 1.0.0</p>
           </div>
 
-          {/* Description */}
+          
           <div className="space-y-2">
             <h3 className="text-xs font-semibold uppercase tracking-wide">Acerca de SEGUA</h3>
             <p className="text-[12px] text-muted-foreground leading-relaxed">
@@ -60,7 +60,7 @@ export function About() {
             </p>
           </div>
 
-          {/* Features */}
+          
           <div className="space-y-2">
             <h3 className="text-xs font-semibold uppercase tracking-wide">Características</h3>
             <ul className="space-y-1.5 text-[12px] text-muted-foreground">
@@ -83,7 +83,7 @@ export function About() {
             </ul>
           </div>
 
-          {/* Credits */}
+          
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-xs font-semibold uppercase tracking-wide">Desarrollado por</h3>
@@ -107,7 +107,7 @@ export function About() {
             </div>
           </div>
 
-          {/* Footer */}
+          
           <div className="text-center pt-4 border-t border-border">
             <p className="text-[11px] text-muted-foreground mt-1">
               © 2026 SEGUA. Todos los derechos reservados.
@@ -116,7 +116,7 @@ export function About() {
         </div>
       </div>
 
-      {/* Bottom Navigation (Mobile only) */}
+      
       <BottomNav />
     </div>
   );

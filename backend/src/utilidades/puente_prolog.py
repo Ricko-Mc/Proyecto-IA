@@ -2,13 +2,14 @@ import os
 import re
 import subprocess
 import unicodedata
-
+from difflib import get_close_matches
 
 class PuenteProlog:
     def __init__(self, ruta_reglas: str):
         """Inicializa el puente Prolog con la ruta a las reglas."""
         self.ruta_reglas_abs = os.path.abspath(ruta_reglas)
         self.base_dir = os.path.dirname(os.path.dirname(os.path.dirname(self.ruta_reglas_abs)))
+        self._indice_palabras: list[str] | None = None
 
     def normalizar(self, texto: str) -> str:
         """Normaliza texto a minúsculas sin tildes y reemplaza espacios con guiones bajos."""
@@ -61,6 +62,46 @@ class PuenteProlog:
                 "youtube_referencia": self.obtener_youtube_referencia_por_signo(salida),
             }
         return {"encontrado": False, "palabra": palabra_normalizada, "signo_id": None}
+
+    def _obtener_indice_palabras(self) -> list[str]:
+        """Construye y cachea el listado de palabras disponibles para matching aproximado."""
+        if self._indice_palabras is None:
+            signos = self.obtener_todos_los_signos()
+            self._indice_palabras = sorted(
+                {
+                    self.normalizar(signo.get("palabra", ""))
+                    for signo in signos
+                    if signo.get("palabra")
+                }
+            )
+        return self._indice_palabras
+
+    def buscar_signo_aproximado(self, palabra: str, cutoff: float = 0.75) -> dict:
+        """Busca un signo por similitud cuando no hay coincidencia exacta."""
+        palabra_normalizada = self.normalizar(palabra)
+        if not palabra_normalizada:
+            return {"encontrado": False, "palabra": palabra_normalizada, "signo_id": None}
+
+        candidata = get_close_matches(
+            palabra_normalizada,
+            self._obtener_indice_palabras(),
+            n=1,
+            cutoff=cutoff,
+        )
+        if not candidata:
+            return {"encontrado": False, "palabra": palabra_normalizada, "signo_id": None}
+
+        palabra_corregida = candidata[0]
+        resultado = self.buscar_signo(palabra_corregida)
+        if not resultado.get("encontrado"):
+            return {"encontrado": False, "palabra": palabra_normalizada, "signo_id": None}
+
+        return {
+            **resultado,
+            "aproximado": True,
+            "palabra_original": palabra_normalizada,
+            "palabra_corregida": palabra_corregida,
+        }
 
     def buscar_categoria(self, palabra: str) -> dict:
         """Busca la categoría de una palabra en la base de datos Prolog."""

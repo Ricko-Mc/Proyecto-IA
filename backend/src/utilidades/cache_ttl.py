@@ -3,10 +3,8 @@ from threading import RLock
 import time
 from typing import Generic, TypeVar
 
-
 K = TypeVar("K")
 V = TypeVar("V")
-
 
 class CacheTTL(Generic[K, V]):
     """Cache en memoria con expiracion TTL y politica LRU basica."""

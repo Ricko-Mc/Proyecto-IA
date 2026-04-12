@@ -2,7 +2,6 @@ from src.utilidades.puente_prolog import PuenteProlog
 from src.utilidades.youtube import construir_url_embed_youtube
 from src.utilidades.cache_ttl import CacheTTL
 
-
 class ServicioSignos:
     def __init__(self, puente_prolog: PuenteProlog):
         """Inicializa el servicio de signos con acceso a Prolog."""

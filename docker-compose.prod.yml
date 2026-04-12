@@ -1,20 +1,10 @@
 version: '3.8'
 
 services:
-  swipl:
-    image: swipl:latest
-    container_name: swipl-prod
-    working_dir: /app
-    volumes:
-      - ./backend/src/prolog:/app/prolog:ro
-    restart: always
-    networks:
-      - lenguaia-network
-
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile
     container_name: lenguaia-backend-prod
     expose:
       - "8000"
@@ -26,8 +16,6 @@ services:
       - ENVIRONMENT=production
       - DEBUG=False
     command: python servidor.py
-    depends_on:
-      - swipl
     restart: always
     networks:
       - lenguaia-network

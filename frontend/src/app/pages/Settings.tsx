@@ -35,8 +35,6 @@ export function Settings() {
     setName(parsedUser.name);
     setEmail(parsedUser.email);
     setAvatarUrl((parsedUser.avatar_url as string | null | undefined) ?? null);
-
-    // Load theme preference
     const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | 'system' || 'system';
     setTheme(savedTheme);
     applyTheme(savedTheme);
@@ -97,7 +95,7 @@ export function Settings() {
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
-      {/* Header */}
+      
       <div className="border-b border-border bg-background sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 flex items-center gap-3">
           <Button
@@ -113,10 +111,10 @@ export function Settings() {
         </div>
       </div>
 
-      {/* Content */}
+      
       <div className="max-w-2xl mx-auto px-3 sm:px-4 py-6">
         <div className="space-y-6">
-          {/* Theme Section */}
+          
           <div className="space-y-3">
             <h2 className="text-sm font-semibold">Apariencia</h2>
             <div className="grid grid-cols-3 gap-3">
@@ -156,7 +154,7 @@ export function Settings() {
             </div>
           </div>
 
-          {/* User Info Section */}
+          
           <div className="space-y-3">
             <h2 className="text-sm font-semibold">Información personal</h2>
             <div className="rounded-xl border border-border p-3 sm:p-4 space-y-3">
@@ -220,7 +218,7 @@ export function Settings() {
             </div>
           </div>
 
-          {/* Save Button */}
+          
           <Button
             onClick={handleSave}
             className="w-full bg-[#4997D0] hover:bg-[#3A7FB8] h-9 text-sm"
@@ -258,7 +256,7 @@ export function Settings() {
         </div>
       </div>
 
-      {/* Bottom Navigation (Mobile only) */}
+      
       <BottomNav />
     </div>
   );

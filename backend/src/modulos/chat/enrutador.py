@@ -5,11 +5,9 @@ from src.modulos.auth import servicio as auth_servicio
 router = APIRouter(prefix="/api", tags=["chat"])
 _estado_servicio_chat = {"servicio": None}
 
-
 def set_servicio_chat(servicio):
     """Inyecta el servicio de chat en el estado global del módulo."""
     _estado_servicio_chat["servicio"] = servicio
-
 
 @router.post("/chat", response_model=RespuestaChatResponse)
 async def procesar_chat(

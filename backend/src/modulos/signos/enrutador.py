@@ -3,11 +3,9 @@ from fastapi import APIRouter, HTTPException
 router = APIRouter(prefix="/api", tags=["signos"])
 _estado_servicio_signos = {"servicio": None}
 
-
 def set_servicio_signos(servicio):
     """Inyecta el servicio de signos en el estado global del módulo."""
     _estado_servicio_signos["servicio"] = servicio
-
 
 @router.get("/signos")
 async def obtener_signos():
@@ -18,7 +16,6 @@ async def obtener_signos():
     signos = servicio_signos.obtener_todos()
     return {"total": len(signos), "signos": signos}
 
-
 @router.get("/categorias")
 async def obtener_categorias():
     """Retorna lista de todas las categorías de signos disponibles."""
@@ -27,7 +24,6 @@ async def obtener_categorias():
         raise HTTPException(status_code=503, detail="Servicio no disponible")
     return {"categorias": servicio_signos.obtener_categorias()}
 
-
 @router.get("/categorias/{categoria}")
 async def obtener_signos_por_categoria(categoria: str):
     """Retorna todos los signos de una categoría específica."""
@@ -35,7 +31,6 @@ async def obtener_signos_por_categoria(categoria: str):
     if servicio_signos is None:
         raise HTTPException(status_code=503, detail="Servicio no disponible")
     return servicio_signos.obtener_por_categoria(categoria)
-
 
 @router.get("/signo/{palabra}")
 async def buscar_signo(palabra: str):

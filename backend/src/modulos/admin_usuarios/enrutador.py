@@ -12,10 +12,8 @@ from ..auth.servicio import obtener_usuario_actual
 router = APIRouter(prefix="/api/admin/usuarios", tags=["admin-usuarios"])
 _estado_servicio_admin_usuarios = {"servicio": None}
 
-
 def set_servicio_admin_usuarios(servicio: ServicioAdminUsuarios) -> None:
     _estado_servicio_admin_usuarios["servicio"] = servicio
-
 
 def get_servicio_admin_usuarios() -> ServicioAdminUsuarios:
     servicio = _estado_servicio_admin_usuarios["servicio"]
@@ -23,11 +21,9 @@ def get_servicio_admin_usuarios() -> ServicioAdminUsuarios:
         raise RuntimeError("Servicio de administracion de usuarios no disponible")
     return servicio
 
-
 @router.get("/roles", response_model=list[RolResponse])
 async def listar_roles(usuario: dict = Depends(obtener_usuario_actual)):
     return get_servicio_admin_usuarios().listar_roles(usuario["roles"])
-
 
 @router.get("", response_model=list[UsuarioAdminResponse])
 async def listar_usuarios(
@@ -35,7 +31,6 @@ async def listar_usuarios(
     usuario: dict = Depends(obtener_usuario_actual),
 ):
     return get_servicio_admin_usuarios().listar_usuarios(usuario["roles"], email)
-
 
 @router.post("", response_model=UsuarioAdminResponse)
 async def crear_usuario_admin(
@@ -50,7 +45,6 @@ async def crear_usuario_admin(
         datos,
         ip,
     )
-
 
 @router.patch("/rol", response_model=UsuarioAdminResponse)
 async def asignar_rol(

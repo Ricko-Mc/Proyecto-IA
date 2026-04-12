@@ -9,7 +9,6 @@ from src.utilidades.supabase_client import (
     registrar_bitacora,
 )
 
-
 class ServicioFavoritos:
     def agregar_favorito(self, usuario_id: str, data: FavoritoRequest, ip: str | None) -> dict:
         try:

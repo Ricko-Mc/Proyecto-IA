@@ -9,7 +9,6 @@ from anthropic import (
     RateLimitError,
 )
 
-
 class AgenteIA:
     def __init__(self, api_key: str):
         """Inicializa el agente IA con clave Anthropic (puede ser vacía para usar fallback)."""
@@ -25,8 +24,15 @@ class AgenteIA:
 
     def extraer_palabra_clave(self, mensaje_usuario: str) -> dict:
         """Extrae palabra clave del mensaje usando Claude o fallback local."""
+        palabra_local = self._extraer_palabra_local(mensaje_usuario)
+        if palabra_local and len(mensaje_usuario.strip().split()) <= 4:
+            return {
+                "palabra_extraida": palabra_local,
+                "palabra_normalizada": self.normalizar(palabra_local),
+            }
+
         if self.client is None:
-            palabra = self._extraer_palabra_local(mensaje_usuario)
+            palabra = palabra_local
             return {
                 "palabra_extraida": palabra,
                 "palabra_normalizada": self.normalizar(palabra),
@@ -54,10 +60,10 @@ class AgenteIA:
 
     def generar_respuesta_contextual(self, mensaje_usuario: str, signo_info: dict) -> str:
         """Genera respuesta contextual sobre el signo encontrado usando Claude o fallback."""
+        if signo_info.get("encontrado"):
+            return "Aqui tienes la seña disponible para practicar."
+
         if self.client is None:
-            if signo_info.get("encontrado"):
-                msg = "Aqui tienes la seña disponible para practicar."
-                return msg
             return (
                 "No encontre ese signo por ahora. "
                 "Proba con otra palabra o una variante mas simple."
@@ -81,9 +87,6 @@ class AgenteIA:
             IndexError,
             AttributeError,
         ):
-            if signo_info.get("encontrado"):
-                msg = "Aqui tienes la seña disponible para practicar."
-                return msg
             return (
                 "No encontre ese signo por ahora. "
                 "Proba con otra palabra o una variante mas simple."

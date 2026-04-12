@@ -17,7 +17,7 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  assetsInclude: ['**/*.svg', '**/*.csv'],
+  assetsInclude: ['***.csv'],
   server: {
     headers: {
       'Cache-Control': 'no-store',

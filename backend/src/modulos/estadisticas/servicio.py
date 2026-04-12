@@ -3,7 +3,6 @@ from fastapi import HTTPException
 from src.modulos.auth.servicio import validar_roles
 from src.utilidades.supabase_client import obtener_cliente_supabase
 
-
 class ServicioEstadisticas:
     def __init__(self):
         self.supabase = obtener_cliente_supabase()

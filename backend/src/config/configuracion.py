@@ -1,12 +1,11 @@
 from pydantic_settings import BaseSettings
 
-
 class Configuracion(BaseSettings):
     PROJECT_NAME: str = "LenguaIA"
     VERSION: str = "1.0.0"
-    ENVIRONMENT: str = "development"
+    ENVIRONMENT: str = "production"
     PORT: int = 8000
-    DEBUG: bool = True
+    DEBUG: bool = False
 
     ANTHROPIC_API_KEY: str = ""
     SUPABASE_URL: str = ""
@@ -26,6 +25,5 @@ class Configuracion(BaseSettings):
     def origenes_permitidos(self) -> list[str]:
         """Retorna lista de orígenes CORS permitidos parseados desde ALLOWED_ORIGINS."""
         return [origen.strip() for origen in self.ALLOWED_ORIGINS.split(",") if origen.strip()]
-
 
 configuracion = Configuracion()

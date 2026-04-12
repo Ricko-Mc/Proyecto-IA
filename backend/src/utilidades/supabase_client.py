@@ -19,23 +19,19 @@ if configuracion.SUPABASE_URL.strip() and configuracion.SUPABASE_KEY.strip():
         except supabase_exception:
             SUPABASE_CLIENT = None
 
-
 def obtener_cliente_supabase() -> Optional[Any]:
     return SUPABASE_CLIENT
-
 
 def _cliente_requerido() -> Any:
     if SUPABASE_CLIENT is None:
         raise RuntimeError("Supabase no esta disponible, revisa URL y API key")
     return SUPABASE_CLIENT
 
-
 def crear_conversacion(usuario_id: str, titulo: str | None) -> dict:
     cliente = _cliente_requerido()
     payload = {"usuario_id": usuario_id, "titulo": titulo}
     respuesta = cliente.table("conversacion").insert(payload).execute()
     return (respuesta.data or [{}])[0]
-
 
 def guardar_mensaje(
     conversacion_id: str,
@@ -57,7 +53,6 @@ def guardar_mensaje(
     respuesta = cliente.table("mensaje").insert(payload).execute()
     return (respuesta.data or [{}])[0]
 
-
 def registrar_bitacora(usuario_id: str | None, accion: str, detalle: str | None, ip: str | None) -> None:
     cliente = _cliente_requerido()
     payload = {
@@ -67,7 +62,6 @@ def registrar_bitacora(usuario_id: str | None, accion: str, detalle: str | None,
         "ip": ip,
     }
     cliente.table("bitacora").insert(payload).execute()
-
 
 def agregar_favorito(usuario_id: str, signo_id: str, palabra: str | None, categoria: str | None) -> dict:
     cliente = _cliente_requerido()
@@ -80,11 +74,9 @@ def agregar_favorito(usuario_id: str, signo_id: str, palabra: str | None, catego
     respuesta = cliente.table("favorito").insert(payload).execute()
     return (respuesta.data or [{}])[0]
 
-
 def eliminar_favorito(usuario_id: str, signo_id: str) -> None:
     cliente = _cliente_requerido()
     cliente.table("favorito").delete().eq("usuario_id", usuario_id).eq("signo_id", signo_id).execute()
-
 
 def obtener_favoritos(usuario_id: str) -> list[dict]:
     cliente = _cliente_requerido()
@@ -97,7 +89,6 @@ def obtener_favoritos(usuario_id: str) -> list[dict]:
     )
     return respuesta.data or []
 
-
 def crear_reporte(usuario_id: str, signo_id: str, motivo: str, descripcion: str | None) -> dict:
     cliente = _cliente_requerido()
     payload = {
@@ -109,12 +100,10 @@ def crear_reporte(usuario_id: str, signo_id: str, motivo: str, descripcion: str 
     respuesta = cliente.table("reporte").insert(payload).execute()
     return (respuesta.data or [{}])[0]
 
-
 def actualizar_estado_reporte(reporte_id: str, estado: str) -> dict:
     cliente = _cliente_requerido()
     respuesta = cliente.table("reporte").update({"estado": estado}).eq("id", reporte_id).execute()
     return (respuesta.data or [{}])[0]
-
 
 def obtener_reportes(estado: str | None) -> list[dict]:
     cliente = _cliente_requerido()
@@ -123,7 +112,6 @@ def obtener_reportes(estado: str | None) -> list[dict]:
         consulta = consulta.eq("estado", estado)
     respuesta = consulta.order("created_at", desc=True).execute()
     return respuesta.data or []
-
 
 def actualizar_estadisticas_signo(signo_id: str, palabra: str | None, categoria: str | None) -> dict:
     cliente = _cliente_requerido()
@@ -168,7 +156,6 @@ def actualizar_estadisticas_signo(signo_id: str, palabra: str | None, categoria:
     )
     return (respuesta.data or [{}])[0]
 
-
 def actualizar_estadisticas_usuario(usuario_id: str) -> dict:
     cliente = _cliente_requerido()
 
@@ -200,7 +187,6 @@ def actualizar_estadisticas_usuario(usuario_id: str) -> dict:
     }
     respuesta = cliente.table("estadistica_usuario").upsert(payload, on_conflict="usuario_id").execute()
     return (respuesta.data or [{}])[0]
-
 
 def obtener_roles_usuario(usuario_id: str) -> list[str]:
     cliente = _cliente_requerido()

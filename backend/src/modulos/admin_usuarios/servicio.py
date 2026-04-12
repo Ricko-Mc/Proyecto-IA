@@ -9,7 +9,6 @@ from .esquemas import (
 from ..auth.servicio import validar_roles
 from ...utilidades.supabase_client import obtener_cliente_supabase, registrar_bitacora
 
-
 class ServicioAdminUsuarios:
     def __init__(self):
         self.supabase = obtener_cliente_supabase()

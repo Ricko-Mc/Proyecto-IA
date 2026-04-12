@@ -13,9 +13,6 @@
 sinonimo(madre, mama).
 sinonimo(padre, papa).
 
-% Video de prueba por defecto para cualquier signo sin mapeo especifico.
-video_youtube(_, 'UruEbwWgZfE').
-
 buscar_signo(Palabra, SigID) :-
     signo(Palabra, _, SigID), !.
 buscar_signo(Palabra, SigID) :-

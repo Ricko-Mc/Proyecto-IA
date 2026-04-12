@@ -24,7 +24,6 @@ import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { UserProfileDropdown } from '../components/UserProfileDropdown';
 import { api } from '../../services/api';
 
-
 const WELCOME_PHRASES = [
   "Hola, ¿cómo estás?",
   "Buenos días",
@@ -32,9 +31,6 @@ const WELCOME_PHRASES = [
   "Por favor",
   "Te quiero"
 ];
-
-const CAROUSEL_TEST_VIDEO = 'https://youtu.be/52CEhBDG0VU';
-const VIDEO_TEST_WORDS = new Set(['hola', 'daniel']);
 
 export function Chat() {
   const navigate = useNavigate();
@@ -57,8 +53,6 @@ export function Chat() {
       return;
     }
     setUser(JSON.parse(userData));
-
-    // Start with no conversations - show welcome screen
     setConversations([]);
     setCurrentConversationId('');
     setMessages([]);
@@ -96,7 +90,6 @@ export function Chat() {
 
   const handleClearConversation = () => {
     setMessages([]);
-    // Update conversation timestamp
     if (currentConversationId) {
       setConversations(prev =>
         prev.map(conv =>
@@ -131,8 +124,6 @@ export function Chat() {
     };
 
     setMessages((prev) => [...prev, userMessage]);
-
-    // Simulate processing
     const loadingMessage: Message = {
       id: `msg-${Date.now()}-loading`,
       type: 'system',
@@ -158,27 +149,17 @@ export function Chat() {
 
       setMessages(prev => {
         const filtered = prev.filter(m => !m.isLoading);
-        const mensajeNormalizado = mensajeActual.trim().toLowerCase();
-        const mostrarVideo = VIDEO_TEST_WORDS.has(mensajeNormalizado) || mensajeNormalizado === 'hola daniel';
-        const urlVideoPermitida = mostrarVideo ? respuesta.url_video : null;
-        const videosPrueba =
-          urlVideoPermitida && mensajeNormalizado === 'hola daniel'
-            ? [
-                { word: 'hola', videoUrl: urlVideoPermitida },
-                { word: 'daniel', videoUrl: CAROUSEL_TEST_VIDEO },
-              ]
-            : undefined;
+        const urlVideoPermitida = respuesta.url_video;
 
         const systemMessage: Message = respuesta.signo_encontrado
           ? {
               id: `msg-${Date.now()}-response`,
               type: 'system',
-              text: urlVideoPermitida ? respuesta.respuesta_ia : '',
+              text: '',
               videoUrl: urlVideoPermitida || undefined,
               signLabel: respuesta.palabra_clave || undefined,
               noVideoAvailable: !urlVideoPermitida,
               suggestionWord: mensajeActual,
-              videos: videosPrueba,
             }
           : {
               id: `msg-${Date.now()}-response`,
@@ -205,7 +186,6 @@ export function Chat() {
       });
     }
 
-    // Update conversation
     if (currentConversationId) {
       setConversations(prev =>
         prev.map(conv =>
@@ -243,7 +223,6 @@ export function Chat() {
 
   return (
     <div className="flex h-screen bg-background">
-      {/* Desktop Sidebar */}
       <div className="hidden md:block w-64 lg:w-80">
         <Sidebar
           conversations={conversations}
@@ -258,7 +237,7 @@ export function Chat() {
         />
       </div>
 
-      {/* Mobile Sidebar */}
+      
       <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
         <SheetContent side="left" className="p-0 w-72">
           <Sidebar
@@ -277,7 +256,7 @@ export function Chat() {
         </SheetContent>
       </Sheet>
 
-      {/* Delete Confirmation Dialog */}
+      
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -299,16 +278,16 @@ export function Chat() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Word Not Found Dialog */}
+      
       <WordNotFoundDialog
         word={notFoundWord}
         open={showNotFoundDialog}
         onOpenChange={setShowNotFoundDialog}
       />
 
-      {/* Main chat area */}
+      
       <div className="flex-1 flex flex-col">
-        {/* Header */}
+        
         <div className="h-14 border-b border-border px-3 py-2 flex items-center gap-2 bg-background">
           <Button
             variant="ghost"
@@ -319,7 +298,7 @@ export function Chat() {
             <Menu className="w-4 h-4" />
           </Button>
 
-          {/* Desktop header */}
+          
           <div className="hidden md:flex items-center gap-2 flex-1">
             <img
               src="/logo2.png"
@@ -345,7 +324,7 @@ export function Chat() {
             </Button>
           </div>
 
-          {/* Mobile header - centered logo */}
+          
           <div className="md:hidden flex-1 flex justify-center">
             <img
               src="/logo2.png"
@@ -354,7 +333,7 @@ export function Chat() {
             />
           </div>
 
-          {/* Mobile profile avatar */}
+          
           <div className="md:hidden">
             <UserProfileDropdown
               userName={user.name}
@@ -392,7 +371,7 @@ export function Chat() {
           )}
         </div>
 
-        {/* Messages area */}
+        
         <div className="flex-1 overflow-y-auto pb-20 md:pb-0">
           <div className="max-w-3xl mx-auto px-2 md:px-3 py-2 md:py-4">
             {showWelcome ? (
@@ -452,7 +431,7 @@ export function Chat() {
           </div>
         </div>
 
-        {/* Input area */}
+        
         <div className="border-t border-border bg-background p-1.5 md:p-2 mb-16 md:mb-0">
           <div className="max-w-3xl mx-auto">
             <div className="flex gap-1 md:gap-1.5">
@@ -485,7 +464,7 @@ export function Chat() {
         </div>
       </div>
 
-      {/* Bottom Navigation (Mobile only) */}
+      
       <BottomNav />
     </div>
   );

@@ -12,16 +12,16 @@ export function GuatemalanFlag({ className = "", size = 64 }: GuatemalanFlagProp
       className={className}
       aria-label="Bandera de Guatemala"
     >
-      {/* Light blue stripes */}
+      
       <rect x="0" y="0" width="300" height="600" fill="#4997D0" />
       <rect x="600" y="0" width="300" height="600" fill="#4997D0" />
       
-      {/* White center stripe */}
+      
       <rect x="300" y="0" width="300" height="600" fill="#FFFFFF" />
       
-      {/* National Coat of Arms - simplified version */}
+      
       <g transform="translate(450, 300)">
-        {/* Scroll/Ribbon */}
+        
         <path
           d="M -80 50 Q -90 55 -80 60 L 80 60 Q 90 55 80 50 Z"
           fill="#FFFFFF"
@@ -29,7 +29,7 @@ export function GuatemalanFlag({ className = "", size = 64 }: GuatemalanFlagProp
           strokeWidth="2"
         />
         
-        {/* Quetzal bird - simplified */}
+        
         <circle cx="0" cy="-20" r="25" fill="#4FAF44" />
         <ellipse cx="0" cy="0" rx="30" ry="25" fill="#4FAF44" />
         <path
@@ -39,11 +39,11 @@ export function GuatemalanFlag({ className = "", size = 64 }: GuatemalanFlagProp
           fill="none"
         />
         
-        {/* Rifles crossed - simplified */}
+        
         <line x1="-35" y1="20" x2="35" y2="-10" stroke="#8B6914" strokeWidth="4" />
         <line x1="-35" y1="-10" x2="35" y2="20" stroke="#8B6914" strokeWidth="4" />
         
-        {/* Date scroll */}
+        
         <text
           x="0"
           y="65"

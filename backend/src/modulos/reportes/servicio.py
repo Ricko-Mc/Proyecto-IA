@@ -9,7 +9,6 @@ from src.utilidades.supabase_client import (
     registrar_bitacora,
 )
 
-
 class ServicioReportes:
     def crear_reporte(self, usuario_id: str, data: ReporteRequest, ip: str | None) -> dict:
         try:

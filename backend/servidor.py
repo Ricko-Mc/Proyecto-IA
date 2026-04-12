@@ -17,7 +17,6 @@ from src.modulos.estadisticas.servicio import ServicioEstadisticas
 from src.modulos.admin_usuarios.enrutador import set_servicio_admin_usuarios
 from src.modulos.admin_usuarios.servicio import ServicioAdminUsuarios
 
-
 def configurar_servicios() -> None:
     """Configura e inyecta los servicios de chat y signos."""
     ruta_reglas = configuracion.PROLOG_REGLAS_PATH
@@ -35,9 +34,7 @@ def configurar_servicios() -> None:
     set_servicio_estadisticas(ServicioEstadisticas())
     set_servicio_admin_usuarios(ServicioAdminUsuarios())
 
-
 if __name__ == "__main__":
-    configurar_servicios()
     uvicorn.run(
         "aplicacion:app",
         host="0.0.0.0",

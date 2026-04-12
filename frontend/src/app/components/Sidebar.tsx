@@ -118,7 +118,7 @@ export function Sidebar({
 
   return (
     <div className="flex flex-col h-full bg-sidebar border-r border-sidebar-border">
-      {/* Header */}
+      
       <div className="p-2 border-b border-sidebar-border space-y-1.5">
         <div className="flex items-center gap-1.5">
           <Button
@@ -140,7 +140,7 @@ export function Sidebar({
           )}
         </div>
         
-        {/* Search Bar */}
+        
         <div className="relative">
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
           <Input
@@ -153,7 +153,7 @@ export function Sidebar({
         </div>
       </div>
 
-      {/* Conversation history */}
+      
       <div className="flex-1 overflow-y-auto">
         {filteredConversations.length === 0 ? (
           <div className="p-2 text-center text-xs text-muted-foreground">
@@ -185,7 +185,7 @@ export function Sidebar({
                   </p>
                 </button>
                 
-                {/* Delete button on hover */}
+                
                 <button
                   onClick={(e) => handleDeleteConversation(conversation.id, e)}
                   className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive hover:bg-destructive/90 text-white p-1 rounded-sm"
@@ -199,7 +199,7 @@ export function Sidebar({
         )}
       </div>
 
-      {/* User profile */}
+      
       <div className="p-2 border-t border-sidebar-border">
         {esAdminOModerador ? (
           <div className="space-y-2 mb-2">

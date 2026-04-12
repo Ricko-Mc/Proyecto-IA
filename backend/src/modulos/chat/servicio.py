@@ -11,7 +11,6 @@ from src.utilidades.supabase_client import (
     registrar_bitacora,
 )
 
-
 class ServicioChat:
     def __init__(self, puente_prolog: PuenteProlog, agente_ia: AgenteIA):
         """Inicializa el servicio de chat con dependencias inyectadas."""
@@ -47,6 +46,11 @@ class ServicioChat:
             extraccion = self.agente_ia.extraer_palabra_clave(mensaje)
             palabra_clave = extraccion["palabra_normalizada"]
             signo_info = self.puente_prolog.buscar_signo(palabra_clave)
+            if not signo_info["encontrado"]:
+                signo_aproximado = self.puente_prolog.buscar_signo_aproximado(palabra_clave)
+                if signo_aproximado["encontrado"]:
+                    signo_info = signo_aproximado
+                    palabra_clave = signo_aproximado.get("palabra_corregida", palabra_clave)
             categoria_info = self.puente_prolog.buscar_categoria(palabra_clave)
             url_video = None
             if signo_info["encontrado"]:

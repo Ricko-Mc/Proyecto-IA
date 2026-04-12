@@ -55,7 +55,7 @@ export function Register() {
 
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden" style={{ fontFamily: 'Poppins, sans-serif' }}>
-      {/* Background Image with Overlay */}
+      
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
@@ -66,7 +66,7 @@ export function Register() {
       </div>
 
       <div className="w-[90%] max-w-[420px] relative z-10 mx-auto">
-        {/* Logo */}
+        
         <div className="flex justify-center mb-6">
           <img
             src={logoImage}
@@ -76,7 +76,7 @@ export function Register() {
           />
         </div>
 
-        {/* Title and Subtitle */}
+        
         <div className="text-center mb-6 md:mb-8">
           <h1
             className="text-[1.5rem] md:text-[1.75rem] font-bold text-white mb-2"
@@ -95,9 +95,9 @@ export function Register() {
           </p>
         </div>
 
-        {/* Register form */}
+        
         <form onSubmit={handleRegister} className="space-y-4 md:space-y-5">
-          {/* Name Input */}
+          
           <div className="relative">
             <div className="absolute left-0 top-1/2 -translate-y-1/2 text-white/80">
               <User className="w-5 h-5" />
@@ -113,7 +113,7 @@ export function Register() {
             />
           </div>
 
-          {/* Email Input */}
+          
           <div className="relative">
             <div className="absolute left-0 top-1/2 -translate-y-1/2 text-white/80">
               <Mail className="w-5 h-5" />
@@ -129,7 +129,7 @@ export function Register() {
             />
           </div>
 
-          {/* Password Input */}
+          
           <div className="relative">
             <div className="absolute left-0 top-1/2 -translate-y-1/2 text-white/80">
               <Lock className="w-5 h-5" />
@@ -157,7 +157,7 @@ export function Register() {
             </button>
           </div>
 
-          {/* Confirm Password Input */}
+          
           <div className="relative">
             <div className="absolute left-0 top-1/2 -translate-y-1/2 text-white/80">
               <Lock className="w-5 h-5" />
@@ -185,7 +185,7 @@ export function Register() {
             </button>
           </div>
 
-          {/* Register Button */}
+          
           <Button
             type="submit"
             disabled={isLoading || !name || !email || !password || !confirmPassword}
@@ -202,7 +202,7 @@ export function Register() {
           )}
         </form>
 
-        {/* Sign In Link */}
+        
         <div className="text-center mt-5 md:mt-6 text-white text-[0.72rem] md:text-[0.76rem]" style={{ fontWeight: 400 }}>
           <span>¿Ya tienes cuenta? </span>
           <Link
@@ -213,7 +213,7 @@ export function Register() {
           </Link>
         </div>
 
-        {/* Footer */}
+        
 
       </div>
     </div>

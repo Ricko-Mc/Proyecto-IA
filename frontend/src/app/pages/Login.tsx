@@ -59,7 +59,7 @@ export function Login() {
 
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden" style={{ fontFamily: 'Poppins, sans-serif' }}>
-      {/* Background Image with Overlay */}
+      
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
@@ -70,7 +70,7 @@ export function Login() {
       </div>
 
       <div className="w-[90%] max-w-[336px] relative z-10 mx-auto">
-        {/* Logo */}
+        
         <div className="flex justify-center mb-4">
           <img
             src="/logowhite.png"
@@ -80,7 +80,7 @@ export function Login() {
           />
         </div>
 
-        {/* Title and Subtitle */}
+        
         <div className="text-center mb-6 md:mb-8">
           <h1
             className="text-[1.2rem] md:text-[1.4rem] font-bold text-white mb-2"
@@ -99,9 +99,9 @@ export function Login() {
           </p>
         </div>
 
-        {/* Login form */}
+        
         <form onSubmit={handleEmailLogin} className="space-y-4 md:space-y-5">
-          {/* Username Input */}
+          
           <div className="relative">
             <div className="absolute left-0 top-1/2 -translate-y-1/2 text-white/80">
               <User className="w-5 h-5" />
@@ -117,7 +117,7 @@ export function Login() {
             />
           </div>
 
-          {/* Password Input */}
+          
           <div className="relative">
             <div className="absolute left-0 top-1/2 -translate-y-1/2 text-white/80">
               <Lock className="w-5 h-5" />
@@ -145,7 +145,7 @@ export function Login() {
             </button>
           </div>
 
-          {/* Remember Me & Forgot Password Row */}
+          
           <div className="flex items-center justify-between text-[0.65rem]" style={{ fontWeight: 400 }}>
             <label className="flex items-center gap-2 text-white cursor-pointer">
               <input
@@ -166,7 +166,7 @@ export function Login() {
             </button>
           </div>
 
-          {/* Login Button */}
+          
           <Button
             type="submit"
             disabled={isLoading || !username || !password}
@@ -183,7 +183,7 @@ export function Login() {
           )}
         </form>
 
-        {/* Divider */}
+        
         <div className="relative py-3 md:py-4">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-white/40"></div>
@@ -198,7 +198,7 @@ export function Login() {
           </div>
         </div>
 
-        {/* Google Sign In Button */}
+        
         <Button
           onClick={handleGoogleSignIn}
           disabled={isLoading}
@@ -209,7 +209,7 @@ export function Login() {
           Iniciar sesión con Google
         </Button>
 
-        {/* Sign Up Link */}
+        
         <div className="text-center mt-4 md:mt-5 text-white text-[0.65rem]" style={{ fontWeight: 400 }}>
           <span>¿No tienes cuenta? </span>
           <Link
@@ -220,7 +220,7 @@ export function Login() {
           </Link>
         </div>
 
-        {/* Footer */}
+        
 
       </div>
 

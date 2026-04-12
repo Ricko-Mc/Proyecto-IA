@@ -11,7 +11,6 @@ from src.utilidades.supabase_client import (
     registrar_bitacora,
 )
 
-
 class ServicioAuth:
     def __init__(self):
         self.supabase = obtener_cliente_supabase()
@@ -151,12 +150,6 @@ class ServicioAuth:
     def _resolver_frontend_url(self, frontend_origin: str | None) -> str:
         if frontend_origin and frontend_origin in configuracion.origenes_permitidos:
             return frontend_origin
-        if (
-            frontend_origin
-            and configuracion.ENVIRONMENT == "development"
-            and frontend_origin.startswith("http://localhost")
-        ):
-            return frontend_origin
         return configuracion.FRONTEND_URL
 
     def login_google(self, frontend_origin: str | None = None) -> dict[str, str]:
@@ -278,13 +271,10 @@ class ServicioAuth:
             "roles": roles,
         }
 
-
 _estado_servicio_auth = {"servicio": None}
-
 
 def set_servicio_auth(servicio: ServicioAuth) -> None:
     _estado_servicio_auth["servicio"] = servicio
-
 
 def get_servicio_auth() -> ServicioAuth:
     servicio = _estado_servicio_auth["servicio"]
@@ -292,13 +282,11 @@ def get_servicio_auth() -> ServicioAuth:
         raise HTTPException(status_code=503, detail="Servicio de autenticacion no disponible")
     return servicio
 
-
 async def obtener_usuario_actual(authorization: str | None = Header(default=None)) -> dict[str, Any]:
     if not authorization or not authorization.lower().startswith("bearer "):
         raise HTTPException(status_code=401, detail="Hace falta token Bearer para esta accion")
     token = authorization.split(" ", 1)[1].strip()
     return get_servicio_auth().obtener_usuario_desde_token(token)
-
 
 async def obtener_usuario_actual_opcional(
     authorization: str | None = Header(default=None),
@@ -310,7 +298,6 @@ async def obtener_usuario_actual_opcional(
         return get_servicio_auth().obtener_usuario_desde_token(token)
     except HTTPException:
         return None
-
 
 def validar_roles(roles_usuario: list[str], roles_permitidos: list[str]) -> None:
     if not set(roles_usuario).intersection(set(roles_permitidos)):

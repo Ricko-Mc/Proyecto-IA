@@ -43,8 +43,6 @@ export function ChatMessage({ message, onRequestWord, isActiveVideo = false }: C
       </div>
     );
   }
-
-  // System message
   return (
     <div className="flex justify-start mb-6">
       <div className="max-w-[90%]">
