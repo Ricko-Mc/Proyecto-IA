@@ -7,7 +7,7 @@ signo(blanco, colores, 'COL006').
 signo(rosado, colores, 'COL007').
 signo(morado, colores, 'COL008').
 signo(anaranjado, colores, 'COL009').
-signo(café, colores, 'COL010').
+signo(cafe, colores, 'COL010').
 signo(gris, colores, 'COL011').
 
 video_youtube('COL003', 'https://youtu.be/Qb6KkPkAWFg').

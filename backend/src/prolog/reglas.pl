@@ -19,6 +19,12 @@ buscar_signo(Palabra, SigID) :-
     sinonimo(Palabra, Sinonimo),
     signo(Sinonimo, _, SigID), !.
 
+buscar_signo_en_categoria(Palabra, Categoria, SigID) :-
+    signo(Palabra, Categoria, SigID), !.
+buscar_signo_en_categoria(Palabra, Categoria, SigID) :-
+    sinonimo(Palabra, Sinonimo),
+    signo(Sinonimo, Categoria, SigID), !.
+
 buscar_categoria(Palabra, Categoria) :-
     signo(Palabra, Categoria, _), !.
 buscar_categoria(Palabra, Categoria) :-

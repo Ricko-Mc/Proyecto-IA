@@ -60,10 +60,15 @@ async function requestAPI<T>(
 }
 
 export const api = {
-  chat: async (mensaje: string, conversacion_id?: string): Promise<RespuestaChat> => {
+  chat: async (
+    mensaje: string,
+    conversacion_id?: string,
+    clave_desambiguacion?: string
+  ): Promise<RespuestaChat> => {
     return requestAPI<RespuestaChat>('post', '/chat', {
       mensaje,
       conversacion_id: conversacion_id || null,
+      clave_desambiguacion: clave_desambiguacion || null,
     });
   },
 

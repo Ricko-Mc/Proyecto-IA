@@ -112,15 +112,19 @@ export function Chat() {
     setShowNotFoundDialog(true);
   };
 
-  const handleSendMessage = async () => {
-    if (!inputText.trim()) return;
+  const enviarMensaje = async (
+    mensaje: string,
+    claveDesambiguacion?: string,
+    textoUsuarioVisible?: string
+  ) => {
+    if (!mensaje.trim()) return;
 
-    const mensajeActual = inputText;
+    const mensajeActual = mensaje;
 
     const userMessage: Message = {
       id: `msg-${Date.now()}`,
       type: 'user',
-      text: mensajeActual
+      text: textoUsuarioVisible || mensajeActual
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -134,7 +138,11 @@ export function Chat() {
     setMessages(prev => [...prev, loadingMessage]);
 
     try {
-      const respuesta = await api.chat(mensajeActual, currentConversationId || undefined);
+      const respuesta = await api.chat(
+        mensajeActual,
+        currentConversationId || undefined,
+        claveDesambiguacion
+      );
 
       if (!currentConversationId && respuesta.conversacion_id) {
         setCurrentConversationId(respuesta.conversacion_id);
@@ -151,23 +159,34 @@ export function Chat() {
         const filtered = prev.filter(m => !m.isLoading);
         const urlVideoPermitida = respuesta.url_video;
 
-        const systemMessage: Message = respuesta.signo_encontrado
-          ? {
-              id: `msg-${Date.now()}-response`,
-              type: 'system',
-              text: '',
-              videoUrl: urlVideoPermitida || undefined,
-              signLabel: respuesta.palabra_clave || undefined,
-              noVideoAvailable: !urlVideoPermitida,
-              suggestionWord: mensajeActual,
-            }
-          : {
-              id: `msg-${Date.now()}-response`,
-              type: 'system',
-              text: respuesta.respuesta_ia,
-              notFound: true,
-              notFoundWord: mensajeActual,
-            };
+        let systemMessage: Message;
+        if (respuesta.tipo_respuesta === 'desambiguacion') {
+          systemMessage = {
+            id: `msg-${Date.now()}-response`,
+            type: 'system',
+            text: respuesta.respuesta_ia,
+            disambiguationWord: respuesta.palabra_clave || mensajeActual,
+            disambiguationOptions: respuesta.opciones || [],
+          };
+        } else if (respuesta.signo_encontrado) {
+          systemMessage = {
+            id: `msg-${Date.now()}-response`,
+            type: 'system',
+            text: '',
+            videoUrl: urlVideoPermitida || undefined,
+            signLabel: respuesta.palabra_clave || undefined,
+            noVideoAvailable: !urlVideoPermitida,
+            suggestionWord: mensajeActual,
+          };
+        } else {
+          systemMessage = {
+            id: `msg-${Date.now()}-response`,
+            type: 'system',
+            text: respuesta.respuesta_ia,
+            notFound: true,
+            notFoundWord: mensajeActual,
+          };
+        }
         return [...filtered, systemMessage];
       });
     } catch (_error) {
@@ -200,8 +219,17 @@ export function Chat() {
         )
       );
     }
+  };
 
+  const handleSendMessage = async () => {
+    if (!inputText.trim()) return;
+    const mensajeActual = inputText;
     setInputText('');
+    await enviarMensaje(mensajeActual);
+  };
+
+  const handleSelectDisambiguation = async (word: string, clave: string, label: string) => {
+    await enviarMensaje(word, clave, label);
   };
 
   const handleTryPhrase = (phrase: string) => {
@@ -422,6 +450,7 @@ export function Chat() {
                     key={message.id}
                     message={message}
                     onRequestWord={handleRequestWord}
+                    onSelectDisambiguation={handleSelectDisambiguation}
                     isActiveVideo={message.id === activeVideoMessageId}
                   />
                 ))}

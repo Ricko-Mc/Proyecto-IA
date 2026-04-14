@@ -15,11 +15,14 @@ export interface Message {
   noVideoAvailable?: boolean;
   suggestionWord?: string;
   videos?: Array<{ word: string; videoUrl: string }>;
+  disambiguationWord?: string;
+  disambiguationOptions?: Array<{ label: string; clave: string }>;
 }
 
 interface ChatMessageProps {
   message: Message;
   onRequestWord?: (word: string) => void;
+  onSelectDisambiguation?: (word: string, clave: string, label: string) => void;
   isActiveVideo?: boolean;
 }
 
@@ -33,7 +36,12 @@ function InactiveVideoPlaceholder() {
   );
 }
 
-export function ChatMessage({ message, onRequestWord, isActiveVideo = false }: ChatMessageProps) {
+export function ChatMessage({
+  message,
+  onRequestWord,
+  onSelectDisambiguation,
+  isActiveVideo = false,
+}: ChatMessageProps) {
   if (message.type === 'user') {
     return (
       <div className="flex justify-end mb-4">
@@ -84,6 +92,31 @@ export function ChatMessage({ message, onRequestWord, isActiveVideo = false }: C
               <Send className="w-4 h-4 mr-2" />
               Enviar sugerencia de seña
             </Button>
+          </div>
+        ) : message.disambiguationOptions && message.disambiguationOptions.length > 0 ? (
+          <div className="space-y-3 bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
+            <p className="text-sm text-foreground">
+              {message.text || 'La palabra tiene mas de una seña. Elige una opcion:'}
+            </p>
+            <div className="flex flex-col gap-2">
+              {message.disambiguationOptions.map((option) => (
+                <Button
+                  key={option.clave}
+                  size="sm"
+                  variant="outline"
+                  className="justify-start border-[#4997D0] text-[#4997D0] hover:bg-[#4997D0] hover:text-white"
+                  onClick={() =>
+                    onSelectDisambiguation?.(
+                      message.disambiguationWord || message.notFoundWord || '',
+                      option.clave,
+                      option.label
+                    )
+                  }
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </div>
           </div>
         ) : message.videos && message.videos.length > 0 ? (
           <div className="space-y-2">

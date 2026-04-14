@@ -35,6 +35,25 @@ class ServicioAuth:
             return HTTPException(status_code=401, detail="Credenciales invalidas, revisa tus datos")
         return HTTPException(status_code=400, detail=f"No se pudo completar la autenticacion: {error}")
 
+    def _mapear_error_token(self, error: Exception) -> HTTPException:
+        mensaje = str(error).lower()
+        if "token is expired" in mensaje or "jwt expired" in mensaje or "expired" in mensaje:
+            return HTTPException(status_code=401, detail="Tu sesion expiro, inicia sesion nuevamente")
+        if "invalid jwt" in mensaje or "verify signature" in mensaje or "invalid claims" in mensaje:
+            return HTTPException(status_code=401, detail="Sesion invalida, volve a iniciar sesion")
+        return HTTPException(status_code=401, detail="No se pudo validar la sesion")
+
+    def _obtener_usuario_por_token(self, token: str):
+        cliente = self._supabase_requerido()
+        try:
+            data = cliente.auth.get_user(token)
+        except Exception as error:
+            raise self._mapear_error_token(error) from error
+        usuario = getattr(data, "user", None)
+        if usuario is None:
+            raise HTTPException(status_code=401, detail="Sesion invalida, volve a iniciar sesion")
+        return usuario
+
     def _asignar_rol_usuario(self, usuario_id: str) -> None:
         cliente = self._supabase_requerido()
         rol = cliente.table("rol").select("id").eq("nombre", "usuario").limit(1).execute()
@@ -208,20 +227,13 @@ class ServicioAuth:
         }
 
     def obtener_usuario_desde_token(self, token: str) -> dict[str, Any]:
-        cliente = self._supabase_requerido()
-        data = cliente.auth.get_user(token)
-        usuario = getattr(data, "user", None)
-        if usuario is None:
-            raise HTTPException(status_code=401, detail="Sesion invalida, volve a iniciar sesion")
+        usuario = self._obtener_usuario_por_token(token)
         roles = obtener_roles_usuario(usuario.id)
         return {"usuario_id": usuario.id, "email": usuario.email, "roles": roles}
 
     def obtener_perfil_desde_token(self, token: str) -> dict[str, Any]:
         cliente = self._supabase_requerido()
-        data = cliente.auth.get_user(token)
-        usuario = getattr(data, "user", None)
-        if usuario is None:
-            raise HTTPException(status_code=401, detail="Sesion invalida, volve a iniciar sesion")
+        usuario = self._obtener_usuario_por_token(token)
 
         email = usuario.email or ""
         metadata = getattr(usuario, "user_metadata", None) or {}

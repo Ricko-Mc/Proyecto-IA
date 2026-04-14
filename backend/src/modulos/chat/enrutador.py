@@ -26,6 +26,7 @@ async def procesar_chat(
     return servicio_chat.procesar_mensaje(
         datos.mensaje,
         datos.conversacion_id,
+        datos.clave_desambiguacion,
         usuario_id,
         ip,
     )

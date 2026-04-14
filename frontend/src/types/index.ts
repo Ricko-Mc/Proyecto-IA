@@ -1,4 +1,10 @@
+export interface OpcionDesambiguacion {
+  label: string;
+  clave: string;
+}
+
 export interface RespuestaChat {
+  tipo_respuesta: 'video' | 'desambiguacion' | 'texto';
   mensaje_usuario: string;
   conversacion_id: string;
   palabra_clave: string;
@@ -7,6 +13,7 @@ export interface RespuestaChat {
   url_video: string | null;
   categoria: string | null;
   respuesta_ia: string;
+  opciones?: OpcionDesambiguacion[] | null;
   error?: string;
 }
 

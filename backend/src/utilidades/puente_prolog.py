@@ -72,6 +72,50 @@ class PuenteProlog:
             }
         return {"encontrado": False, "palabra": palabra_normalizada, "signo_id": None}
 
+    def buscar_signo_en_categoria(self, palabra: str, categoria: str) -> dict:
+        """Busca un signo por palabra dentro de una categoria especifica."""
+        palabra_normalizada = self.normalizar(palabra)
+        categoria_normalizada = self.normalizar(categoria)
+        palabra_atom = self._atomizar(palabra_normalizada)
+        categoria_atom = self._atomizar(categoria_normalizada)
+        goal = (
+            f"(buscar_signo_en_categoria({palabra_atom}, {categoria_atom}, SigID) "
+            f"-> format('~w', [SigID]) ; true)"
+        )
+        salida = self._ejecutar(goal)
+        if salida:
+            return {
+                "encontrado": True,
+                "palabra": palabra_normalizada,
+                "signo_id": salida,
+                "youtube_referencia": self.obtener_youtube_referencia_por_signo(salida),
+            }
+        return {"encontrado": False, "palabra": palabra_normalizada, "signo_id": None}
+
+    def buscar_signos_por_palabra(self, palabra: str) -> list[dict]:
+        """Obtiene todas las coincidencias de una palabra en distintas categorias."""
+        palabra_normalizada = self.normalizar(palabra)
+        atom = self._atomizar(palabra_normalizada)
+        goal = (
+            f"forall(signo({atom}, Categoria, SigID), "
+            f"format('~w|~w~n', [Categoria, SigID]))"
+        )
+        salida = self._ejecutar(goal)
+        coincidencias = []
+        for linea in salida.splitlines():
+            if not linea.strip():
+                continue
+            categoria, signo_id = linea.split("|", 1)
+            coincidencias.append(
+                {
+                    "palabra": palabra_normalizada,
+                    "categoria": categoria,
+                    "signo_id": signo_id,
+                    "youtube_referencia": self.obtener_youtube_referencia_por_signo(signo_id),
+                }
+            )
+        return coincidencias
+
     def _obtener_indice_palabras(self) -> list[str]:
         """Construye y cachea el listado de palabras disponibles para matching aproximado."""
         if self._indice_palabras is None:
