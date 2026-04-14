@@ -40,7 +40,7 @@ export function toYouTubeEmbedUrl(reference: string | null | undefined): string 
   const videoId = extractYouTubeId(reference);
   if (!videoId) return null;
   return (
-    `https://www.youtube-nocookie.com/embed/${videoId}?${DEFAULT_PARAMS}` +
+    `https://www.youtube.com/embed/${videoId}?${DEFAULT_PARAMS}` +
     `&loop=1&playlist=${videoId}`
   );
 }
@@ -61,7 +61,7 @@ export function toYouTubePlaylistEmbedUrl(
   const playlist = ordered.join(',');
 
   return (
-    `https://www.youtube-nocookie.com/embed/${first}?${DEFAULT_PARAMS}` +
+    `https://www.youtube.com/embed/${first}?${DEFAULT_PARAMS}` +
     `&loop=1&playlist=${playlist}`
   );
 }

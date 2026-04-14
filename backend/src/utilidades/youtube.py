@@ -32,6 +32,6 @@ def construir_url_embed_youtube(referencia: str | None) -> str | None:
     if not video_id:
         return None
     return (
-        f"https://www.youtube-nocookie.com/embed/{video_id}?{YOUTUBE_EMBED_PARAMS}"
+        f"https://www.youtube.com/embed/{video_id}?{YOUTUBE_EMBED_PARAMS}"
         f"&loop=1&playlist={video_id}"
     )
