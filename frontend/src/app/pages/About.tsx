@@ -19,9 +19,9 @@ export function About() {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-transparent pb-20 md:pb-0">
       
-      <div className="border-b border-border bg-background sticky top-0 z-10">
+      <div className="border-b border-border dark:border-[#2a2a2a] bg-background dark:bg-[#101010] sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-3 sm:px-4 py-2.5 flex items-center gap-2.5">
           <Button
             variant="ghost"
@@ -65,19 +65,19 @@ export function About() {
             <h3 className="text-xs font-semibold uppercase tracking-wide">Características</h3>
             <ul className="space-y-1.5 text-[12px] text-muted-foreground">
               <li className="flex items-start gap-2">
-                <span className="text-[#4997D0] mt-0.5">•</span>
+                <span className="text-[#4997D0] dark:text-[#d0d0d0] mt-0.5">•</span>
                 <span>Traducción de texto a Lengua de Señas en tiempo real</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#4997D0] mt-0.5">•</span>
+                <span className="text-[#4997D0] dark:text-[#d0d0d0] mt-0.5">•</span>
                 <span>Diccionario completo de señas guatemaltecas</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#4997D0] mt-0.5">•</span>
+                <span className="text-[#4997D0] dark:text-[#d0d0d0] mt-0.5">•</span>
                 <span>Videos educativos de alta calidad</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#4997D0] mt-0.5">•</span>
+                <span className="text-[#4997D0] dark:text-[#d0d0d0] mt-0.5">•</span>
                 <span>Interfaz intuitiva y accesible</span>
               </li>
             </ul>
@@ -93,12 +93,12 @@ export function About() {
                 className="h-7 w-auto object-contain"
               />
             </div>
-            <div className="rounded-xl border border-border bg-card p-3">
+            <div className="rounded-xl border border-border dark:border-[#2a2a2a] bg-card dark:bg-[#111111] p-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {equipo.map((nombre) => (
                   <div
                     key={nombre}
-                    className="rounded-lg bg-muted/70 px-3 py-2 text-[12px] font-medium"
+                    className="rounded-lg bg-muted/70 dark:bg-[#1b1b1b] px-3 py-2 text-[12px] font-medium"
                   >
                     {nombre}
                   </div>

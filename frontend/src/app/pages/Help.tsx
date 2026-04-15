@@ -30,9 +30,9 @@ export function Help() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-transparent pb-20 md:pb-0">
       
-      <div className="border-b border-border bg-background sticky top-0 z-10">
+      <div className="border-b border-border dark:border-[#2a2a2a] bg-background dark:bg-[#101010] sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 flex items-center gap-3">
           <Button
             variant="ghost"
@@ -97,7 +97,7 @@ export function Help() {
             <Button
               type="submit"
               disabled={isSubmitting || !subject.trim() || !message.trim()}
-              className="w-full bg-[#4997D0] hover:bg-[#3A7FB8] h-9 text-sm"
+              className="w-full bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#1f1f1f] dark:hover:bg-[#2b2b2b] h-9 text-sm"
             >
               <Send className="w-4 h-4 mr-2" />
               {isSubmitting ? 'Enviando...' : 'Enviar mensaje'}

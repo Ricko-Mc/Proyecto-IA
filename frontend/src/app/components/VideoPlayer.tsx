@@ -63,21 +63,22 @@ export function VideoPlayer({ videoUrl, signLabel, active = true }: VideoPlayerP
           </span>
         </div>
 
-        {/* Logo esquina superior izquierda */}
-        <img
-          src="/logo_black.png"
-          alt="Logo"
-          className="absolute top-3 left-3 w-10 h-10 md:w-12 md:h-12 z-10 opacity-90"
+        {/* Branding esquina inferior derecha */}
+        <div
+          className="absolute bottom-3 right-3 z-10 flex flex-col items-center gap-1 md:gap-1.5"
           style={{ pointerEvents: 'none' }}
-        />
-
-        {/* Logo Guatemala esquina inferior derecha */}
-        <img
-          src="/gt.png"
-          alt="Guatemala"
-          className="absolute bottom-3 right-3 w-7 h-7 md:w-9 md:h-9 z-10 opacity-80"
-          style={{ pointerEvents: 'none' }}
-        />
+        >
+          <img
+            src="/Logo3.png"
+            alt="SEGUA"
+            className="w-9 h-9 md:w-12 md:h-12 object-contain translate-y-1 md:translate-y-1.5 drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]"
+          />
+          <img
+            src="/gt.png"
+            alt="Bandera de Guatemala"
+            className="w-5 h-3 md:w-7 md:h-4 object-cover rounded-[2px] shadow-[0_1px_4px_rgba(0,0,0,0.45)]"
+          />
+        </div>
       </div>
     </div>
   );

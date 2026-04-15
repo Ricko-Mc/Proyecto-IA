@@ -117,13 +117,15 @@ export function Sidebar({
   );
 
   return (
-    <div className="flex flex-col h-full bg-sidebar border-r border-sidebar-border">
+    <div
+      className="flex flex-col h-full rounded-[22px] bg-[#edf2f8] dark:bg-[#111111] border border-transparent dark:border-[#262626] shadow-[0_2px_8px_rgba(42,54,74,0.06)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.45)] overflow-hidden"
+    >
       
-      <div className="p-2 border-b border-sidebar-border space-y-1.5">
+      <div className="p-2 space-y-1.5">
         <div className="flex items-center gap-1.5">
           <Button
             onClick={handleNewConversation}
-            className="flex-1 bg-[#4997D0] hover:bg-[#3A7FB8] text-white h-8 text-xs"
+            className="flex-1 bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#1c1c1c] dark:hover:bg-[#2a2a2a] text-white h-8 text-xs"
           >
             <MessageSquarePlus className="w-3.5 h-3.5 mr-1.5" />
             Nueva conversación
@@ -133,9 +135,9 @@ export function Sidebar({
               onClick={onClose}
               variant="ghost"
               size="icon"
-              className="h-8 w-8 hover:bg-gray-200"
+              className="h-8 w-8 hover:bg-gray-200 dark:hover:bg-[#252525]"
             >
-              <X className="w-4 h-4 text-gray-600" />
+              <X className="w-4 h-4 text-gray-600 dark:text-[#d6d6d6]" />
             </Button>
           )}
         </div>
@@ -148,7 +150,7 @@ export function Sidebar({
             placeholder="Buscar..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-8 pl-7 text-xs bg-background border-sidebar-border"
+            className="h-8 pl-7 text-xs bg-white dark:bg-[#1a1a1a] dark:text-[#efefef] dark:placeholder:text-[#8d8d8d] border-0 rounded-[10px]"
           />
         </div>
       </div>
@@ -156,7 +158,7 @@ export function Sidebar({
       
       <div className="flex-1 overflow-y-auto">
         {filteredConversations.length === 0 ? (
-          <div className="p-2 text-center text-xs text-muted-foreground">
+          <div className="p-2 text-center text-xs text-muted-foreground dark:text-[#8d8d8d]">
             {searchQuery ? 'No se encontraron conversaciones' : 'No hay conversaciones aún'}
           </div>
         ) : (
@@ -170,8 +172,8 @@ export function Sidebar({
                   onClick={() => handleSelectConversation(conversation.id)}
                   className={`w-full text-left p-2 rounded-md transition-colors ${
                     currentConversationId === conversation.id
-                      ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                      : 'hover:bg-sidebar-accent/50'
+                      ? 'bg-white dark:bg-[#1d1d1d] text-[#1f2937] dark:text-[#f0f0f0] shadow-[0_1px_2px_rgba(27,39,59,0.04)]'
+                      : 'hover:bg-white/70 dark:hover:bg-[#1e1e1e]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-1 mb-0.5">
@@ -180,7 +182,7 @@ export function Sidebar({
                       {formatRelativeTime(conversation.timestamp)}
                     </span>
                   </div>
-                  <p className="text-[9px] text-muted-foreground truncate line-clamp-1">
+                  <p className="text-[9px] text-muted-foreground dark:text-[#8d8d8d] truncate line-clamp-1">
                     {conversation.lastMessage || 'Sin mensajes'}
                   </p>
                 </button>
@@ -200,7 +202,7 @@ export function Sidebar({
       </div>
 
       
-      <div className="p-2 border-t border-sidebar-border">
+      <div className="p-2 bg-[#eaf0f7] dark:bg-[#141414]">
         {esAdminOModerador ? (
           <div className="space-y-2 mb-2">
             <Button

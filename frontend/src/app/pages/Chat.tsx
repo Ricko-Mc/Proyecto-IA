@@ -256,8 +256,8 @@ export function Chat() {
     .find((message) => message.type === 'system' && (Boolean(message.videoUrl) || Boolean(message.videos?.length)))?.id;
 
   return (
-    <div className="flex h-screen bg-background">
-      <div className="hidden md:block w-64 lg:w-80">
+    <div className="flex h-screen bg-[linear-gradient(160deg,#d5eeff_0%,#eaf6ff_54%,#fff2d9_100%)] dark:bg-[linear-gradient(160deg,#050505_0%,#0b0b0c_52%,#121212_100%)]">
+      <div className="hidden md:block w-64 lg:w-80 p-0.5 md:p-1">
         <Sidebar
           conversations={conversations}
           currentConversationId={currentConversationId}
@@ -273,7 +273,7 @@ export function Chat() {
 
       
       <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-        <SheetContent side="left" className="p-0 w-72">
+        <SheetContent side="left" className="p-1.5 w-72 bg-transparent border-0">
           <Sidebar
             conversations={conversations}
             currentConversationId={currentConversationId}
@@ -320,42 +320,75 @@ export function Chat() {
       />
 
       
-      <div className="flex-1 flex flex-col">
+      <div
+        className="flex-1 flex flex-col min-h-0 m-0.5 md:m-1 rounded-[20px] bg-[rgba(255,255,255,0.28)] dark:bg-[rgba(10,10,10,0.78)] border border-transparent dark:border-[#252525] backdrop-blur-[16px] shadow-[0_10px_28px_rgba(66,91,124,0.12)] dark:shadow-[0_14px_36px_rgba(0,0,0,0.55)] overflow-hidden"
+        style={{
+          padding: '14px',
+        }}
+      >
         
-        <div className="h-14 border-b border-border px-3 py-2 flex items-center gap-2 bg-background">
+        <div className="h-[58px] w-full px-3.5 md:px-4 flex items-center justify-between rounded-[14px] border border-white/45 dark:border-[#303030] bg-[rgba(255,255,255,0.26)] dark:bg-[rgba(20,20,20,0.9)] backdrop-blur-[14px] shadow-[0_4px_14px_rgba(69,95,130,0.12)] dark:shadow-[0_8px_18px_rgba(0,0,0,0.45)]">
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden h-8 w-8"
+            className="md:hidden h-9 w-9 rounded-full bg-white dark:bg-[#1a1a1a] border border-[#dbe4ef] dark:border-[#333333] text-[#516276] dark:text-[#e4e4e4] hover:bg-[#eef4fc] dark:hover:bg-[#262626]"
             onClick={() => setIsMobileMenuOpen(true)}
           >
             <Menu className="w-4 h-4" />
           </Button>
 
           
-          <div className="hidden md:flex items-center gap-2 flex-1">
+          <div className="hidden md:flex items-center gap-2.5 flex-1 min-w-0">
             <img
               src="/logo2.png"
               alt="SEGUA"
-              className="h-8 w-auto"
+              className="w-[28px] h-[28px] object-contain"
             />
             <div className="flex-1 min-w-0">
-              <h2 className="text-sm font-semibold truncate">
+              <h2 className="text-[14px] font-semibold tracking-[0.15px] text-[#111f33] dark:text-[#f2f2f2] truncate">
                 {currentConversationId
                   ? conversations.find(c => c.id === currentConversationId)?.name || 'SEGUA'
                   : 'SEGUA'}
               </h2>
             </div>
+
+            <div className="flex items-center gap-3">
             <LocationBadge />
             <Button
-              variant="outline"
-              size="sm"
+              variant="ghost"
               onClick={handleOpenDictionary}
-              className="border-[#4997D0] text-[#4997D0] hover:bg-[#4997D0] hover:text-white h-8 text-xs transition-all duration-200 ease-in-out"
+              className="h-[38px] px-[14px] gap-2 rounded-[12px] border border-[#93c2ef] dark:border-[#3a3a3a] bg-white dark:bg-[#171717] text-[#3f86cc] dark:text-[#e9e9e9] font-semibold transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:bg-[#edf6ff] dark:hover:bg-[#222222] hover:shadow-[0_6px_14px_rgba(63,134,204,0.2)] dark:hover:shadow-[0_6px_14px_rgba(0,0,0,0.45)]"
             >
-              <BookOpen className="w-3.5 h-3.5 mr-1.5" />
+              <BookOpen className="w-3.5 h-3.5" />
               Diccionario
             </Button>
+
+            {currentConversationId && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleClearConversation}
+                  title="Limpiar conversación"
+                  className="h-[36px] w-[36px] rounded-full bg-white dark:bg-[#171717] border border-[#dbe4ef] dark:border-[#333333] text-[#75859a] dark:text-[#d4d4d4] hover:-translate-y-0.5 hover:bg-[#edf4fc] dark:hover:bg-[#232323]"
+                >
+                  <Eraser className="w-3.5 h-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    setConversationToDelete(currentConversationId);
+                    setShowDeleteDialog(true);
+                  }}
+                  title="Eliminar conversación"
+                  className="h-[36px] w-[36px] rounded-full bg-white dark:bg-[#171717] border border-[#f1d2d6] dark:border-[#4a2a2a] text-[#ef4444] dark:text-[#ff7d7d] hover:-translate-y-0.5 hover:bg-[#fff1f2] dark:hover:bg-[#231515]"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </>
+            )}
+            </div>
           </div>
 
           
@@ -363,7 +396,7 @@ export function Chat() {
             <img
               src="/logo2.png"
               alt="SEGUA"
-              className="h-7 w-auto"
+              className="h-8 w-auto"
             />
           </div>
 
@@ -378,40 +411,18 @@ export function Chat() {
             />
           </div>
 
-          {currentConversationId && (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleClearConversation}
-                title="Limpiar conversación"
-                className="hidden md:flex h-8 w-8"
-              >
-                <Eraser className="w-4 h-4 text-muted-foreground" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  setConversationToDelete(currentConversationId);
-                  setShowDeleteDialog(true);
-                }}
-                title="Eliminar conversación"
-                className="hidden md:flex h-8 w-8"
-              >
-                <Trash2 className="w-4 h-4 text-destructive" />
-              </Button>
-            </>
-          )}
         </div>
 
         
-        <div className="flex-1 overflow-y-auto pb-20 md:pb-0">
+        <div
+          className="flex-1 overflow-y-auto pb-20 md:pb-0 mt-3 pr-1"
+          style={{ scrollbarGutter: 'stable' }}
+        >
           <div className="max-w-3xl mx-auto px-2 md:px-3 py-2 md:py-4">
             {showWelcome ? (
               <div className="text-center py-2 md:py-4">
                 <img
-                  src="/edited-photo.png"
+                  src="/Logo3.png"
                   alt="SEGUA Logo"
                   className="w-16 h-16 md:w-32 md:h-32 mx-auto mb-2 md:mb-4"
                 />
@@ -432,7 +443,7 @@ export function Chat() {
                         key={index}
                         variant="outline"
                         onClick={() => handleTryPhrase(phrase)}
-                        className="border-[#4997D0] text-[#4997D0] hover:bg-[#4997D0] hover:text-white text-[8px] md:text-xs h-6 md:h-7 py-0.5 md:py-1 px-1.5 md:px-2.5"
+                        className="border-[#4997D0] text-[#4997D0] dark:border-[#3a3a3a] dark:text-[#dcdcdc] hover:bg-[#4997D0] dark:hover:bg-[#2a2a2a] hover:text-white text-[8px] md:text-xs h-6 md:h-7 py-0.5 md:py-1 px-1.5 md:px-2.5"
                       >
                         {phrase}
                       </Button>
@@ -442,7 +453,7 @@ export function Chat() {
                 <div className="mt-2 md:mt-3 px-2">
                   <Button
                     onClick={handleOpenDictionary}
-                    className="bg-[#4997D0] hover:bg-[#3A7FB8] w-full md:w-auto text-[9px] md:text-xs h-8 md:h-auto py-1.5 md:py-2"
+                    className="bg-[#4997D0] dark:bg-[#1d1d1d] hover:bg-[#3A7FB8] dark:hover:bg-[#2a2a2a] w-full md:w-auto text-[9px] md:text-xs h-8 md:h-auto py-1.5 md:py-2"
                   >
                     <BookOpen className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 mr-1.5" />
                     Explorar Diccionario
@@ -467,9 +478,11 @@ export function Chat() {
         </div>
 
         
-        <div className="border-t border-border bg-background p-1.5 md:p-2 mb-16 md:mb-0">
+        <div className="bg-transparent p-1.5 md:p-2 mb-16 md:mb-0">
           <div className="max-w-3xl mx-auto">
-            <div className="flex gap-1 md:gap-1.5">
+            <div
+              className="flex items-end gap-2 rounded-[12px] p-2 bg-white dark:bg-[#121212] border border-transparent dark:border-[#2b2b2b]"
+            >
               <div className="flex-1 relative">
                 <Textarea
                   value={inputText}
@@ -481,16 +494,16 @@ export function Chat() {
                     }
                   }}
                   placeholder="Escribe una palabra o frase..."
-                  className="min-h-[36px] md:min-h-[44px] max-h-[80px] resize-none pr-9 md:pr-11 text-xs md:text-sm"
+                  className="min-h-[34px] md:min-h-[38px] max-h-[96px] resize-none pr-9 md:pr-10 py-2 text-xs md:text-sm leading-[1.35] border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-0 dark:text-[#efefef] dark:placeholder:text-[#8c8c8c]"
                 />
-                <div className="absolute bottom-1 right-1 text-[9px] md:text-xs text-muted-foreground">
+                <div className="absolute bottom-0.5 right-1 text-[9px] md:text-xs text-muted-foreground">
                   {charCount}/{maxChars}
                 </div>
               </div>
               <Button
                 onClick={handleSendMessage}
                 disabled={!inputText.trim()}
-                className="h-[36px] md:h-[44px] px-2 md:px-3 bg-[#4997D0] hover:bg-[#3A7FB8]"
+                className="h-[34px] md:h-[38px] px-2 md:px-3 bg-[#4997D0] dark:bg-[#1f1f1f] hover:bg-[#3A7FB8] dark:hover:bg-[#2c2c2c]"
               >
                 <Send className="w-3 md:w-3.5 h-3 md:h-3.5" />
               </Button>

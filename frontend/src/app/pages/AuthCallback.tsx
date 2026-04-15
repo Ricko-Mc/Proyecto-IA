@@ -60,27 +60,27 @@ export function AuthCallback() {
   }, [navigate]);
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+    <div className="min-h-screen bg-transparent dark:bg-[#0a0a0a] flex items-center justify-center p-6">
       <div className="max-w-md w-full text-center space-y-4">
         {error ? (
           <div className="space-y-3">
-            <h1 className="text-xl font-semibold">No se pudo iniciar sesion</h1>
-            <p className="text-sm text-red-500">{error}</p>
+            <h1 className="text-xl font-semibold dark:text-[#efefef]">No se pudo iniciar sesion</h1>
+            <p className="text-sm text-red-500 dark:text-red-400">{error}</p>
             <button
               type="button"
               onClick={() => navigate('/', { replace: true })}
-              className="px-4 py-2 rounded-md bg-[#4997D0] text-white"
+              className="px-4 py-2 rounded-md bg-[#4997D0] text-white dark:bg-[#1a1a1a] dark:hover:bg-[#262626] dark:border dark:border-[#3a3a3a] dark:text-[#d0d0d0]"
             >
               Volver al inicio
             </button>
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="mx-auto w-16 h-16 rounded-full bg-[#4997D0]/10 flex items-center justify-center">
-              <Loader2 className="w-8 h-8 text-[#4997D0] animate-spin" />
+            <div className="mx-auto w-16 h-16 rounded-full bg-[#4997D0]/10 dark:bg-[#1a1a1a] flex items-center justify-center">
+              <Loader2 className="w-8 h-8 text-[#4997D0] dark:text-[#7a7a7a] animate-spin" />
             </div>
-            <h1 className="text-xl font-semibold">Iniciando sesion con Google...</h1>
-            <p className="text-sm text-muted-foreground">Estamos validando tu cuenta, espera un momento.</p>
+            <h1 className="text-xl font-semibold dark:text-[#efefef]">Iniciando sesion con Google...</h1>
+            <p className="text-sm text-muted-foreground dark:text-[#8d8d8d]">Estamos validando tu cuenta, espera un momento.</p>
           </div>
         )}
       </div>
