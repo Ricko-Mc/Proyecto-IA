@@ -214,7 +214,7 @@ export function AdminUsuarios() {
       <div className="space-y-5">
         <div className="flex justify-end">
           <Button
-            className="bg-[#4997D0] hover:bg-[#3A7FB8]"
+            className="bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#1f1f1f] dark:hover:bg-[#2b2b2b]"
             onClick={() => setDrawerCrearAbierto(true)}
           >
             <UserPlus className="w-4 h-4 mr-2" />
@@ -228,7 +228,7 @@ export function AdminUsuarios() {
           </div>
         ) : null}
 
-        <div className="rounded-2xl border border-[#d9e9f6] bg-white/90 backdrop-blur p-4 md:p-5 space-y-4 shadow-[0_12px_34px_-22px_rgba(58,127,184,0.7)]">
+        <div className="rounded-2xl border border-[#d9e9f6] dark:border-[#2a2a2a] bg-white/90 dark:bg-[#111111]/95 backdrop-blur p-4 md:p-5 space-y-4 shadow-[0_12px_34px_-22px_rgba(58,127,184,0.7)] dark:shadow-[0_16px_30px_-20px_rgba(0,0,0,0.7)]">
           <div className="flex flex-col gap-3 md:flex-row md:items-end">
             <div className="flex-1 space-y-1.5">
               <Label>Buscar por correo</Label>
@@ -274,10 +274,10 @@ export function AdminUsuarios() {
 
           <div className="flex items-center justify-between gap-2 px-1">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Users className="w-4 h-4 text-[#4997D0]" />
+              <Users className="w-4 h-4 text-[#4997D0] dark:text-[#c8c8c8]" />
               {usuarios.length} usuarios
             </div>
-            <Badge variant="outline" className="text-xs border-[#c7ddf0] bg-[#f4f9fd]">
+            <Badge variant="outline" className="text-xs border-[#c7ddf0] bg-[#f4f9fd] dark:border-[#3a3a3a] dark:bg-[#1c1c1c] dark:text-[#d4d4d4]">
               Página {paginaSegura} de {totalPaginas}
             </Badge>
           </div>
@@ -293,7 +293,7 @@ export function AdminUsuarios() {
                 return (
                 <div
                   key={usuario.id}
-                  className="rounded-xl border border-[#d5e7f5] bg-white p-3 md:p-4 transition-shadow hover:shadow-[0_10px_24px_-22px_rgba(58,127,184,0.9)]"
+                  className="rounded-xl border border-[#d5e7f5] dark:border-[#2f2f2f] bg-white dark:bg-[#171717] p-3 md:p-4 transition-shadow hover:shadow-[0_10px_24px_-22px_rgba(58,127,184,0.9)] dark:hover:shadow-[0_10px_20px_-16px_rgba(0,0,0,0.65)]"
                 >
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                     <div>
@@ -317,7 +317,7 @@ export function AdminUsuarios() {
                           ))}
                         </SelectContent>
                       </Select>
-                      {actualizando ? <Loader2 className="w-4 h-4 animate-spin text-[#4997D0]" /> : null}
+                      {actualizando ? <Loader2 className="w-4 h-4 animate-spin text-[#4997D0] dark:text-[#d4d4d4]" /> : null}
                     </div>
                   </div>
                 </div>
@@ -326,7 +326,7 @@ export function AdminUsuarios() {
             </div>
           )}
 
-          <div className="flex items-center justify-between border-t border-[#e4eff8] pt-3">
+          <div className="flex items-center justify-between border-t border-[#e4eff8] dark:border-[#2a2a2a] pt-3">
             <p className="text-xs text-muted-foreground">
               Mostrando {usuarios.length === 0 ? 0 : inicio + 1} a {Math.min(fin, usuarios.length)} de {usuarios.length}
             </p>
@@ -352,7 +352,7 @@ export function AdminUsuarios() {
         </div>
 
         <Sheet open={drawerCrearAbierto} onOpenChange={setDrawerCrearAbierto}>
-          <SheetContent side="right" className="w-full sm:max-w-md border-l-[#cde1f2]">
+          <SheetContent side="right" className="w-full sm:max-w-md border-l-[#cde1f2] dark:border-l-[#2a2a2a] dark:bg-[#111111]">
             <SheetHeader>
               <SheetTitle>Crear usuario y asignar rol</SheetTitle>
               <SheetDescription>

@@ -119,13 +119,35 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+@layer components {
+  .glass-main-container {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .glass-sidebar {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background: linear-gradient(135deg, #c9ecff 0%, #e8f7ff 52%, #fff3db 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  .dark body {
+    background: linear-gradient(160deg, #050505 0%, #0c0c0c 50%, #121212 100%);
+    background-attachment: fixed;
   }
 
   

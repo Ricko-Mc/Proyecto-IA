@@ -90,7 +90,10 @@ class ServicioChat:
         cache_hit = self._cache_respuestas.get(cache_key)
 
         if cache_hit is not None:
-            tipo_respuesta = cache_hit.get("tipo_respuesta", "video" if cache_hit.get("signo_encontrado") else "texto")
+            tipo_respuesta = cache_hit.get(
+                "tipo_respuesta",
+                "video" if cache_hit.get("signo_encontrado") else "no_encontrado",
+            )
             palabra_clave = cache_hit["palabra_clave"]
             signo_info = {
                 "encontrado": cache_hit["signo_encontrado"],
@@ -178,7 +181,7 @@ class ServicioChat:
             if signo_info["encontrado"]:
                 url_video = construir_url_embed_youtube(signo_info.get("youtube_referencia"))
             respuesta_ia = self.agente_ia.generar_respuesta_contextual(mensaje, signo_info)
-            tipo_respuesta = "video" if signo_info["encontrado"] else "texto"
+            tipo_respuesta = "video" if signo_info["encontrado"] else "no_encontrado"
             self._cache_respuestas.set(
                 cache_key,
                 {

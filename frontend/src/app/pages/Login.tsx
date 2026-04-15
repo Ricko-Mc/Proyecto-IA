@@ -169,8 +169,9 @@ export function Login() {
           
           <Button
             type="submit"
+            variant="ghost"
             disabled={isLoading || !username || !password}
-            className="w-full h-10 bg-transparent hover:bg-white/10 text-white border-2 border-white rounded-full text-[0.8rem] transition-all duration-200 ease-in-out disabled:opacity-50"
+            className="w-full h-10 !bg-transparent hover:!bg-white/10 !text-white !border-2 !border-white !rounded-full text-[0.8rem] transition-all duration-200 ease-in-out hover:!translate-y-0 hover:!shadow-none disabled:opacity-50"
             style={{ fontWeight: 600 }}
           >
             {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
@@ -200,9 +201,10 @@ export function Login() {
 
         
         <Button
+          variant="ghost"
           onClick={handleGoogleSignIn}
           disabled={isLoading}
-          className="w-full bg-white hover:bg-white/90 text-gray-900 h-10 text-[0.8rem] rounded-full shadow-lg transition-all duration-200 ease-in-out"
+          className="w-full !bg-white hover:!bg-white/90 !text-gray-900 h-10 text-[0.8rem] !rounded-full shadow-lg transition-all duration-200 ease-in-out hover:!translate-y-0 hover:!shadow-lg"
           style={{ fontWeight: 600 }}
         >
           <Chrome className="w-5 h-5 mr-2" />

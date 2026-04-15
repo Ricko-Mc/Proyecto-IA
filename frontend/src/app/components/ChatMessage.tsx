@@ -17,6 +17,7 @@ export interface Message {
   videos?: Array<{ word: string; videoUrl: string }>;
   disambiguationWord?: string;
   disambiguationOptions?: Array<{ label: string; clave: string }>;
+  backendError?: boolean;
 }
 
 interface ChatMessageProps {
@@ -28,7 +29,7 @@ interface ChatMessageProps {
 
 function InactiveVideoPlaceholder() {
   return (
-    <div className="block w-[420px] min-w-[420px] h-[80px] bg-[#eeeeee] rounded-[16px] border-0">
+    <div className="block w-[420px] min-w-[420px] h-[80px] bg-[#eeeeee] dark:bg-[#191919] rounded-[16px] border-0">
       <div className="w-full h-full flex items-center justify-center">
         <Clapperboard className="w-4 h-4 text-muted-foreground/60" />
       </div>
@@ -42,10 +43,13 @@ export function ChatMessage({
   onSelectDisambiguation,
   isActiveVideo = false,
 }: ChatMessageProps) {
+  const botBubbleClass =
+    'space-y-3 rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(20,20,20,0.78)] dark:border dark:border-[#303030]';
+
   if (message.type === 'user') {
     return (
       <div className="flex justify-end mb-4">
-        <div className="max-w-[70%] bg-[#4997D0] text-white rounded-2xl rounded-tr-sm px-4 py-3">
+        <div className="max-w-[70%] text-white rounded-[18px] px-4 py-3 bg-[linear-gradient(135deg,#3bc8ff,#5ea8ff)] dark:bg-[linear-gradient(135deg,#232323,#313131)] shadow-[0_8px_18px_rgba(59,200,255,0.28)] dark:shadow-[0_8px_18px_rgba(0,0,0,0.4)]">
           <p className="text-sm">{message.text}</p>
         </div>
       </div>
@@ -55,12 +59,19 @@ export function ChatMessage({
     <div className="flex justify-start mb-6">
       <div className="w-full">
         {message.isLoading ? (
-          <div className="flex items-center gap-3 py-4 px-4 bg-muted rounded-2xl rounded-tl-sm">
-            <Loader2 className="w-5 h-5 animate-spin text-[#4997D0]" />
+          <div className="flex items-center gap-3 py-4 px-4 rounded-[18px] backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(20,20,20,0.78)] dark:border dark:border-[#303030]">
+            <Loader2 className="w-5 h-5 animate-spin text-[#4997D0] dark:text-[#d8d8d8]" />
             <span className="text-sm text-muted-foreground">Procesando...</span>
           </div>
+        ) : message.backendError ? (
+          <div className={botBubbleClass}>
+            <p className="text-sm text-destructive font-medium">Error del servidor</p>
+            <p className="text-sm text-muted-foreground">
+              {message.text || 'No se pudo procesar tu solicitud en este momento.'}
+            </p>
+          </div>
         ) : message.notFound ? (
-          <div className="space-y-3 bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
+          <div className={botBubbleClass}>
             <p className="text-sm text-destructive font-medium">
               Palabra no encontrada
             </p>
@@ -70,14 +81,14 @@ export function ChatMessage({
             <Button
               onClick={() => onRequestWord?.(message.notFoundWord || '')}
               size="sm"
-              className="w-full bg-[#4997D0] hover:bg-[#3A7FB8]"
+              className="w-full bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#1f1f1f] dark:hover:bg-[#2b2b2b]"
             >
               <Send className="w-4 h-4 mr-2" />
               Solicitar esta palabra
             </Button>
           </div>
         ) : message.noVideoAvailable ? (
-          <div className="space-y-3 bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
+          <div className={botBubbleClass}>
             <p className="text-sm text-destructive font-medium">
               Aun no hay video disponible para esta seña
             </p>
@@ -87,14 +98,14 @@ export function ChatMessage({
             <Button
               onClick={() => onRequestWord?.(message.suggestionWord || message.signLabel || '')}
               size="sm"
-              className="w-full bg-[#4997D0] hover:bg-[#3A7FB8]"
+              className="w-full bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#1f1f1f] dark:hover:bg-[#2b2b2b]"
             >
               <Send className="w-4 h-4 mr-2" />
               Enviar sugerencia de seña
             </Button>
           </div>
         ) : message.disambiguationOptions && message.disambiguationOptions.length > 0 ? (
-          <div className="space-y-3 bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
+          <div className={botBubbleClass}>
             <p className="text-sm text-foreground">
               {message.text || 'La palabra tiene mas de una seña. Elige una opcion:'}
             </p>
@@ -104,7 +115,7 @@ export function ChatMessage({
                   key={option.clave}
                   size="sm"
                   variant="outline"
-                  className="justify-start border-[#4997D0] text-[#4997D0] hover:bg-[#4997D0] hover:text-white"
+                  className="justify-start border-[#4997D0] text-[#4997D0] hover:bg-[#4997D0] hover:text-white dark:border-[#3a3a3a] dark:text-[#d8d8d8] dark:hover:bg-[#2a2a2a]"
                   onClick={() =>
                     onSelectDisambiguation?.(
                       message.disambiguationWord || message.notFoundWord || '',
@@ -121,7 +132,7 @@ export function ChatMessage({
         ) : message.videos && message.videos.length > 0 ? (
           <div className="space-y-2">
             {message.text ? (
-              <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
+              <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">
                 <p className="text-sm text-foreground">{message.text}</p>
               </div>
             ) : null}
@@ -134,7 +145,7 @@ export function ChatMessage({
         ) : message.videoUrl && message.signLabel ? (
           <div className="space-y-2">
             {message.text ? (
-              <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
+              <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">
                 <p className="text-sm text-foreground">{message.text}</p>
               </div>
             ) : null}
@@ -145,7 +156,7 @@ export function ChatMessage({
             )}
           </div>
         ) : message.text ? (
-          <div className="bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
+          <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">
             <p className="text-sm text-foreground">{message.text}</p>
           </div>
         ) : null}

@@ -61,10 +61,10 @@ export function AdminDashboardLayout({
   const esAdminOModerador = esAdmin || roles.includes('moderador');
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#e9f5ff,_#f7fbff_40%,_#ffffff_85%)] p-3 md:p-6">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#e9f5ff,_#f7fbff_40%,_#ffffff_85%)] dark:bg-[radial-gradient(circle_at_top,_#0f0f0f,_#0a0a0a_45%,_#050505_90%)] p-3 md:p-6">
       <div className="mx-auto flex w-full max-w-7xl gap-4 md:gap-5">
-        <aside className="hidden md:flex md:w-[280px] md:flex-col rounded-2xl border border-[#d9e9f6] bg-white/90 backdrop-blur p-3 shadow-[0_18px_36px_-26px_rgba(58,127,184,0.8)]">
-          <div className="mb-3 rounded-xl border border-[#e1edf7] bg-[#f5faff] p-3">
+        <aside className="hidden md:flex md:w-[280px] md:flex-col rounded-2xl border border-[#d9e9f6] dark:border-[#2a2a2a] bg-white/90 dark:bg-[#111111]/95 backdrop-blur p-3 shadow-[0_18px_36px_-26px_rgba(58,127,184,0.8)] dark:shadow-[0_20px_34px_-24px_rgba(0,0,0,0.7)]">
+          <div className="mb-3 rounded-xl border border-[#e1edf7] dark:border-[#2d2d2d] bg-[#f5faff] dark:bg-[#1a1a1a] p-3">
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">
                 <AvatarFallback className="bg-[#4997D0] text-white text-xs">
@@ -73,7 +73,7 @@ export function AdminDashboardLayout({
               </Avatar>
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">{user?.name || 'Usuario'}</p>
-                <p className="truncate text-xs text-muted-foreground">{user?.email || ''}</p>
+                <p className="truncate text-xs text-muted-foreground dark:text-[#8d8d8d]">{user?.email || ''}</p>
               </div>
             </div>
           </div>
@@ -98,7 +98,7 @@ export function AdminDashboardLayout({
             {esAdminOModerador ? (
               <Button
                 variant={active === 'reportes' ? 'default' : 'ghost'}
-                className={active === 'reportes' ? 'w-full justify-start bg-[#4997D0] hover:bg-[#3A7FB8]' : 'w-full justify-start'}
+                className={active === 'reportes' ? 'w-full justify-start bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#232323] dark:hover:bg-[#303030]' : 'w-full justify-start'}
                 onClick={() => navigate('/admin/reportes')}
               >
                 <ShieldCheck className="mr-2 h-4 w-4" />
@@ -108,7 +108,7 @@ export function AdminDashboardLayout({
             {esAdmin ? (
               <Button
                 variant={active === 'usuarios' ? 'default' : 'ghost'}
-                className={active === 'usuarios' ? 'w-full justify-start bg-[#4997D0] hover:bg-[#3A7FB8]' : 'w-full justify-start'}
+                className={active === 'usuarios' ? 'w-full justify-start bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#232323] dark:hover:bg-[#303030]' : 'w-full justify-start'}
                 onClick={() => navigate('/admin/usuarios')}
               >
                 <Users className="mr-2 h-4 w-4" />
@@ -135,11 +135,11 @@ export function AdminDashboardLayout({
         </aside>
 
         <main className="flex-1 space-y-4">
-          <div className="rounded-2xl border border-[#d9e9f6] bg-white/90 backdrop-blur px-4 py-3 md:px-5 md:py-4 shadow-[0_18px_36px_-26px_rgba(58,127,184,0.8)]">
+          <div className="rounded-2xl border border-[#d9e9f6] dark:border-[#2a2a2a] bg-white/90 dark:bg-[#111111]/95 backdrop-blur px-4 py-3 md:px-5 md:py-4 shadow-[0_18px_36px_-26px_rgba(58,127,184,0.8)] dark:shadow-[0_20px_34px_-24px_rgba(0,0,0,0.7)]">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h1 className="text-lg md:text-xl font-semibold">{title}</h1>
-                {subtitle ? <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p> : null}
+                {subtitle ? <p className="text-xs text-muted-foreground dark:text-[#8d8d8d] mt-0.5">{subtitle}</p> : null}
               </div>
               {onReload ? (
                 <Button variant="outline" onClick={onReload}>
@@ -150,7 +150,7 @@ export function AdminDashboardLayout({
             </div>
           </div>
 
-          <div className="md:hidden rounded-xl border border-[#d9e9f6] bg-white/90 p-2 flex gap-2 overflow-x-auto">
+          <div className="md:hidden rounded-xl border border-[#d9e9f6] dark:border-[#2a2a2a] bg-white/90 dark:bg-[#111111]/95 p-2 flex gap-2 overflow-x-auto">
             <Button variant="outline" size="sm" onClick={() => navigate('/chat')}>
               Chat
             </Button>
@@ -161,7 +161,7 @@ export function AdminDashboardLayout({
               <Button
                 variant={active === 'reportes' ? 'default' : 'outline'}
                 size="sm"
-                className={active === 'reportes' ? 'bg-[#4997D0] hover:bg-[#3A7FB8]' : ''}
+                className={active === 'reportes' ? 'bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#232323] dark:hover:bg-[#303030]' : ''}
                 onClick={() => navigate('/admin/reportes')}
               >
                 Solicitudes
@@ -171,7 +171,7 @@ export function AdminDashboardLayout({
               <Button
                 variant={active === 'usuarios' ? 'default' : 'outline'}
                 size="sm"
-                className={active === 'usuarios' ? 'bg-[#4997D0] hover:bg-[#3A7FB8]' : ''}
+                className={active === 'usuarios' ? 'bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#232323] dark:hover:bg-[#303030]' : ''}
                 onClick={() => navigate('/admin/usuarios')}
               >
                 Usuarios

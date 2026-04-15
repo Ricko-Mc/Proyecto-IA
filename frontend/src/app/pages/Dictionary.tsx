@@ -34,16 +34,16 @@ interface DictionaryLayoutProps {
 
 function DictionaryLayout({ onBack, children }: DictionaryLayoutProps) {
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-transparent pb-20 md:pb-0">
       
-      <div className="border-b border-border bg-background sticky top-0 z-10">
+      <div className="border-b border-border dark:border-[#2a2a2a] bg-background dark:bg-[#101010] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 h-14 md:h-16 flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8 md:h-10 md:w-10 transition-all duration-200 ease-in-out">
             <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
           <div className="flex-1">
             <h1 className="text-sm md:text-base font-semibold flex items-center gap-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
-              <BookOpen className="w-4 h-4 md:w-5 md:h-5 text-[#4997D0]" />
+              <BookOpen className="w-4 h-4 md:w-5 md:h-5 text-[#4997D0] dark:text-[#d0d0d0]" />
               Diccionario SEGUA
             </h1>
           </div>
@@ -134,11 +134,11 @@ export function Dictionary() {
 
         
         <div className="mb-5 md:mb-7">
-          <div className="max-w-5xl mx-auto rounded-2xl border border-border bg-card p-3 md:p-4">
+          <div className="max-w-5xl mx-auto rounded-2xl border border-border dark:border-[#2d2d2d] bg-card dark:bg-[#111111] p-3 md:p-4">
             <div className="grid grid-cols-1 md:grid-cols-[1.35fr_1fr_auto] gap-2 md:gap-3 items-end">
               <div className="space-y-1.5">
                 <label className="text-xs md:text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Search className="w-4 h-4 text-[#4997D0]" />
+                  <Search className="w-4 h-4 text-[#4997D0] dark:text-[#d0d0d0]" />
                   Buscar por palabra
                 </label>
                 <div className="relative">
@@ -148,18 +148,18 @@ export function Dictionary() {
                     placeholder="Ej: agua, tamal, buenos dias..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-10 md:h-11 pl-9 pr-3 text-xs md:text-sm bg-background border border-border focus:border-[#4997D0]"
+                    className="h-10 md:h-11 pl-9 pr-3 text-xs md:text-sm bg-background dark:bg-[#171717] border border-border dark:border-[#313131] focus:border-[#4997D0] dark:focus:border-[#4a4a4a]"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
                 <label className="text-xs md:text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Filter className="w-4 h-4 text-[#4997D0]" />
+                  <Filter className="w-4 h-4 text-[#4997D0] dark:text-[#d0d0d0]" />
                   Filtrar por tema
                 </label>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger className="h-10 md:h-11 bg-background border border-border text-xs md:text-sm">
+                  <SelectTrigger className="h-10 md:h-11 bg-background dark:bg-[#171717] border border-border dark:border-[#313131] text-xs md:text-sm">
                     <SelectValue placeholder="Selecciona una categoría" />
                   </SelectTrigger>
                   <SelectContent>
@@ -174,7 +174,7 @@ export function Dictionary() {
 
               <Button
                 onClick={handleSearch}
-                className="h-10 md:h-11 px-4 md:px-6 bg-[#4997D0] hover:bg-[#3A7FB8] text-white text-xs md:text-sm w-full md:w-auto"
+                className="h-10 md:h-11 px-4 md:px-6 bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#1f1f1f] dark:hover:bg-[#2b2b2b] text-white text-xs md:text-sm w-full md:w-auto"
               >
                 BUSCAR
               </Button>
@@ -201,13 +201,13 @@ export function Dictionary() {
             <button
               key={word.id}
               onClick={() => setSelectedWord(word)}
-              className="group bg-muted hover:bg-accent rounded-lg md:rounded-xl p-2 md:p-3 transition-all duration-200 ease-in-out hover:shadow-md border border-border hover:border-[#4997D0]"
+              className="group bg-muted dark:bg-[#171717] hover:bg-accent dark:hover:bg-[#1f1f1f] rounded-lg md:rounded-xl p-2 md:p-3 transition-all duration-200 ease-in-out hover:shadow-md border border-border dark:border-[#2d2d2d] hover:border-[#4997D0] dark:hover:border-[#404040]"
               style={{ fontFamily: 'Poppins, sans-serif' }}
             >
-              <div className="aspect-square bg-gradient-to-br from-[#4997D0] to-[#2B5F8F] rounded-lg mb-2 flex items-center justify-center">
+              <div className="aspect-square bg-gradient-to-br from-[#4997D0] to-[#2B5F8F] dark:from-[#232323] dark:to-[#151515] rounded-lg mb-2 flex items-center justify-center">
                 <BookOpen className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
-              <p className="font-medium text-[11px] md:text-xs mb-1 group-hover:text-[#4997D0] transition-colors duration-200 line-clamp-2">
+              <p className="font-medium text-[11px] md:text-xs mb-1 group-hover:text-[#4997D0] dark:group-hover:text-[#d0d0d0] transition-colors duration-200 line-clamp-2">
                 {word.word}
               </p>
               <p className="text-[9px] md:text-xs text-muted-foreground line-clamp-1">{word.category}</p>
@@ -226,10 +226,10 @@ export function Dictionary() {
 
       
       <Sheet open={!!selectedWord} onOpenChange={() => setSelectedWord(null)}>
-        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto p-0">
+        <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto p-0 dark:bg-[#101010] dark:border-l-[#2a2a2a]">
           {selectedWord && (
             <div className="h-full flex flex-col">
-              <div className="px-5 md:px-6 pt-6 pb-4 border-b border-border bg-background/95 backdrop-blur">
+              <div className="px-5 md:px-6 pt-6 pb-4 border-b border-border dark:border-[#2a2a2a] bg-background/95 dark:bg-[#111111]/95 backdrop-blur">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
                   Diccionario
                 </p>
@@ -240,7 +240,7 @@ export function Dictionary() {
               </div>
 
               <div className="flex-1 overflow-y-auto px-5 md:px-6 py-5 space-y-5">
-                <div className="rounded-xl border border-border bg-card p-3 md:p-4">
+                <div className="rounded-xl border border-border dark:border-[#2a2a2a] bg-card dark:bg-[#151515] p-3 md:p-4">
                   <div className="flex justify-center">
                     {selectedWord.videoUrl ? (
                       <VideoPlayer
@@ -248,14 +248,14 @@ export function Dictionary() {
                         signLabel={selectedWord.word}
                       />
                     ) : (
-                      <div className="bg-muted rounded-lg p-6 text-sm text-muted-foreground text-center w-full">
+                      <div className="bg-muted dark:bg-[#1f1f1f] rounded-lg p-6 text-sm text-muted-foreground text-center w-full">
                         Aun no hay video disponible para esta sena.
                       </div>
                     )}
                   </div>
                 </div>
 
-                <div className="bg-muted/70 rounded-xl p-4 md:p-5">
+                <div className="bg-muted/70 dark:bg-[#1a1a1a] rounded-xl p-4 md:p-5">
                   <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
                     Recomendacion
                   </p>

@@ -23,10 +23,26 @@ async def procesar_chat(
         raise HTTPException(status_code=400, detail="El mensaje no puede estar vacio")
     usuario_id = usuario["usuario_id"] if usuario else None
     ip = request.client.host if request.client else None
-    return servicio_chat.procesar_mensaje(
-        datos.mensaje,
-        datos.conversacion_id,
-        datos.clave_desambiguacion,
-        usuario_id,
-        ip,
-    )
+    try:
+        return servicio_chat.procesar_mensaje(
+            datos.mensaje,
+            datos.conversacion_id,
+            datos.clave_desambiguacion,
+            usuario_id,
+            ip,
+        )
+    except HTTPException:
+        raise
+    except Exception:
+        return {
+            "tipo_respuesta": "error_backend",
+            "mensaje_usuario": datos.mensaje,
+            "conversacion_id": datos.conversacion_id or "",
+            "palabra_clave": "",
+            "signo_encontrado": False,
+            "signo_id": None,
+            "url_video": None,
+            "categoria": None,
+            "respuesta_ia": "Ocurrio un error interno procesando tu consulta. Intenta nuevamente.",
+            "opciones": None,
+        }
