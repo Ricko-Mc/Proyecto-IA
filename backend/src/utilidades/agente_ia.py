@@ -14,6 +14,35 @@ class AgenteIA:
         """Inicializa el agente IA con clave Anthropic (puede ser vacía para usar fallback)."""
         self.client = Anthropic(api_key=api_key) if api_key.strip() else None
 
+    def _extraer_patron_contextual(self, mensaje_usuario: str) -> tuple[str | None, str | None]:
+        """Detecta consultas guiadas como 'como se dice X' o 'color X'."""
+        mensaje = mensaje_usuario.strip().lower()
+        mensaje = unicodedata.normalize("NFD", mensaje)
+        mensaje = "".join(caracter for caracter in mensaje if unicodedata.category(caracter) != "Mn")
+        mensaje = re.sub(r"[^a-z0-9_\s]", "", mensaje)
+        mensaje = re.sub(r"\s+", " ", mensaje).strip()
+
+        patrones = [
+            (r"(?:como|que|qué)\s+(?:se\s+)?(?:dice|hace|signa|significa)\s+(?:la|el)?\s*(.+)$", None),
+            (r"(?:como|que|qué)\s+(?:es|son)\s+(?:la|el)?\s*(.+)$", None),
+            (r"(?:se[ñn]a|signo)\s+(?:de|para)\s+(.+)$", None),
+            (r"color\s+(.+)$", "colores"),
+            (r"letra\s+(.+)$", "abecedario"),
+        ]
+
+        for patron, categoria in patrones:
+            coincidencia = re.match(patron, mensaje)
+            if not coincidencia:
+                continue
+            palabra = coincidencia.group(1).strip()
+            palabra = re.sub(r"\s+(por favor|pls|porfa)$", "", palabra).strip()
+            palabra = re.sub(r"\s+(en\s+se[nñ]as|en\s+lensegua|por\s+favor|pls|porfa)$", "", palabra).strip()
+            palabra = re.sub(r"^(la|el|los|las)\s+", "", palabra).strip()
+            if palabra:
+                return palabra, categoria
+
+        return None, None
+
     def normalizar(self, texto: str) -> str:
         """Normaliza texto a minúsculas sin tildes y reemplaza espacios con guiones bajos."""
         texto = texto.lower().strip()
@@ -24,8 +53,18 @@ class AgenteIA:
 
     def extraer_palabra_clave(self, mensaje_usuario: str) -> dict:
         """Extrae palabra clave del mensaje usando Claude o fallback local."""
+        palabra_patron, categoria_patron = self._extraer_patron_contextual(mensaje_usuario)
+        if palabra_patron:
+            resultado = {
+                "palabra_extraida": palabra_patron,
+                "palabra_normalizada": self.normalizar(palabra_patron),
+            }
+            if categoria_patron:
+                resultado["categoria_sugerida"] = categoria_patron
+            return resultado
+
         palabra_local = self._extraer_palabra_local(mensaje_usuario)
-        if palabra_local and len(mensaje_usuario.strip().split()) <= 4:
+        if palabra_local and len(mensaje_usuario.strip().split()) <= 2:
             return {
                 "palabra_extraida": palabra_local,
                 "palabra_normalizada": self.normalizar(palabra_local),
