@@ -80,9 +80,9 @@ export function Sidebar({
 }: SidebarProps) {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const roles = (() => {
-    try {
-      const userRaw = localStorage.getItem('user');
+    const roles = (() => {
+      try {
+        const userRaw = localStorage.getItem('user');
       if (!userRaw) return [] as string[];
       const parsed = JSON.parse(userRaw) as { roles?: string[] };
       return parsed.roles || [];
@@ -118,14 +118,14 @@ export function Sidebar({
 
   return (
     <div
-      className="flex flex-col h-full rounded-[22px] bg-[#edf2f8] dark:bg-[#111111] border border-transparent dark:border-[#262626] shadow-[0_2px_8px_rgba(42,54,74,0.06)] dark:shadow-[0_8px_20px_rgba(0,0,0,0.45)] overflow-hidden"
+      className="flex flex-col h-full bg-white/20 dark:bg-white/5 backdrop-blur-sm border border-white/40 dark:border-white/10 rounded-[16px] overflow-hidden"
     >
       
-      <div className="p-2 space-y-1.5">
-        <div className="flex items-center gap-1.5">
+      <div className="p-3 space-y-3">
+        <div className="flex items-center gap-2">
           <Button
             onClick={handleNewConversation}
-            className="flex-1 bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#1c1c1c] dark:hover:bg-[#2a2a2a] text-white h-8 text-xs"
+            className="flex-1 bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#1c1c1c] dark:hover:bg-[#2a2a2a] text-white h-9 text-xs rounded-[6px]"
           >
             <MessageSquarePlus className="w-3.5 h-3.5 mr-1.5" />
             Nueva conversación
@@ -135,7 +135,7 @@ export function Sidebar({
               onClick={onClose}
               variant="ghost"
               size="icon"
-              className="h-8 w-8 hover:bg-gray-200 dark:hover:bg-[#252525]"
+              className="h-9 w-9 hover:bg-gray-200 dark:hover:bg-[#252525] rounded-[6px]"
             >
               <X className="w-4 h-4 text-gray-600 dark:text-[#d6d6d6]" />
             </Button>
@@ -150,35 +150,40 @@ export function Sidebar({
             placeholder="Buscar..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-8 pl-7 text-xs bg-white dark:bg-[#1a1a1a] dark:text-[#efefef] dark:placeholder:text-[#8d8d8d] border-0 rounded-[10px]"
+            className="h-9 pl-7 text-xs bg-white dark:bg-[#1a1a1a] dark:text-[#efefef] dark:placeholder:text-[#8d8d8d] border-0 rounded-[6px]"
           />
         </div>
       </div>
 
       
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto px-3">
+        <div className="px-1 pt-1 pb-3">
+          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground dark:text-[#8d8d8d]">
+            Recientes
+          </p>
+        </div>
         {filteredConversations.length === 0 ? (
-          <div className="p-2 text-center text-xs text-muted-foreground dark:text-[#8d8d8d]">
+          <div className="px-1 py-3 text-center text-xs text-muted-foreground dark:text-[#8d8d8d]">
             {searchQuery ? 'No se encontraron conversaciones' : 'No hay conversaciones aún'}
           </div>
         ) : (
-          <div className="p-1.5">
+          <div className="space-y-1 pb-3">
             {filteredConversations.map((conversation) => (
               <div
                 key={conversation.id}
-                className="group relative mb-0.5"
+                className="group relative"
               >
                 <button
                   onClick={() => handleSelectConversation(conversation.id)}
-                  className={`w-full text-left p-2 rounded-md transition-colors ${
+                  className={`w-full text-left p-2.5 rounded-[6px] transition-colors ${
                     currentConversationId === conversation.id
-                      ? 'bg-white dark:bg-[#1d1d1d] text-[#1f2937] dark:text-[#f0f0f0] shadow-[0_1px_2px_rgba(27,39,59,0.04)]'
-                      : 'hover:bg-white/70 dark:hover:bg-[#1e1e1e]'
+                      ? 'bg-transparent text-[#1f2937] dark:text-[#f0f0f0] font-semibold border-l-2 border-[#4997D0] dark:border-[#8d8d8d] pl-[0.625rem]'
+                      : 'bg-transparent hover:bg-white/45 dark:hover:bg-[#1a1a1a]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-1 mb-0.5">
-                    <p className="text-xs font-medium truncate flex-1 line-clamp-1">{conversation.name}</p>
-                    <span className="text-[9px] text-muted-foreground whitespace-nowrap">
+                    <p className="text-xs truncate flex-1 line-clamp-1">{conversation.name}</p>
+                    <span className="text-[9px] text-muted-foreground dark:text-[#8d8d8d] whitespace-nowrap">
                       {formatRelativeTime(conversation.timestamp)}
                     </span>
                   </div>
@@ -190,7 +195,7 @@ export function Sidebar({
                 
                 <button
                   onClick={(e) => handleDeleteConversation(conversation.id, e)}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive hover:bg-destructive/90 text-white p-1 rounded-sm"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive hover:bg-destructive/90 text-white p-1 rounded-[4px]"
                   title="Eliminar"
                 >
                   <Trash2 className="w-3 h-3" />
@@ -202,12 +207,12 @@ export function Sidebar({
       </div>
 
       
-      <div className="p-2 bg-[#eaf0f7] dark:bg-[#141414]">
+      <div className="px-3 py-2 bg-transparent dark:bg-transparent">
         {esAdminOModerador ? (
-          <div className="space-y-2 mb-2">
+          <div className="space-y-1.5 mb-2">
             <Button
               variant="outline"
-              className="w-full h-8 text-xs"
+              className="w-full h-8 text-xs rounded-[6px]"
               onClick={() => {
                 navigate('/admin/reportes');
                 if (isMobile && onClose) {
@@ -221,7 +226,7 @@ export function Sidebar({
             {roles.includes('admin') ? (
               <Button
                 variant="outline"
-                className="w-full h-8 text-xs"
+                className="w-full h-8 text-xs rounded-[6px]"
                 onClick={() => {
                   navigate('/admin/usuarios');
                   if (isMobile && onClose) {
@@ -235,12 +240,14 @@ export function Sidebar({
             ) : null}
           </div>
         ) : null}
-        <UserProfileDropdown
-          userName={userName}
-          userEmail={userEmail}
-          avatarUrl={avatarUrl}
-          onLogout={onLogout}
-        />
+        <div className="pt-2.5 border-t border-black/10 dark:border-white/10">
+          <UserProfileDropdown
+            userName={userName}
+            userEmail={userEmail}
+            avatarUrl={avatarUrl}
+            onLogout={onLogout}
+          />
+        </div>
       </div>
     </div>
   );
