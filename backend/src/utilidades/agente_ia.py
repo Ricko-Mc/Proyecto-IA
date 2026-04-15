@@ -93,6 +93,5 @@ class AgenteIA:
             )
 
     def _extraer_palabra_local(self, mensaje_usuario: str) -> str:
-        """Extrae palabra local dividiendo el texto por espacios cuando Claude no está disponible."""
-        tokens = [token for token in self.normalizar(mensaje_usuario).split("_") if token]
-        return tokens[0] if tokens else ""
+        """Devuelve toda la frase normalizada, permitiendo frases completas como 'como estas'."""
+        return self.normalizar(mensaje_usuario)

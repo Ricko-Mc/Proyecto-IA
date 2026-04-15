@@ -105,7 +105,7 @@ class ServicioChat:
             opciones = cache_hit.get("opciones")
         else:
             extraccion = self.agente_ia.extraer_palabra_clave(mensaje)
-            palabra_clave = extraccion["palabra_normalizada"]
+            palabra_clave = self.puente_prolog.normalizar(extraccion["palabra_normalizada"])
             categoria_contexto = self._inferir_categoria_por_contexto(mensaje)
             opciones = None
 

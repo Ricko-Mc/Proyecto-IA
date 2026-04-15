@@ -34,7 +34,7 @@ class PuenteProlog:
             r"C:\Program Files\swipl\bin\swipl.exe",
             "swipl",
         ]
-        
+        resultado = None
         for swipl_path in swipl_paths:
             try:
                 resultado = subprocess.run(
@@ -46,12 +46,12 @@ class PuenteProlog:
                 )
                 break
             except FileNotFoundError:
+                resultado = None
                 continue
-        else:
+        if resultado is None:
             raise RuntimeError(
                 "No se encontro el ejecutable 'swipl'. Instala SWI-Prolog en C:\\Program Files\\swipl\\ o agrega swipl al PATH."
             )
-
         if resultado.returncode != 0:
             error = resultado.stderr.strip() or resultado.stdout.strip()
             raise RuntimeError(error or "Error ejecutando consulta Prolog")
