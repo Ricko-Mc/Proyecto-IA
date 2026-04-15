@@ -18,6 +18,28 @@ export default defineConfig({
     },
   },
   assetsInclude: ['***.csv'],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': [
+            'react',
+            'react-dom',
+            'react-router-dom',
+            '@mui/material',
+            '@mui/icons-material',
+            '@emotion/react',
+            '@emotion/styled',
+            '@radix-ui/react-accordion',
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-tooltip',
+          ],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+  },
   server: {
     headers: {
       'Cache-Control': 'no-store',

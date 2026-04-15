@@ -65,7 +65,7 @@ export const api = {
     conversacion_id?: string,
     clave_desambiguacion?: string
   ): Promise<RespuestaChat> => {
-    return requestAPI<RespuestaChat>('post', '/chat', {
+    return requestAPI<RespuestaChat>('post', '/api/chat', {
       mensaje,
       conversacion_id: conversacion_id || null,
       clave_desambiguacion: clave_desambiguacion || null,
@@ -73,74 +73,74 @@ export const api = {
   },
 
   obtenerTodosLosSignos: async (): Promise<RespuestaSignos> => {
-    return requestAPI<RespuestaSignos>('get', '/signos');
+    return requestAPI<RespuestaSignos>('get', '/api/signos');
   },
 
   obtenerCategorias: async (): Promise<RespuestaCategorias> => {
-    return requestAPI<RespuestaCategorias>('get', '/categorias');
+    return requestAPI<RespuestaCategorias>('get', '/api/categorias');
   },
 
   obtenerSignosPorCategoria: async (categoria: string): Promise<RespuestaPorCategoria> => {
     return requestAPI<RespuestaPorCategoria>(
       'get',
-      `/categorias/${encodeURIComponent(categoria)}`
+      `/api/categorias/${encodeURIComponent(categoria)}`
     );
   },
 
   buscarSigno: async (palabra: string): Promise<BusquedaSigno> => {
     return requestAPI<BusquedaSigno>(
       'get',
-      `/signo/${encodeURIComponent(palabra)}`
+      `/api/signo/${encodeURIComponent(palabra)}`
     );
   },
 
   verificarSalud: async (): Promise<HealthCheck> => {
-    return requestAPI<HealthCheck>('get', '/health');
+    return requestAPI<HealthCheck>('get', '/api/health');
   },
 
   login: async (data: LoginRequest): Promise<AuthResponse> => {
-    return requestAPI<AuthResponse>('post', '/auth/login', data);
+    return requestAPI<AuthResponse>('post', '/api/auth/login', data);
   },
 
   register: async (data: RegisterRequest): Promise<AuthResponse> => {
-    return requestAPI<AuthResponse>('post', '/auth/register', data);
+    return requestAPI<AuthResponse>('post', '/api/auth/register', data);
   },
 
   loginGoogle: async (): Promise<{ url: string }> => {
-    return requestAPI<{ url: string }>('get', '/auth/google');
+    return requestAPI<{ url: string }>('get', '/api/auth/google');
   },
 
   perfil: async (): Promise<AuthResponse> => {
-    return requestAPI<AuthResponse>('get', '/auth/me');
+    return requestAPI<AuthResponse>('get', '/api/auth/me');
   },
 
   crearReporte: async (data: CrearReporteRequest): Promise<Reporte> => {
-    return requestAPI<Reporte>('post', '/reportes', data);
+    return requestAPI<Reporte>('post', '/api/reportes', data);
   },
 
   listarReportes: async (estado?: string): Promise<Reporte[]> => {
     const suffix = estado ? `?estado=${encodeURIComponent(estado)}` : '';
-    return requestAPI<Reporte[]>('get', `/reportes${suffix}`);
+    return requestAPI<Reporte[]>('get', `/api/reportes${suffix}`);
   },
 
   actualizarReporte: async (reporteId: string, data: ActualizarReporteRequest): Promise<Reporte> => {
-    return requestAPI<Reporte>('patch', `/reportes/${encodeURIComponent(reporteId)}`, data);
+    return requestAPI<Reporte>('patch', `/api/reportes/${encodeURIComponent(reporteId)}`, data);
   },
 
   listarRolesSistema: async (): Promise<RolSistema[]> => {
-    return requestAPI<RolSistema[]>('get', '/admin/usuarios/roles');
+    return requestAPI<RolSistema[]>('get', '/api/admin/usuarios/roles');
   },
 
   listarUsuariosAdmin: async (email?: string): Promise<UsuarioAdmin[]> => {
     const suffix = email ? `?email=${encodeURIComponent(email)}` : '';
-    return requestAPI<UsuarioAdmin[]>('get', `/admin/usuarios${suffix}`);
+    return requestAPI<UsuarioAdmin[]>('get', `/api/admin/usuarios${suffix}`);
   },
 
   crearUsuarioAdmin: async (data: CrearUsuarioAdminRequest): Promise<UsuarioAdmin> => {
-    return requestAPI<UsuarioAdmin>('post', '/admin/usuarios', data);
+    return requestAPI<UsuarioAdmin>('post', '/api/admin/usuarios', data);
   },
 
   asignarRolUsuario: async (data: AsignarRolUsuarioRequest): Promise<UsuarioAdmin> => {
-    return requestAPI<UsuarioAdmin>('patch', '/admin/usuarios/rol', data);
+    return requestAPI<UsuarioAdmin>('patch', '/api/admin/usuarios/rol', data);
   },
 };
