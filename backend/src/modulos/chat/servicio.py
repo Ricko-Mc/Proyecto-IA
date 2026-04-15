@@ -109,7 +109,7 @@ class ServicioChat:
         else:
             extraccion = self.agente_ia.extraer_palabra_clave(mensaje)
             palabra_clave = self.puente_prolog.normalizar(extraccion["palabra_normalizada"])
-            categoria_contexto = self._inferir_categoria_por_contexto(mensaje)
+            categoria_contexto = extraccion.get("categoria_sugerida") or self._inferir_categoria_por_contexto(mensaje)
             opciones = None
 
             coincidencias = self.puente_prolog.buscar_signos_por_palabra(palabra_clave)
