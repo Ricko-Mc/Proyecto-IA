@@ -1,0 +1,10 @@
+signo(perro, animales, 'ANI001').
+signo(gato, animales, 'ANI002').
+signo(pajaro, animales, 'ANI003').
+signo(caballo, animales, 'ANI004').
+signo(conejo, animales, 'ANI005').
+signo(vaca, animales, 'ANI006').
+signo(cerdo, animales, 'ANI007').
+signo(gallina, animales, 'ANI008').
+signo(pez, animales, 'ANI009').
+signo(oso, animales, 'ANI010').

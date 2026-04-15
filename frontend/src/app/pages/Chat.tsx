@@ -22,7 +22,7 @@ import {
 import { Send, Menu, Trash2, Eraser, BookOpen, User } from 'lucide-react';
 import { Avatar, AvatarFallback } from '../components/ui/avatar';
 import { UserProfileDropdown } from '../components/UserProfileDropdown';
-
+import { api } from '../../services/api';
 
 const WELCOME_PHRASES = [
   "Hola, ¿cómo estás?",
@@ -32,35 +32,9 @@ const WELCOME_PHRASES = [
   "Te quiero"
 ];
 
-// Real videos from Firebase
-const VIDEO_URLS: Record<string, string> = {
-  'conejo': 'https://firebasestorage.googleapis.com/v0/b/lensegua-20316.appspot.com/o/00003%2F00011%2Fconejo.webm?alt=media&token=34084c16-5095-4707-8875-4028b7df5e12',
-  'buenos días': 'https://firebasestorage.googleapis.com/v0/b/lensegua-20316.appspot.com/o/00003%2F00012%2Fbuenos%20di%CC%81as.webm?alt=media&token=4772ec8f-c69e-4852-bf15-32b0fe278bfb',
-  'cómo estás': 'https://firebasestorage.googleapis.com/v0/b/lensegua-20316.appspot.com/o/00003%2F00012%2Fcomo%20esta%CC%81s.webm?alt=media&token=190cd44c-1be8-42c4-9aaa-f829e4067848',
-  'hola': 'https://firebasestorage.googleapis.com/v0/b/lensegua-20316.appspot.com/o/00003%2F00012%2Fbuenos%20di%CC%81as.webm?alt=media&token=4772ec8f-c69e-4852-bf15-32b0fe278bfb',
-};
-
-// Default example messages with carousel
-const EXAMPLE_MESSAGES: Message[] = [
-  {
-    id: 'demo-1',
-    type: 'user',
-    text: 'buenos días cómo estás'
-  },
-  {
-    id: 'demo-2',
-    type: 'system',
-    text: '',
-    videos: [
-      { word: 'Buenos días', videoUrl: VIDEO_URLS['buenos días'] },
-      { word: 'Cómo estás', videoUrl: VIDEO_URLS['cómo estás'] }
-    ]
-  }
-];
-
 export function Chat() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [user, setUser] = useState<{ name: string; email: string; avatar_url?: string | null } | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -79,8 +53,6 @@ export function Chat() {
       return;
     }
     setUser(JSON.parse(userData));
-
-    // Start with no conversations - show welcome screen
     setConversations([]);
     setCurrentConversationId('');
     setMessages([]);
@@ -91,26 +63,13 @@ export function Chat() {
   }, [messages]);
 
   const handleNewConversation = () => {
-    const newConvId = `conv-${Date.now()}`;
-    setCurrentConversationId(newConvId);
+    setCurrentConversationId('');
     setMessages([]);
-    const newConv: Conversation = {
-      id: newConvId,
-      name: 'Nueva conversación',
-      lastMessage: '',
-      timestamp: new Date()
-    };
-    setConversations([newConv, ...conversations]);
   };
 
   const handleSelectConversation = (id: string) => {
     setCurrentConversationId(id);
-    // Load default messages for demo conversation
-    if (id === 'conv-default') {
-      setMessages(EXAMPLE_MESSAGES);
-    } else {
-      setMessages([]);
-    }
+    setMessages([]);
   };
 
   const handleDeleteConversation = () => {
@@ -131,7 +90,6 @@ export function Chat() {
 
   const handleClearConversation = () => {
     setMessages([]);
-    // Update conversation timestamp
     if (currentConversationId) {
       setConversations(prev =>
         prev.map(conv =>
@@ -145,6 +103,7 @@ export function Chat() {
 
   const handleLogout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('access_token');
     navigate('/');
   };
 
@@ -153,18 +112,22 @@ export function Chat() {
     setShowNotFoundDialog(true);
   };
 
-  const handleSendMessage = () => {
-    if (!inputText.trim()) return;
+  const enviarMensaje = async (
+    mensaje: string,
+    claveDesambiguacion?: string,
+    textoUsuarioVisible?: string
+  ) => {
+    if (!mensaje.trim()) return;
+
+    const mensajeActual = mensaje;
 
     const userMessage: Message = {
       id: `msg-${Date.now()}`,
       type: 'user',
-      text: inputText
+      text: textoUsuarioVisible || mensajeActual
     };
 
-    setMessages([...messages, userMessage]);
-
-    // Simulate processing
+    setMessages((prev) => [...prev, userMessage]);
     const loadingMessage: Message = {
       id: `msg-${Date.now()}-loading`,
       type: 'system',
@@ -174,78 +137,99 @@ export function Chat() {
 
     setMessages(prev => [...prev, loadingMessage]);
 
-    // Simulate API response
-    setTimeout(() => {
+    try {
+      const respuesta = await api.chat(
+        mensajeActual,
+        currentConversationId || undefined,
+        claveDesambiguacion
+      );
+
+      if (!currentConversationId && respuesta.conversacion_id) {
+        setCurrentConversationId(respuesta.conversacion_id);
+        const nuevaConv: Conversation = {
+          id: respuesta.conversacion_id,
+          name: mensajeActual.slice(0, 30),
+          lastMessage: mensajeActual,
+          timestamp: new Date(),
+        };
+        setConversations((prev) => [nuevaConv, ...prev]);
+      }
+
       setMessages(prev => {
         const filtered = prev.filter(m => !m.isLoading);
-        
-        // Split input into words to check if multiple words
-        const words = inputText.trim().split(/\s+/);
-        
-        // Check if we have videos for the words
-        const videosFound = words.map(word => {
-          const normalizedWord = word.toLowerCase();
-          const videoUrl = VIDEO_URLS[normalizedWord];
-          return videoUrl ? { word, videoUrl } : null;
-        }).filter(Boolean);
-        
+        const urlVideoPermitida = respuesta.url_video;
+
         let systemMessage: Message;
-        
-        if (videosFound.length > 0) {
-          if (videosFound.length > 1) {
-            // Multiple words - show carousel
-            systemMessage = {
-              id: `msg-${Date.now()}-response`,
-              type: 'system',
-              text: '',
-              videos: videosFound as Array<{ word: string; videoUrl: string }>
-            };
-          } else {
-            // Single word - show single video
-            const video = videosFound[0]!;
-            systemMessage = {
-              id: `msg-${Date.now()}-response`,
-              type: 'system',
-              text: '',
-              videoUrl: video.videoUrl,
-              signLabel: video.word
-            };
-          }
-        } else {
-          // Not found - show message with button (no auto-popup)
+        if (respuesta.tipo_respuesta === 'desambiguacion') {
+          systemMessage = {
+            id: `msg-${Date.now()}-response`,
+            type: 'system',
+            text: respuesta.respuesta_ia,
+            disambiguationWord: respuesta.palabra_clave || mensajeActual,
+            disambiguationOptions: respuesta.opciones || [],
+          };
+        } else if (respuesta.signo_encontrado) {
           systemMessage = {
             id: `msg-${Date.now()}-response`,
             type: 'system',
             text: '',
+            videoUrl: urlVideoPermitida || undefined,
+            signLabel: respuesta.palabra_clave || undefined,
+            noVideoAvailable: !urlVideoPermitida,
+            suggestionWord: mensajeActual,
+          };
+        } else {
+          systemMessage = {
+            id: `msg-${Date.now()}-response`,
+            type: 'system',
+            text: respuesta.respuesta_ia,
             notFound: true,
-            notFoundWord: inputText
+            notFoundWord: mensajeActual,
           };
         }
-
         return [...filtered, systemMessage];
       });
-    }, 1500);
+    } catch (_error) {
+      setMessages(prev => {
+        const filtered = prev.filter(m => !m.isLoading);
+        return [
+          ...filtered,
+          {
+            id: `msg-${Date.now()}-error`,
+            type: 'system',
+            text: '',
+            notFound: true,
+            notFoundWord: 'No se pudo conectar con el backend',
+          },
+        ];
+      });
+    }
 
-    // Update conversation
     if (currentConversationId) {
       setConversations(prev =>
         prev.map(conv =>
           conv.id === currentConversationId
             ? { 
-                ...conv, 
-                lastMessage: inputText, 
-                name: messages.length === 0 ? inputText.slice(0, 30) : conv.name,
+                ...conv,
+                lastMessage: mensajeActual,
+                name: messages.length === 0 ? mensajeActual.slice(0, 30) : conv.name,
                 timestamp: new Date()
               }
             : conv
         )
       );
-    } else {
-      // Create new conversation if none exists
-      handleNewConversation();
     }
+  };
 
+  const handleSendMessage = async () => {
+    if (!inputText.trim()) return;
+    const mensajeActual = inputText;
     setInputText('');
+    await enviarMensaje(mensajeActual);
+  };
+
+  const handleSelectDisambiguation = async (word: string, clave: string, label: string) => {
+    await enviarMensaje(word, clave, label);
   };
 
   const handleTryPhrase = (phrase: string) => {
@@ -261,16 +245,19 @@ export function Chat() {
   const showWelcome = messages.length === 0;
   const charCount = inputText.length;
   const maxChars = 500;
+  const activeVideoMessageId = [...messages]
+    .reverse()
+    .find((message) => message.type === 'system' && (Boolean(message.videoUrl) || Boolean(message.videos?.length)))?.id;
 
   return (
     <div className="flex h-screen bg-background">
-      {/* Desktop Sidebar */}
       <div className="hidden md:block w-64 lg:w-80">
         <Sidebar
           conversations={conversations}
           currentConversationId={currentConversationId}
           userName={user.name}
           userEmail={user.email}
+          avatarUrl={user.avatar_url}
           onNewConversation={handleNewConversation}
           onSelectConversation={handleSelectConversation}
           onDeleteConversation={handleDeleteConversationFromSidebar}
@@ -278,7 +265,7 @@ export function Chat() {
         />
       </div>
 
-      {/* Mobile Sidebar */}
+      
       <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
         <SheetContent side="left" className="p-0 w-72">
           <Sidebar
@@ -286,6 +273,7 @@ export function Chat() {
             currentConversationId={currentConversationId}
             userName={user.name}
             userEmail={user.email}
+            avatarUrl={user.avatar_url}
             onNewConversation={handleNewConversation}
             onSelectConversation={handleSelectConversation}
             onDeleteConversation={handleDeleteConversationFromSidebar}
@@ -296,7 +284,7 @@ export function Chat() {
         </SheetContent>
       </Sheet>
 
-      {/* Delete Confirmation Dialog */}
+      
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -318,16 +306,16 @@ export function Chat() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Word Not Found Dialog */}
+      
       <WordNotFoundDialog
         word={notFoundWord}
         open={showNotFoundDialog}
         onOpenChange={setShowNotFoundDialog}
       />
 
-      {/* Main chat area */}
+      
       <div className="flex-1 flex flex-col">
-        {/* Header */}
+        
         <div className="h-14 border-b border-border px-3 py-2 flex items-center gap-2 bg-background">
           <Button
             variant="ghost"
@@ -338,7 +326,7 @@ export function Chat() {
             <Menu className="w-4 h-4" />
           </Button>
 
-          {/* Desktop header */}
+          
           <div className="hidden md:flex items-center gap-2 flex-1">
             <img
               src="/logo2.png"
@@ -364,7 +352,7 @@ export function Chat() {
             </Button>
           </div>
 
-          {/* Mobile header - centered logo */}
+          
           <div className="md:hidden flex-1 flex justify-center">
             <img
               src="/logo2.png"
@@ -373,11 +361,12 @@ export function Chat() {
             />
           </div>
 
-          {/* Mobile profile avatar */}
+          
           <div className="md:hidden">
             <UserProfileDropdown
               userName={user.name}
               userEmail={user.email}
+              avatarUrl={user.avatar_url}
               onLogout={handleLogout}
               mobileOnly={true}
             />
@@ -410,7 +399,7 @@ export function Chat() {
           )}
         </div>
 
-        {/* Messages area */}
+        
         <div className="flex-1 overflow-y-auto pb-20 md:pb-0">
           <div className="max-w-3xl mx-auto px-2 md:px-3 py-2 md:py-4">
             {showWelcome ? (
@@ -461,6 +450,8 @@ export function Chat() {
                     key={message.id}
                     message={message}
                     onRequestWord={handleRequestWord}
+                    onSelectDisambiguation={handleSelectDisambiguation}
+                    isActiveVideo={message.id === activeVideoMessageId}
                   />
                 ))}
                 <div ref={messagesEndRef} />
@@ -469,7 +460,7 @@ export function Chat() {
           </div>
         </div>
 
-        {/* Input area */}
+        
         <div className="border-t border-border bg-background p-1.5 md:p-2 mb-16 md:mb-0">
           <div className="max-w-3xl mx-auto">
             <div className="flex gap-1 md:gap-1.5">
@@ -502,7 +493,7 @@ export function Chat() {
         </div>
       </div>
 
-      {/* Bottom Navigation (Mobile only) */}
+      
       <BottomNav />
     </div>
   );

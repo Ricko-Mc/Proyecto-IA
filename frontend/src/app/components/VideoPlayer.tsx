@@ -1,44 +1,83 @@
-import { useRef, useEffect } from 'react';
+import { toYouTubeEmbedUrl, toYouTubeThumbnailUrl } from '../../services/youtube';
+import { LazyYouTubeFrame } from './LazyYouTubeFrame';
 
 interface VideoPlayerProps {
   videoUrl: string;
   signLabel: string;
+  active?: boolean;
 }
 
-export function VideoPlayer({ videoUrl, signLabel }: VideoPlayerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+export function VideoPlayer({ videoUrl, signLabel, active = true }: VideoPlayerProps) {
+  const embedUrl = toYouTubeEmbedUrl(videoUrl);
+  const thumbnailUrl = toYouTubeThumbnailUrl(videoUrl);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    // Auto play when video loads
-    video.play().catch(() => {
-      // Ignore autoplay errors (some browsers block autoplay)
-    });
-  }, [videoUrl]);
+  if (!embedUrl) {
+    return (
+      <div className="w-full max-w-sm md:max-w-2xl">
+        <div className="relative bg-gray-900 rounded-[12px] overflow-hidden aspect-video shadow-sm flex items-center justify-center p-4">
+          <p className="text-white/80 text-sm text-center">No se pudo cargar el video de YouTube.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full max-w-sm md:max-w-lg">
-      <div className="relative bg-gray-900 rounded-lg md:rounded-xl overflow-hidden aspect-video shadow-lg">
-        {/* Video element - behaves like a GIF */}
-        <video
-          ref={videoRef}
-          src={videoUrl}
-          className="w-full h-full object-cover"
-          playsInline
-          autoPlay
-          loop
-          muted
-          preload="auto"
+    <div
+      className=""
+      style={{ width: 420, marginLeft: 0, alignSelf: 'flex-start' }}
+    >
+      <div className="relative bg-gray-900 rounded-[12px] overflow-hidden aspect-video shadow-sm">
+        {/* Video */}
+        <LazyYouTubeFrame
+          src={embedUrl}
+          title={`Video de seña: ${signLabel}`}
+          className="w-full h-full"
+          thumbnailUrl={thumbnailUrl}
+          active={active}
         />
-        
-        {/* Optional label overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 md:p-3">
-          <p className="text-white text-xs md:text-sm font-medium text-center">
+
+        {/* Texto superpuesto, alineado a la izquierda y centrado verticalmente */}
+        <div
+          className="absolute left-4 top-1/2 -translate-y-1/2"
+          style={{ pointerEvents: 'none' }}
+        >
+          <span
+            className="text-white font-bold text-base md:text-lg text-left"
+            style={{
+              fontFamily: 'Poppins, Arial, sans-serif',
+              wordBreak: 'break-word',
+              overflowWrap: 'break-word',
+              whiteSpace: 'pre-line',
+              maxWidth: '4.5em',
+              display: 'inline-block',
+              textShadow: [
+                '0 2px 12px rgba(0,0,0,0.85)',
+                '0 4px 24px rgba(0,0,0,0.7)',
+                '0 1px 2px rgba(0,0,0,0.9)',
+                '2px 2px 8px rgba(0,0,0,0.5)',
+                '-2px 2px 8px rgba(0,0,0,0.5)'
+              ].join(','),
+            }}
+          >
             {signLabel}
-          </p>
+          </span>
         </div>
+
+        {/* Logo esquina superior izquierda */}
+        <img
+          src="/logo_black.png"
+          alt="Logo"
+          className="absolute top-3 left-3 w-10 h-10 md:w-12 md:h-12 z-10 opacity-90"
+          style={{ pointerEvents: 'none' }}
+        />
+
+        {/* Logo Guatemala esquina inferior derecha */}
+        <img
+          src="/gt.png"
+          alt="Guatemala"
+          className="absolute bottom-3 right-3 w-7 h-7 md:w-9 md:h-9 z-10 opacity-80"
+          style={{ pointerEvents: 'none' }}
+        />
       </div>
     </div>
   );

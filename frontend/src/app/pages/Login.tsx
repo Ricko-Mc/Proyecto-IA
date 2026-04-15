@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router";
 import { Button } from "../components/ui/button";
 import { Chrome, Eye, EyeOff, User, Lock } from "lucide-react";
 import backgroundImage from "../../assets/839a08a8647a60638301e92960eee6e1607ac796.png";
+import { api } from "../../services/api";
+import { ForgotPassword } from "../components/ForgotPassword";
 
 export function Login() {
   const navigate = useNavigate();
@@ -11,43 +13,53 @@ export function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState("");
+  const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     setIsLoading(true);
-    setTimeout(() => {
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          name: "Usuario Demo",
-          email: "demo@segua.gt",
-        }),
-      );
-      navigate("/chat");
-    }, 1000);
+    setError("");
+    try {
+      const { url } = await api.loginGoogle();
+      window.location.href = url;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No se pudo iniciar con Google");
+      setIsLoading(false);
+    }
   };
 
-  const handleEmailLogin = (e: React.FormEvent) => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!username || !password) return;
 
     setIsLoading(true);
-    setTimeout(() => {
+    setError("");
+    try {
+      const respuesta = await api.login({
+        email: username.includes("@") ? username : `${username}@segua.gt`,
+        password,
+      });
+      localStorage.setItem("access_token", respuesta.access_token || "");
       localStorage.setItem(
         "user",
         JSON.stringify({
-          name: username,
-          email: username.includes("@")
-            ? username
-            : `${username}@segua.gt`,
+          id: respuesta.usuario_id,
+          name: respuesta.nombre_completo,
+          email: respuesta.email,
+          roles: respuesta.roles,
         }),
       );
       navigate("/chat");
-    }, 1000);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No se pudo iniciar sesion");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden" style={{ fontFamily: 'Poppins, sans-serif' }}>
-      {/* Background Image with Overlay */}
+      
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
@@ -58,17 +70,17 @@ export function Login() {
       </div>
 
       <div className="w-[90%] max-w-[336px] relative z-10 mx-auto">
-        {/* Logo */}
+        
         <div className="flex justify-center mb-4">
           <img
-            src="/logo.png"
+            src="/logowhite.png"
             alt="SEGUA Logo"
-            className="h-[64px] md:h-[72px] w-auto drop-shadow-lg"
+            className="h-[110px] md:h-[130px] w-auto drop-shadow-lg"
             style={{ filter: 'drop-shadow(0px 2px 10px rgba(0,0,0,0.2))' }}
           />
         </div>
 
-        {/* Title and Subtitle */}
+        
         <div className="text-center mb-6 md:mb-8">
           <h1
             className="text-[1.2rem] md:text-[1.4rem] font-bold text-white mb-2"
@@ -87,16 +99,16 @@ export function Login() {
           </p>
         </div>
 
-        {/* Login form */}
+        
         <form onSubmit={handleEmailLogin} className="space-y-4 md:space-y-5">
-          {/* Username Input */}
+          
           <div className="relative">
             <div className="absolute left-0 top-1/2 -translate-y-1/2 text-white/80">
               <User className="w-5 h-5" />
             </div>
             <input
               type="text"
-              placeholder="Correo o Usuario"
+              placeholder="Correo Electronico"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               disabled={isLoading}
@@ -105,7 +117,7 @@ export function Login() {
             />
           </div>
 
-          {/* Password Input */}
+          
           <div className="relative">
             <div className="absolute left-0 top-1/2 -translate-y-1/2 text-white/80">
               <Lock className="w-5 h-5" />
@@ -133,7 +145,7 @@ export function Login() {
             </button>
           </div>
 
-          {/* Remember Me & Forgot Password Row */}
+          
           <div className="flex items-center justify-between text-[0.65rem]" style={{ fontWeight: 400 }}>
             <label className="flex items-center gap-2 text-white cursor-pointer">
               <input
@@ -145,12 +157,16 @@ export function Login() {
               />
               <span style={{ fontFamily: 'Poppins', color: 'white', fontSize: '10px' }}>Recuérdame</span>
             </label>
-            <Link to="/forgot-password" className="text-white hover:underline transition-all duration-200 ease-in-out">
+            <button
+              type="button"
+              onClick={() => setForgotPasswordOpen(true)}
+              className="text-white text-[0.55rem] md:text-[0.6rem] hover:underline transition-all duration-200 ease-in-out"
+            >
               ¿Olvidaste tu contraseña?
-            </Link>
+            </button>
           </div>
 
-          {/* Login Button */}
+          
           <Button
             type="submit"
             disabled={isLoading || !username || !password}
@@ -159,9 +175,15 @@ export function Login() {
           >
             {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
           </Button>
+
+          {error && (
+            <p className="text-red-200 text-xs text-center" style={{ fontWeight: 500 }}>
+              {error}
+            </p>
+          )}
         </form>
 
-        {/* Divider */}
+        
         <div className="relative py-3 md:py-4">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-white/40"></div>
@@ -176,7 +198,7 @@ export function Login() {
           </div>
         </div>
 
-        {/* Google Sign In Button */}
+        
         <Button
           onClick={handleGoogleSignIn}
           disabled={isLoading}
@@ -187,7 +209,7 @@ export function Login() {
           Iniciar sesión con Google
         </Button>
 
-        {/* Sign Up Link */}
+        
         <div className="text-center mt-4 md:mt-5 text-white text-[0.65rem]" style={{ fontWeight: 400 }}>
           <span>¿No tienes cuenta? </span>
           <Link
@@ -198,12 +220,14 @@ export function Login() {
           </Link>
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-8 md:mt-10 text-white/80 text-[0.6rem] space-y-1" style={{ fontWeight: 300 }}>
-          <p>Educación inclusiva para todos</p>
-          <p>SEGUA v1.0.0 · Marzo 2026</p>
-        </div>
+        
+
       </div>
+
+      <ForgotPassword
+        open={forgotPasswordOpen}
+        onOpenChange={setForgotPasswordOpen}
+      />
     </div>
   );
 }

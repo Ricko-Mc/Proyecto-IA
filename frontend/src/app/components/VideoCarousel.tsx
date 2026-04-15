@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
+import { extractYouTubeId, toYouTubePlaylistEmbedUrl, toYouTubeThumbnailUrl } from '../../services/youtube';
+import { LazyYouTubeFrame } from './LazyYouTubeFrame';
 
 interface VideoCarouselItem {
   word: string;
@@ -9,52 +11,162 @@ interface VideoCarouselItem {
 
 interface VideoCarouselProps {
   items: VideoCarouselItem[];
+  active?: boolean;
 }
 
-export function VideoCarousel({ items }: VideoCarouselProps) {
+type YoutubeApi = {
+  Player: new (element: HTMLElement, options: Record<string, unknown>) => YoutubePlayer;
+  PlayerState: {
+    ENDED: number;
+  };
+};
+
+type YoutubePlayer = {
+  destroy: () => void;
+  mute: () => void;
+  playVideo: () => void;
+  pauseVideo: () => void;
+  loadVideoById: (videoId: string) => void;
+};
+
+declare global {
+  interface Window {
+    YT?: YoutubeApi;
+    onYouTubeIframeAPIReady?: () => void;
+    __youtubeApiReadyPromise?: Promise<YoutubeApi>;
+  }
+}
+
+function cargarYoutubeApi(): Promise<YoutubeApi> {
+  if (window.YT?.Player) {
+    return Promise.resolve(window.YT);
+  }
+
+  if (window.__youtubeApiReadyPromise) {
+    return window.__youtubeApiReadyPromise;
+  }
+
+  window.__youtubeApiReadyPromise = new Promise<YoutubeApi>((resolve) => {
+    const script = document.createElement('script');
+    script.src = 'https://www.youtube.com/iframe_api';
+    script.async = true;
+    window.onYouTubeIframeAPIReady = () => {
+      resolve(window.YT as YoutubeApi);
+    };
+    document.head.appendChild(script);
+  });
+
+  return window.__youtubeApiReadyPromise;
+}
+
+export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [autoPlay, setAutoPlay] = useState(true);
-
-  useEffect(() => {
-    if (!autoPlay || items.length <= 1) return;
-
-    // Auto-advance every 8 seconds
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % items.length);
-    }, 8000);
-
-    return () => clearInterval(timer);
-  }, [autoPlay, items.length]);
+  const playerContainerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<YoutubePlayer | null>(null);
+  const ids = useMemo(
+    () => items.map((item) => extractYouTubeId(item.videoUrl)).filter((id): id is string => Boolean(id)),
+    [items]
+  );
+  const playlistUrl = useMemo(
+    () => toYouTubePlaylistEmbedUrl(items.map((item) => item.videoUrl), currentIndex),
+    [items, currentIndex]
+  );
 
   const goToNext = () => {
-    setAutoPlay(false);
     setCurrentIndex((prev) => (prev + 1) % items.length);
   };
 
   const goToPrevious = () => {
-    setAutoPlay(false);
     setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
   };
 
   const goToSlide = (index: number) => {
-    setAutoPlay(false);
     setCurrentIndex(index);
   };
 
+  useEffect(() => {
+    if (items.length <= 1 || ids.length === 0 || !playerContainerRef.current) {
+      return;
+    }
+
+    let disposed = false;
+
+    void cargarYoutubeApi().then((YT) => {
+      if (disposed || !playerContainerRef.current || playerRef.current) {
+        return;
+      }
+
+      playerRef.current = new YT.Player(playerContainerRef.current, {
+        videoId: ids[0],
+        playerVars: {
+          autoplay: active ? 1 : 0,
+          mute: 1,
+          playsinline: 1,
+          rel: 0,
+          modestbranding: 1,
+        },
+        events: {
+          onReady: (event: { target: YoutubePlayer }) => {
+            event.target.mute();
+            if (active) {
+              event.target.playVideo();
+            }
+          },
+          onStateChange: (event: { data: number }) => {
+            if (event.data === YT.PlayerState.ENDED) {
+              setCurrentIndex((prev) => (prev + 1) % ids.length);
+            }
+          },
+        },
+      });
+    });
+
+    return () => {
+      disposed = true;
+      if (playerRef.current) {
+        playerRef.current.destroy();
+        playerRef.current = null;
+      }
+    };
+  }, [ids, items.length]);
+
+  useEffect(() => {
+    if (!playerRef.current || items.length <= 1 || ids.length === 0) {
+      return;
+    }
+
+    const videoId = ids[currentIndex];
+    playerRef.current.loadVideoById(videoId);
+    playerRef.current.mute();
+    if (active) {
+      playerRef.current.playVideo();
+    } else {
+      playerRef.current.pauseVideo();
+    }
+  }, [active, currentIndex, ids, items.length]);
+
   if (items.length === 0) return null;
+
+  if (!playlistUrl) {
+    return (
+      <div className="w-full max-w-sm md:max-w-lg">
+        <div className="relative bg-gray-900 rounded-[12px] overflow-hidden aspect-video shadow-sm flex items-center justify-center p-4">
+          <p className="text-white/80 text-sm text-center">No se pudieron cargar los videos de YouTube.</p>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 1) {
     return (
       <div className="w-full max-w-sm md:max-w-lg">
-        <div className="relative bg-gray-900 rounded-lg md:rounded-xl overflow-hidden aspect-video shadow-lg">
-          <video
-            src={items[0].videoUrl}
-            className="w-full h-full object-cover"
-            playsInline
-            autoPlay
-            loop
-            muted
-            preload="auto"
+        <div className="relative bg-gray-900 rounded-[12px] overflow-hidden aspect-video shadow-sm">
+          <LazyYouTubeFrame
+            src={playlistUrl}
+            title={`Video de seña: ${items[0].word}`}
+            className="w-full h-full"
+            thumbnailUrl={toYouTubeThumbnailUrl(items[0].videoUrl)}
+            active={active}
           />
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 md:p-3">
             <p className="text-white text-xs md:text-sm font-medium text-center">
@@ -68,44 +180,23 @@ export function VideoCarousel({ items }: VideoCarouselProps) {
 
   return (
     <div className="w-full max-w-sm md:max-w-2xl space-y-2 md:space-y-4">
-      {/* Current word indicator */}
-      <div className="text-center">
-        <p className="text-xs md:text-sm text-muted-foreground mb-1">
-          Seña {currentIndex + 1} de {items.length}
-        </p>
-        <h3 className="text-base md:text-xl font-semibold text-foreground line-clamp-2">
-          "{items[currentIndex].word}"
-        </h3>
-      </div>
-
-      {/* Video player with navigation */}
       <div className="relative">
         <div className="w-full max-w-sm md:max-w-lg mx-auto">
-          <div className="relative bg-gray-900 rounded-lg md:rounded-xl overflow-hidden aspect-video shadow-lg">
-            <video
-              key={items[currentIndex].videoUrl}
-              src={items[currentIndex].videoUrl}
-              className="w-full h-full object-cover"
-              playsInline
-              autoPlay
-              loop
-              muted
-              preload="auto"
-            />
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 md:p-3">
-              <p className="text-white text-xs md:text-sm font-medium text-center line-clamp-1">
-                {items[currentIndex].word}
-              </p>
-            </div>
+          <div className="relative bg-gray-900 rounded-[12px] overflow-hidden aspect-video shadow-sm">
+            <div ref={playerContainerRef} className="w-full h-full" />
+            {!active && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                <p className="text-white/85 text-xs md:text-sm">Video en pausa</p>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Navigation arrows */}
         <Button
           variant="outline"
           size="icon"
           onClick={goToPrevious}
-          className="absolute left-1 md:left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg h-9 w-9 md:h-10 md:w-10"
+          className="absolute left-1 md:left-2 top-1/2 -translate-y-1/2 bg-transparent hover:bg-white/10 text-white border-0 shadow-none h-9 w-9 md:h-10 md:w-10"
           disabled={items.length <= 1}
         >
           <ChevronLeft className="w-4 md:w-5 h-4 md:h-5" />
@@ -115,14 +206,13 @@ export function VideoCarousel({ items }: VideoCarouselProps) {
           variant="outline"
           size="icon"
           onClick={goToNext}
-          className="absolute right-1 md:right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg h-9 w-9 md:h-10 md:w-10"
+          className="absolute right-1 md:right-2 top-1/2 -translate-y-1/2 bg-transparent hover:bg-white/10 text-white border-0 shadow-none h-9 w-9 md:h-10 md:w-10"
           disabled={items.length <= 1}
         >
           <ChevronRight className="w-4 md:w-5 h-4 md:h-5" />
         </Button>
       </div>
 
-      {/* Dot indicators */}
       <div className="flex justify-center gap-1 md:gap-2">
         {items.map((item, index) => (
           <button
@@ -138,8 +228,7 @@ export function VideoCarousel({ items }: VideoCarouselProps) {
         ))}
       </div>
 
-      {/* Words list */}
-      <div className="flex flex-wrap gap-1 md:gap-2 justify-center px-2\">
+      <div className="flex flex-wrap gap-1 md:gap-2 justify-center px-2">
         {items.map((item, index) => (
           <button
             key={index}
@@ -155,11 +244,9 @@ export function VideoCarousel({ items }: VideoCarouselProps) {
         ))}
       </div>
 
-      {autoPlay && (
-        <p className="text-center text-xs text-muted-foreground\">
-          Las señas avanzan automáticamente cada 8 segundos
-        </p>
-      )}
+      <p className="text-center text-xs text-muted-foreground">
+        Cambia al siguiente video al terminar y se mantiene en silencio.
+      </p>
     </div>
   );
 }

@@ -20,7 +20,6 @@ export function Help() {
     if (!subject.trim() || !message.trim()) return;
 
     setIsSubmitting(true);
-    // Simulate sending message
     setTimeout(() => {
       setIsSubmitted(true);
       setIsSubmitting(false);
@@ -32,7 +31,7 @@ export function Help() {
 
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
-      {/* Header */}
+      
       <div className="border-b border-border bg-background sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 flex items-center gap-3">
           <Button
@@ -48,7 +47,7 @@ export function Help() {
         </div>
       </div>
 
-      {/* Content */}
+      
       <div className="max-w-2xl mx-auto px-3 sm:px-4 py-6">
         {isSubmitted ? (
           <div className="text-center py-12">
@@ -107,7 +106,7 @@ export function Help() {
         )}
       </div>
 
-      {/* Bottom Navigation (Mobile only) */}
+      
       <BottomNav />
     </div>
   );

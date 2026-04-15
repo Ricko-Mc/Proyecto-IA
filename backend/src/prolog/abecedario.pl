@@ -1,0 +1,12 @@
+signo(a, abecedario, 'ABC001').
+signo(b, abecedario, 'ABC002').
+signo(c, abecedario, 'ABC003').
+signo(d, abecedario, 'ABC004').
+signo(e, abecedario, 'ABC005').
+signo(f, abecedario, 'ABC006').
+signo(g, abecedario, 'ABC007').
+signo(h, abecedario, 'ABC008').
+signo(i, abecedario, 'ABC009').
+signo(j, abecedario, 'ABC010').
+
+video_youtube('ABC001', 'https://youtu.be/5FJG3GxAn9c').

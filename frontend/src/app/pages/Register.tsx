@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router";
 import { Button } from "../components/ui/button";
 import { Eye, EyeOff, User, Mail, Lock } from "lucide-react";
-import logoImage from "../../assets/2fd799fcfa27e9132df8742af86005490667831b.png";
+import logoImage from "../../assets/2196c88c8e6b71450386427e39960842b5b3abc1.png";
 import backgroundImage from "../../assets/839a08a8647a60638301e92960eee6e1607ac796.png";
+import { api } from "../../services/api";
 
 export function Register() {
   const navigate = useNavigate();
@@ -14,8 +15,9 @@ export function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !password || !confirmPassword) return;
 
@@ -25,21 +27,35 @@ export function Register() {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
+    setError("");
+    try {
+      const respuesta = await api.register({
+        nombre_completo: name,
+        email,
+        password,
+        confirmar_password: confirmPassword,
+      });
+      localStorage.setItem("access_token", respuesta.access_token || "");
       localStorage.setItem(
         "user",
         JSON.stringify({
-          name: name,
-          email: email,
+          id: respuesta.usuario_id,
+          name: respuesta.nombre_completo,
+          email: respuesta.email,
+          roles: respuesta.roles,
         }),
       );
       navigate("/chat");
-    }, 1000);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No se pudo crear la cuenta");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4 overflow-hidden" style={{ fontFamily: 'Poppins, sans-serif' }}>
-      {/* Background Image with Overlay */}
+      
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
@@ -50,7 +66,7 @@ export function Register() {
       </div>
 
       <div className="w-[90%] max-w-[420px] relative z-10 mx-auto">
-        {/* Logo */}
+        
         <div className="flex justify-center mb-6">
           <img
             src={logoImage}
@@ -60,7 +76,7 @@ export function Register() {
           />
         </div>
 
-        {/* Title and Subtitle */}
+        
         <div className="text-center mb-6 md:mb-8">
           <h1
             className="text-[1.5rem] md:text-[1.75rem] font-bold text-white mb-2"
@@ -79,9 +95,9 @@ export function Register() {
           </p>
         </div>
 
-        {/* Register form */}
+        
         <form onSubmit={handleRegister} className="space-y-4 md:space-y-5">
-          {/* Name Input */}
+          
           <div className="relative">
             <div className="absolute left-0 top-1/2 -translate-y-1/2 text-white/80">
               <User className="w-5 h-5" />
@@ -92,12 +108,12 @@ export function Register() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={isLoading}
-              className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white placeholder-white/70 pl-8 pb-2 pt-2 focus:outline-none focus:border-white transition-all duration-200 ease-in-out text-[1rem]"
-              style={{ fontWeight: 400, fontSize: 'max(16px, 0.9375rem)' }}
+              className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white placeholder-white/70 pl-8 pb-2 pt-2 focus:outline-none focus:border-white transition-all duration-200 ease-in-out text-[0.9rem]"
+              style={{ fontWeight: 400, fontSize: 'max(14px, 0.82rem)' }}
             />
           </div>
 
-          {/* Email Input */}
+          
           <div className="relative">
             <div className="absolute left-0 top-1/2 -translate-y-1/2 text-white/80">
               <Mail className="w-5 h-5" />
@@ -108,12 +124,12 @@ export function Register() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
-              className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white placeholder-white/70 pl-8 pb-2 pt-2 focus:outline-none focus:border-white transition-all duration-200 ease-in-out text-[1rem]"
-              style={{ fontWeight: 400, fontSize: 'max(16px, 0.9375rem)' }}
+              className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white placeholder-white/70 pl-8 pb-2 pt-2 focus:outline-none focus:border-white transition-all duration-200 ease-in-out text-[0.9rem]"
+              style={{ fontWeight: 400, fontSize: 'max(14px, 0.82rem)' }}
             />
           </div>
 
-          {/* Password Input */}
+          
           <div className="relative">
             <div className="absolute left-0 top-1/2 -translate-y-1/2 text-white/80">
               <Lock className="w-5 h-5" />
@@ -124,8 +140,8 @@ export function Register() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
-              className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white placeholder-white/70 pl-8 pr-10 pb-2 pt-2 focus:outline-none focus:border-white transition-all duration-200 ease-in-out text-[1rem]"
-              style={{ fontWeight: 400, fontSize: 'max(16px, 0.9375rem)' }}
+              className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white placeholder-white/70 pl-8 pr-10 pb-2 pt-2 focus:outline-none focus:border-white transition-all duration-200 ease-in-out text-[0.9rem]"
+              style={{ fontWeight: 400, fontSize: 'max(14px, 0.82rem)' }}
             />
             <button
               type="button"
@@ -141,7 +157,7 @@ export function Register() {
             </button>
           </div>
 
-          {/* Confirm Password Input */}
+          
           <div className="relative">
             <div className="absolute left-0 top-1/2 -translate-y-1/2 text-white/80">
               <Lock className="w-5 h-5" />
@@ -152,8 +168,8 @@ export function Register() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={isLoading}
-              className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white placeholder-white/70 pl-8 pr-10 pb-2 pt-2 focus:outline-none focus:border-white transition-all duration-200 ease-in-out text-[1rem]"
-              style={{ fontWeight: 400, fontSize: 'max(16px, 0.9375rem)' }}
+              className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white placeholder-white/70 pl-8 pr-10 pb-2 pt-2 focus:outline-none focus:border-white transition-all duration-200 ease-in-out text-[0.9rem]"
+              style={{ fontWeight: 400, fontSize: 'max(14px, 0.82rem)' }}
             />
             <button
               type="button"
@@ -169,7 +185,7 @@ export function Register() {
             </button>
           </div>
 
-          {/* Register Button */}
+          
           <Button
             type="submit"
             disabled={isLoading || !name || !email || !password || !confirmPassword}
@@ -178,10 +194,16 @@ export function Register() {
           >
             {isLoading ? "Creando cuenta..." : "Crear cuenta"}
           </Button>
+
+          {error && (
+            <p className="text-red-200 text-xs text-center" style={{ fontWeight: 500 }}>
+              {error}
+            </p>
+          )}
         </form>
 
-        {/* Sign In Link */}
-        <div className="text-center mt-5 md:mt-6 text-white text-[0.8125rem]" style={{ fontWeight: 400 }}>
+        
+        <div className="text-center mt-5 md:mt-6 text-white text-[0.72rem] md:text-[0.76rem]" style={{ fontWeight: 400 }}>
           <span>¿Ya tienes cuenta? </span>
           <Link
             to="/"
@@ -191,11 +213,8 @@ export function Register() {
           </Link>
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-10 md:mt-12 text-white/80 text-[0.75rem] space-y-1" style={{ fontWeight: 300 }}>
-          <p>Educación inclusiva para todos</p>
-          <p>SEGUA v1.0.0 · Marzo 2026</p>
-        </div>
+        
+
       </div>
     </div>
   );

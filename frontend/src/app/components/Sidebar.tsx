@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { MessageSquarePlus, User, Settings, HelpCircle, Info, Search, Trash2, X } from 'lucide-react';
+import { MessageSquarePlus, User, Settings, HelpCircle, Info, Search, Trash2, X, ShieldCheck } from 'lucide-react';
 import { Button } from './ui/button';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { Input } from './ui/input';
@@ -24,6 +24,7 @@ interface SidebarProps {
   currentConversationId?: string;
   userName: string;
   userEmail: string;
+  avatarUrl?: string | null;
   onNewConversation: () => void;
   onSelectConversation: (id: string) => void;
   onDeleteConversation: (id: string) => void;
@@ -69,6 +70,7 @@ export function Sidebar({
   currentConversationId,
   userName,
   userEmail,
+  avatarUrl,
   onNewConversation,
   onSelectConversation,
   onDeleteConversation,
@@ -78,6 +80,17 @@ export function Sidebar({
 }: SidebarProps) {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const roles = (() => {
+    try {
+      const userRaw = localStorage.getItem('user');
+      if (!userRaw) return [] as string[];
+      const parsed = JSON.parse(userRaw) as { roles?: string[] };
+      return parsed.roles || [];
+    } catch {
+      return [] as string[];
+    }
+  })();
+  const esAdminOModerador = roles.includes('admin') || roles.includes('moderador');
 
   const handleSelectConversation = (id: string) => {
     onSelectConversation(id);
@@ -105,7 +118,7 @@ export function Sidebar({
 
   return (
     <div className="flex flex-col h-full bg-sidebar border-r border-sidebar-border">
-      {/* Header */}
+      
       <div className="p-2 border-b border-sidebar-border space-y-1.5">
         <div className="flex items-center gap-1.5">
           <Button
@@ -127,7 +140,7 @@ export function Sidebar({
           )}
         </div>
         
-        {/* Search Bar */}
+        
         <div className="relative">
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
           <Input
@@ -140,7 +153,7 @@ export function Sidebar({
         </div>
       </div>
 
-      {/* Conversation history */}
+      
       <div className="flex-1 overflow-y-auto">
         {filteredConversations.length === 0 ? (
           <div className="p-2 text-center text-xs text-muted-foreground">
@@ -172,7 +185,7 @@ export function Sidebar({
                   </p>
                 </button>
                 
-                {/* Delete button on hover */}
+                
                 <button
                   onClick={(e) => handleDeleteConversation(conversation.id, e)}
                   className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive hover:bg-destructive/90 text-white p-1 rounded-sm"
@@ -186,11 +199,44 @@ export function Sidebar({
         )}
       </div>
 
-      {/* User profile */}
+      
       <div className="p-2 border-t border-sidebar-border">
+        {esAdminOModerador ? (
+          <div className="space-y-2 mb-2">
+            <Button
+              variant="outline"
+              className="w-full h-8 text-xs"
+              onClick={() => {
+                navigate('/admin/reportes');
+                if (isMobile && onClose) {
+                  onClose();
+                }
+              }}
+            >
+              <ShieldCheck className="w-3.5 h-3.5 mr-1.5" />
+              Gestionar solicitudes
+            </Button>
+            {roles.includes('admin') ? (
+              <Button
+                variant="outline"
+                className="w-full h-8 text-xs"
+                onClick={() => {
+                  navigate('/admin/usuarios');
+                  if (isMobile && onClose) {
+                    onClose();
+                  }
+                }}
+              >
+                <User className="w-3.5 h-3.5 mr-1.5" />
+                Gestionar usuarios
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
         <UserProfileDropdown
           userName={userName}
           userEmail={userEmail}
+          avatarUrl={avatarUrl}
           onLogout={onLogout}
         />
       </div>

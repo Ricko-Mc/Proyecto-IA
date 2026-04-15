@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { AlertCircle, Send } from "lucide-react";
+import { api } from "../../services/api";
 
 interface WordNotFoundDialogProps {
   word: string;
@@ -20,21 +21,39 @@ export function WordNotFoundDialog({ word, open, onOpenChange }: WordNotFoundDia
   const [feedback, setFeedback] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
-  const handleSubmit = () => {
-    if (!feedback.trim()) return;
-
+  const handleSubmit = async () => {
     setIsLoading(true);
-    // Simulate sending request to developers
-    setTimeout(() => {
+    setSubmitError('');
+    try {
+      const normalizada = word
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s]/g, '')
+        .trim()
+        .replace(/\s+/g, '_');
+
+      await api.crearReporte({
+        signo_id: `SUG_${normalizada || 'sin_palabra'}`,
+        motivo: 'solicitud_nueva_sena',
+        descripcion: feedback.trim() || `Solicitud de nueva seña para: ${word}`,
+      });
+
       setIsSubmitted(true);
+    } catch (e) {
+      setIsSubmitted(false);
+      setSubmitError(e instanceof Error ? e.message : 'No se pudo enviar la solicitud');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleClose = () => {
     setFeedback("");
     setIsSubmitted(false);
+    setSubmitError('');
     onOpenChange(false);
   };
 
@@ -77,6 +96,9 @@ export function WordNotFoundDialog({ word, open, onOpenChange }: WordNotFoundDia
                 onChange={(e) => setFeedback(e.target.value)}
                 className="min-h-[100px] resize-none"
               />
+              {submitError ? (
+                <p className="text-xs text-destructive mt-2">{submitError}</p>
+              ) : null}
             </div>
 
             <div className="flex gap-2">

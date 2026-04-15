@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { GuatemalanFlag } from "../components/GuatemalanFlag";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../components/ui/dialog";
@@ -20,7 +19,6 @@ export function ForgotPassword({ open, onOpenChange }: ForgotPasswordProps) {
     if (!email) return;
 
     setIsLoading(true);
-    // Simulate sending recovery email
     setTimeout(() => {
       setIsSubmitted(true);
       setIsLoading(false);
@@ -38,7 +36,11 @@ export function ForgotPassword({ open, onOpenChange }: ForgotPasswordProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center justify-center mb-4">
-            <GuatemalanFlag size={60} />
+            <img
+              src="/edited-photo.png"
+              alt="SEGUA Logo"
+              className="h-20 w-auto"
+            />
           </div>
           <DialogTitle className="text-center text-2xl">
             {isSubmitted ? "¡Correo enviado!" : "Recuperar contraseña"}
