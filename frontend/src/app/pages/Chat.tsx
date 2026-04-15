@@ -168,7 +168,7 @@ export function Chat() {
             disambiguationWord: respuesta.palabra_clave || mensajeActual,
             disambiguationOptions: respuesta.opciones || [],
           };
-        } else if (respuesta.signo_encontrado) {
+        } else if (respuesta.tipo_respuesta === 'video' && respuesta.signo_encontrado) {
           systemMessage = {
             id: `msg-${Date.now()}-response`,
             type: 'system',
@@ -177,6 +177,13 @@ export function Chat() {
             signLabel: respuesta.palabra_clave || undefined,
             noVideoAvailable: !urlVideoPermitida,
             suggestionWord: mensajeActual,
+          };
+        } else if (respuesta.tipo_respuesta === 'error_backend') {
+          systemMessage = {
+            id: `msg-${Date.now()}-response`,
+            type: 'system',
+            text: respuesta.respuesta_ia,
+            backendError: true,
           };
         } else {
           systemMessage = {
@@ -197,9 +204,8 @@ export function Chat() {
           {
             id: `msg-${Date.now()}-error`,
             type: 'system',
-            text: '',
-            notFound: true,
-            notFoundWord: 'No se pudo conectar con el backend',
+            text: 'No se pudo conectar con el backend. Revisa que el servidor este encendido.',
+            backendError: true,
           },
         ];
       });

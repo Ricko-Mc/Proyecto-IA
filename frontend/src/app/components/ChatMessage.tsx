@@ -17,6 +17,7 @@ export interface Message {
   videos?: Array<{ word: string; videoUrl: string }>;
   disambiguationWord?: string;
   disambiguationOptions?: Array<{ label: string; clave: string }>;
+  backendError?: boolean;
 }
 
 interface ChatMessageProps {
@@ -58,6 +59,13 @@ export function ChatMessage({
           <div className="flex items-center gap-3 py-4 px-4 bg-muted rounded-2xl rounded-tl-sm">
             <Loader2 className="w-5 h-5 animate-spin text-[#4997D0]" />
             <span className="text-sm text-muted-foreground">Procesando...</span>
+          </div>
+        ) : message.backendError ? (
+          <div className="space-y-2 bg-muted rounded-2xl rounded-tl-sm px-4 py-3">
+            <p className="text-sm text-destructive font-medium">Error del servidor</p>
+            <p className="text-sm text-muted-foreground">
+              {message.text || 'No se pudo procesar tu solicitud en este momento.'}
+            </p>
           </div>
         ) : message.notFound ? (
           <div className="space-y-3 bg-muted rounded-2xl rounded-tl-sm px-4 py-3">

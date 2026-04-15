@@ -4,7 +4,7 @@ export interface OpcionDesambiguacion {
 }
 
 export interface RespuestaChat {
-  tipo_respuesta: 'video' | 'desambiguacion' | 'texto';
+  tipo_respuesta: 'video' | 'desambiguacion' | 'no_encontrado' | 'error_backend';
   mensaje_usuario: string;
   conversacion_id: string;
   palabra_clave: string;
