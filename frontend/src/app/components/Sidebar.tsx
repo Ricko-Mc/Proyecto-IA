@@ -118,14 +118,14 @@ export function Sidebar({
 
   return (
     <div
-      className="flex flex-col h-full bg-white/20 dark:bg-white/5 backdrop-blur-sm border border-white/40 dark:border-white/10 rounded-[16px] overflow-hidden"
+      className="flex flex-col h-full w-full bg-[rgba(244,249,255,0.55)] dark:bg-[rgba(18,18,18,0.42)] backdrop-blur-xl border border-[rgba(164,194,224,0.35)] dark:border-white/10 rounded-none overflow-hidden shadow-[0_10px_28px_rgba(13,43,76,0.06)] dark:shadow-[0_10px_28px_rgba(0,0,0,0.25)]"
     >
       
       <div className="p-3 space-y-3">
         <div className="flex items-center gap-2">
           <Button
             onClick={handleNewConversation}
-            className="flex-1 bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#1c1c1c] dark:hover:bg-[#2a2a2a] text-white h-9 text-xs rounded-[6px]"
+            className="flex-1 bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#1c1c1c] dark:hover:bg-[#2a2a2a] text-white h-9 text-sm rounded-[6px]"
           >
             <MessageSquarePlus className="w-3.5 h-3.5 mr-1.5" />
             Nueva conversación
@@ -150,7 +150,7 @@ export function Sidebar({
             placeholder="Buscar..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-9 pl-7 text-xs bg-white dark:bg-[#1a1a1a] dark:text-[#efefef] dark:placeholder:text-[#8d8d8d] border-0 rounded-[6px]"
+            className="h-9 pl-7 text-sm bg-white dark:bg-[#1a1a1a] dark:text-[#efefef] dark:placeholder:text-[#8d8d8d] border-0 rounded-[6px]"
           />
         </div>
       </div>
@@ -158,12 +158,12 @@ export function Sidebar({
       
       <div className="flex-1 overflow-y-auto px-3">
         <div className="px-1 pt-1 pb-3">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground dark:text-[#8d8d8d]">
+          <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground dark:text-[#8d8d8d]">
             Recientes
           </p>
         </div>
         {filteredConversations.length === 0 ? (
-          <div className="px-1 py-3 text-center text-xs text-muted-foreground dark:text-[#8d8d8d]">
+          <div className="px-1 py-3 text-center text-sm text-muted-foreground dark:text-[#8d8d8d]">
             {searchQuery ? 'No se encontraron conversaciones' : 'No hay conversaciones aún'}
           </div>
         ) : (
@@ -182,12 +182,12 @@ export function Sidebar({
                   }`}
                 >
                   <div className="flex items-start justify-between gap-1 mb-0.5">
-                    <p className="text-xs truncate flex-1 line-clamp-1">{conversation.name}</p>
-                    <span className="text-[9px] text-muted-foreground dark:text-[#8d8d8d] whitespace-nowrap">
+                    <p className="text-sm truncate flex-1 line-clamp-1">{conversation.name}</p>
+                    <span className="text-[10px] text-muted-foreground dark:text-[#8d8d8d] whitespace-nowrap">
                       {formatRelativeTime(conversation.timestamp)}
                     </span>
                   </div>
-                  <p className="text-[9px] text-muted-foreground dark:text-[#8d8d8d] truncate line-clamp-1">
+                  <p className="text-[10px] text-muted-foreground dark:text-[#8d8d8d] truncate line-clamp-1">
                     {conversation.lastMessage || 'Sin mensajes'}
                   </p>
                 </button>
@@ -212,7 +212,7 @@ export function Sidebar({
           <div className="space-y-1.5 mb-2">
             <Button
               variant="outline"
-              className="w-full h-8 text-xs rounded-[6px]"
+              className="w-full h-8 text-sm rounded-[6px]"
               onClick={() => {
                 navigate('/admin/reportes');
                 if (isMobile && onClose) {
@@ -226,7 +226,7 @@ export function Sidebar({
             {roles.includes('admin') ? (
               <Button
                 variant="outline"
-                className="w-full h-8 text-xs rounded-[6px]"
+                className="w-full h-8 text-sm rounded-[6px]"
                 onClick={() => {
                   navigate('/admin/usuarios');
                   if (isMobile && onClose) {
