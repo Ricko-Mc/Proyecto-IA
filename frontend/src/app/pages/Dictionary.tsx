@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { ArrowLeft, Search, Video, Filter } from 'lucide-react';
+import { ArrowLeft, BookOpen, Search, Video, Filter } from 'lucide-react';
 import { api } from '../../services/api';
 
 interface DictionaryWord {
@@ -36,14 +36,20 @@ function DictionaryLayout({ onBack, children }: DictionaryLayoutProps) {
   return (
     <div className="min-h-screen bg-white dark:bg-[#020617] pb-20 md:pb-0">
       
-      <div className="border-b border-border dark:border-[#1b1f2d] bg-white dark:bg-[#020617] sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 h-14 md:h-16 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8 md:h-10 md:w-10 transition-all duration-200 ease-in-out">
+      <div className="sticky top-0 z-10 border-b border-black/5 dark:border-white/10 bg-transparent">
+        <div className="max-w-7xl mx-auto px-4 md:px-7 h-[72px] flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onBack}
+            className="h-9 w-9 rounded-[10px] bg-white dark:bg-[#1a1a1a] border border-[#dbe4ef] dark:border-[#333333] text-[#516276] dark:text-[#e4e4e4] hover:bg-[#eef4fc] dark:hover:bg-[#262626] transition-all duration-200 ease-in-out"
+          >
             <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
           <img src="/logo_black.png" alt="SEGUA Logo" className="h-8 w-auto md:h-10" />
           <div className="flex-1">
-            <h1 className="text-sm md:text-base font-semibold flex items-center gap-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
+            <h1 className="text-sm md:text-base font-semibold flex items-center gap-2 text-[#111f33] dark:text-[#f2f2f2]" style={{ fontFamily: 'Poppins, sans-serif' }}>
+              <BookOpen className="w-4 h-4 md:w-5 md:h-5 text-[#4997D0] dark:text-[#dcdcdc]" />
               Diccionario SEGUA
             </h1>
           </div>

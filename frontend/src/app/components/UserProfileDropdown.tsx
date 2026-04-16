@@ -47,8 +47,8 @@ export function UserProfileDropdown({
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0 text-left">
-              <p className="text-xs font-semibold truncate" style={{ fontFamily: 'Poppins, sans-serif', lineHeight: '1.2' }}>{userName}</p>
-              <p className="text-[11px] text-gray-600 dark:text-gray-400 truncate" style={{ fontFamily: 'Poppins, sans-serif', lineHeight: '1.2' }}>{userEmail}</p>
+              <p className="text-sm font-semibold truncate" style={{ fontFamily: 'Poppins, sans-serif', lineHeight: '1.2' }}>{userName}</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 truncate" style={{ fontFamily: 'Poppins, sans-serif', lineHeight: '1.2' }}>{userEmail}</p>
             </div>
           </button>
         )}

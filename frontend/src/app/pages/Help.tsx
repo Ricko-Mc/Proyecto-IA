@@ -30,25 +30,26 @@ export function Help() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent pb-20 md:pb-0">
+    <div className="min-h-screen pb-20 md:pb-0 bg-[linear-gradient(180deg,#F1F8FF_0%,#DDEEFF_55%,#EEF7FF_100%)] dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#101010_100%)]">
       
-      <div className="border-b border-border dark:border-[#2a2a2a] bg-background dark:bg-[#101010] sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 flex items-center gap-3">
+      <div className="sticky top-0 z-10 border-b border-black/5 dark:border-white/10 bg-transparent">
+        <div className="max-w-4xl mx-auto px-4 md:px-7 h-[72px] flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate('/chat')}
-            className="h-8 w-8"
+            className="h-9 w-9 rounded-[10px] bg-white dark:bg-[#1a1a1a] border border-[#dbe4ef] dark:border-[#333333] text-[#516276] dark:text-[#e4e4e4] hover:bg-[#eef4fc] dark:hover:bg-[#262626] transition-all duration-200 ease-in-out"
           >
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <GuatemalanFlag size={24} />
-          <h1 className="text-base font-semibold">Obtener ayuda</h1>
+          <h1 className="text-base font-semibold text-[#111f33] dark:text-[#f2f2f2]">Obtener ayuda</h1>
         </div>
       </div>
 
       
       <div className="max-w-2xl mx-auto px-3 sm:px-4 py-6">
+        <div className="rounded-2xl border border-white/70 dark:border-white/10 bg-white/86 dark:bg-[#121212]/90 shadow-[0_10px_28px_rgba(13,43,76,0.08)] dark:shadow-[0_10px_28px_rgba(0,0,0,0.35)] p-4 sm:p-5">
         {isSubmitted ? (
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -104,6 +105,7 @@ export function Help() {
             </Button>
           </form>
         )}
+        </div>
       </div>
 
       

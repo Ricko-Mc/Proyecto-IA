@@ -312,7 +312,7 @@ export function Chat() {
 
   return (
     <div className="flex h-screen w-screen rounded-none overflow-hidden bg-[#f7f8fa] dark:bg-[rgba(10,10,10,0.82)]">
-      <div className="hidden md:block w-80 p-4 pr-0">
+      <div className="hidden md:block w-80 h-full">
         <Sidebar
           conversations={conversations}
           currentConversationId={currentConversationId}
@@ -375,7 +375,7 @@ export function Chat() {
       />
 
       
-      <div className="flex-1 flex flex-col min-h-0 bg-[linear-gradient(180deg,#eaf3fb_0%,#f7f4ec_100%)] dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#101010_100%)] overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0 bg-[linear-gradient(180deg,#dff0ff_0%,#f3ecde_100%)] dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#101010_100%)] overflow-hidden">
         
         <div className="topbar h-[78px] w-full px-4 md:px-7 flex items-center justify-between bg-transparent border-b border-black/5 dark:border-white/10">
           <Button
@@ -407,7 +407,7 @@ export function Chat() {
             <Button
               variant="ghost"
               onClick={handleOpenDictionary}
-              className="h-[38px] px-[14px] gap-2 rounded-none border border-[#93c2ef] dark:border-[#3a3a3a] bg-white dark:bg-[#171717] text-[#3f86cc] dark:text-[#e9e9e9] font-semibold transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:bg-[#edf6ff] dark:hover:bg-[#222222] hover:shadow-[0_6px_14px_rgba(63,134,204,0.2)] dark:hover:shadow-[0_6px_14px_rgba(0,0,0,0.45)]"
+              className="h-[38px] px-[14px] gap-2 rounded-[12px] border border-[#93c2ef] dark:border-[#3a3a3a] bg-white dark:bg-[#171717] text-[#3f86cc] dark:text-[#e9e9e9] font-semibold transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:bg-[#edf6ff] dark:hover:bg-[#222222] hover:shadow-[0_6px_14px_rgba(63,134,204,0.2)] dark:hover:shadow-[0_6px_14px_rgba(0,0,0,0.45)]"
             >
               <BookOpen className="w-3.5 h-3.5" />
               Diccionario
@@ -420,7 +420,7 @@ export function Chat() {
                   size="icon"
                   onClick={handleClearConversation}
                   title="Limpiar conversación"
-                  className="h-[36px] w-[36px] rounded-none bg-white dark:bg-[#171717] border border-[#dbe4ef] dark:border-[#333333] text-[#75859a] dark:text-[#d4d4d4] hover:-translate-y-0.5 hover:bg-[#edf4fc] dark:hover:bg-[#232323]"
+                  className="h-[36px] w-[36px] rounded-[10px] bg-white dark:bg-[#171717] border border-[#dbe4ef] dark:border-[#333333] text-[#75859a] dark:text-[#d4d4d4] hover:-translate-y-0.5 hover:bg-[#edf4fc] dark:hover:bg-[#232323]"
                 >
                   <Eraser className="w-3.5 h-3.5" />
                 </Button>
@@ -432,7 +432,7 @@ export function Chat() {
                     setShowDeleteDialog(true);
                   }}
                   title="Eliminar conversación"
-                  className="h-[36px] w-[36px] rounded-none bg-white dark:bg-[#171717] border border-[#f1d2d6] dark:border-[#4a2a2a] text-[#ef4444] dark:text-[#ff7d7d] hover:-translate-y-0.5 hover:bg-[#fff1f2] dark:hover:bg-[#231515]"
+                  className="h-[36px] w-[36px] rounded-[10px] bg-white dark:bg-[#171717] border border-[#f1d2d6] dark:border-[#4a2a2a] text-[#ef4444] dark:text-[#ff7d7d] hover:-translate-y-0.5 hover:bg-[#fff1f2] dark:hover:bg-[#231515]"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </Button>
@@ -476,15 +476,15 @@ export function Chat() {
                   alt="SEGUA Logo"
                   className="w-16 h-16 md:w-32 md:h-32 mx-auto mb-2 md:mb-4"
                 />
-                <h2 className="text-xs md:text-sm font-semibold mb-1 md:mb-1.5" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                <h2 className="text-sm md:text-lg font-semibold mb-1.5 md:mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
                   ¡Bienvenido a SEGUA!
                 </h2>
-                <p className="text-muted-foreground mb-2 md:mb-3 max-w-sm mx-auto text-[10px] md:text-xs px-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                <p className="text-muted-foreground mb-3 md:mb-4 max-w-sm mx-auto text-xs md:text-sm px-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
                   Escribe una palabra o frase en español y te mostraré su seña en
                   Lengua de Señas de Guatemala
                 </p>
                 <div className="space-y-1 md:space-y-2">
-                  <p className="text-[9px] md:text-xs font-medium text-muted-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                  <p className="text-xs md:text-sm font-medium text-muted-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>
                     Prueba con estas frases:
                   </p>
                   <div className="grid grid-cols-2 md:flex md:flex-wrap gap-0.5 md:gap-1.5 justify-center px-2">
@@ -493,7 +493,7 @@ export function Chat() {
                         key={index}
                         variant="outline"
                         onClick={() => handleTryPhrase(phrase)}
-                        className="border-[#4997D0] text-[#4997D0] dark:border-[#3a3a3a] dark:text-[#dcdcdc] hover:bg-[#4997D0] dark:hover:bg-[#2a2a2a] hover:text-white text-[8px] md:text-xs h-6 md:h-7 py-0.5 md:py-1 px-1.5 md:px-2.5"
+                        className="border-[#4997D0]/70 dark:border-[#3f3f3f] bg-white/55 dark:bg-white/5 text-[#4997D0] dark:text-[#dcdcdc] backdrop-blur-sm hover:bg-[#4997D0] dark:hover:bg-[#2a2a2a] hover:text-white text-xs md:text-sm h-7 md:h-8 py-1 px-2 md:px-3"
                       >
                         {phrase}
                       </Button>
@@ -503,9 +503,9 @@ export function Chat() {
                 <div className="mt-2 md:mt-3 px-2">
                   <Button
                     onClick={handleOpenDictionary}
-                    className="bg-[#4997D0] dark:bg-[#1d1d1d] hover:bg-[#3A7FB8] dark:hover:bg-[#2a2a2a] w-full md:w-auto text-[9px] md:text-xs h-8 md:h-auto py-1.5 md:py-2"
+                    className="bg-[#4997D0]/90 dark:bg-[#1d1d1d]/90 border border-white/55 dark:border-white/10 backdrop-blur-sm hover:bg-[#3A7FB8] dark:hover:bg-[#2a2a2a] w-full md:w-auto text-xs md:text-sm h-9 md:h-10 py-2"
                   >
-                    <BookOpen className="w-2.5 h-2.5 md:w-3.5 md:h-3.5 mr-1.5" />
+                    <BookOpen className="w-3 h-3 md:w-4 md:h-4 mr-1.5" />
                     Explorar Diccionario
                   </Button>
                 </div>
