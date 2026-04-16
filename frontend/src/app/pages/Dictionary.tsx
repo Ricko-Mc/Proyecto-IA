@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { ArrowLeft, Search, BookOpen, Filter } from 'lucide-react';
+import { ArrowLeft, Search, Video, Filter } from 'lucide-react';
 import { api } from '../../services/api';
 
 interface DictionaryWord {
@@ -34,16 +34,16 @@ interface DictionaryLayoutProps {
 
 function DictionaryLayout({ onBack, children }: DictionaryLayoutProps) {
   return (
-    <div className="min-h-screen bg-transparent pb-20 md:pb-0">
+    <div className="min-h-screen bg-white dark:bg-[#020617] pb-20 md:pb-0">
       
-      <div className="border-b border-border dark:border-[#2a2a2a] bg-background dark:bg-[#101010] sticky top-0 z-10">
+      <div className="border-b border-border dark:border-[#1b1f2d] bg-white dark:bg-[#020617] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 h-14 md:h-16 flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8 md:h-10 md:w-10 transition-all duration-200 ease-in-out">
             <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
           </Button>
+          <img src="/logo_black.png" alt="SEGUA Logo" className="h-8 w-auto md:h-10" />
           <div className="flex-1">
             <h1 className="text-sm md:text-base font-semibold flex items-center gap-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
-              <BookOpen className="w-4 h-4 md:w-5 md:h-5 text-[#4997D0] dark:text-[#d0d0d0]" />
               Diccionario SEGUA
             </h1>
           </div>
@@ -196,16 +196,16 @@ export function Dictionary() {
         </div>
 
         
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-3 scroll-smooth">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-2 scroll-smooth">
           {filteredWords.map((word) => (
             <button
               key={word.id}
               onClick={() => setSelectedWord(word)}
-              className="group bg-muted dark:bg-[#171717] hover:bg-accent dark:hover:bg-[#1f1f1f] rounded-lg md:rounded-xl p-2 md:p-3 transition-all duration-200 ease-in-out hover:shadow-md border border-border dark:border-[#2d2d2d] hover:border-[#4997D0] dark:hover:border-[#404040]"
+              className="group bg-muted dark:bg-[#171717] hover:bg-accent dark:hover:bg-[#1f1f1f] rounded-xl p-2 md:p-2 transition-all duration-200 ease-in-out hover:shadow-md border border-border dark:border-[#2d2d2d] hover:border-[#4997D0] dark:hover:border-[#404040]"
               style={{ fontFamily: 'Poppins, sans-serif' }}
             >
-              <div className="aspect-square bg-gradient-to-br from-[#4997D0] to-[#2B5F8F] dark:from-[#232323] dark:to-[#151515] rounded-lg mb-2 flex items-center justify-center">
-                <BookOpen className="w-5 h-5 md:w-6 md:h-6 text-white" />
+              <div className="aspect-square bg-gradient-to-br from-[#4997D0] to-[#2B5F8F] dark:from-[#232323] dark:to-[#151515] rounded-xl mb-2 p-2 md:p-3 flex items-center justify-center">
+                <Video className="w-6 h-6 text-white" />
               </div>
               <p className="font-medium text-[11px] md:text-xs mb-1 group-hover:text-[#4997D0] dark:group-hover:text-[#d0d0d0] transition-colors duration-200 line-clamp-2">
                 {word.word}

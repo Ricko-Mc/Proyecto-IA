@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from src.modulos.auth.esquemas import AuthResponse, LoginRequest, RegisterRequest
 from src.modulos.auth.servicio import ServicioAuth, get_servicio_auth
 
-router = APIRouter(prefix="/api/auth", tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("/register", response_model=AuthResponse)
 async def registrar_usuario(datos: RegisterRequest, request: Request):

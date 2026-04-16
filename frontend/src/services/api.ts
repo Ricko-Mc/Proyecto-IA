@@ -65,7 +65,7 @@ export const api = {
     conversacion_id?: string,
     clave_desambiguacion?: string
   ): Promise<RespuestaChat> => {
-    return requestAPI<RespuestaChat>('post', '/chat', {
+    return requestAPI<RespuestaChat>('post', '/api/chat', {
       mensaje,
       conversacion_id: conversacion_id || null,
       clave_desambiguacion: clave_desambiguacion || null,
@@ -73,17 +73,17 @@ export const api = {
   },
 
   obtenerTodosLosSignos: async (): Promise<RespuestaSignos> => {
-    return requestAPI<RespuestaSignos>('get', '/signos');
+    return requestAPI<RespuestaSignos>('get', '/api/signos');
   },
 
   obtenerCategorias: async (): Promise<RespuestaCategorias> => {
-    return requestAPI<RespuestaCategorias>('get', '/categorias');
+    return requestAPI<RespuestaCategorias>('get', '/api/categorias');
   },
 
   obtenerSignosPorCategoria: async (categoria: string): Promise<RespuestaPorCategoria> => {
     return requestAPI<RespuestaPorCategoria>(
       'get',
-      `/categorias/${encodeURIComponent(categoria)}`
+      `/api/categorias/${encodeURIComponent(categoria)}`
     );
   },
 
@@ -107,7 +107,7 @@ export const api = {
   },
 
   loginGoogle: async (): Promise<{ url: string }> => {
-    return requestAPI<{ url: string }>('get', '/auth/google');
+    return requestAPI<{ url: string }>('get', '/api/auth/google');
   },
 
   perfil: async (): Promise<AuthResponse> => {
