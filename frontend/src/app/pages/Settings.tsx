@@ -225,34 +225,6 @@ export function Settings() {
           >
             Guardar cambios
           </Button>
-
-          {user.roles?.some((rol) => rol === 'admin' || rol === 'moderador') ? (
-            <div className="rounded-xl border border-border p-3 sm:p-4 space-y-2">
-              <h2 className="text-sm font-semibold flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#4997D0]" />
-                Modo administrador
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                Revisa y gestiona las solicitudes de señas enviadas por los usuarios.
-              </p>
-              <Button
-                onClick={() => navigate('/admin/reportes')}
-                variant="outline"
-                className="w-full"
-              >
-                Ir a gestión de solicitudes
-              </Button>
-              {user.roles?.includes('admin') ? (
-                <Button
-                  onClick={() => navigate('/admin/usuarios')}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Ir a gestión de usuarios
-                </Button>
-              ) : null}
-            </div>
-          ) : null}
         </div>
       </div>
 

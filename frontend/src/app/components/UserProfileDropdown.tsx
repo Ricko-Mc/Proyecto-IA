@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { User, Settings, HelpCircle, Info } from 'lucide-react';
+import { User, Info } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import {
   DropdownMenu,
@@ -80,21 +80,6 @@ export function UserProfileDropdown({
         <DropdownMenuSeparator className="my-1.5" />
 
         
-        <DropdownMenuItem
-          onClick={() => navigate('/settings')}
-          className="px-3 py-2 cursor-pointer rounded-md transition-all duration-200 ease-in-out focus:bg-accent focus:text-accent-foreground"
-        >
-          <Settings className="w-4 h-4 mr-2 text-muted-foreground" />
-          <span className="text-xs" style={{ fontFamily: 'Poppins, sans-serif' }}>Ajustes</span>
-        </DropdownMenuItem>
-
-        <DropdownMenuItem
-          onClick={() => navigate('/help')}
-          className="px-3 py-2 cursor-pointer rounded-md transition-all duration-200 ease-in-out focus:bg-accent focus:text-accent-foreground"
-        >
-          <HelpCircle className="w-4 h-4 mr-2 text-muted-foreground" />
-          <span className="text-xs" style={{ fontFamily: 'Poppins, sans-serif' }}>Obtener ayuda</span>
-        </DropdownMenuItem>
 
         <DropdownMenuItem
           onClick={() => navigate('/about')}

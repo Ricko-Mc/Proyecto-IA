@@ -2,21 +2,12 @@ from src.utilidades.puente_prolog import PuenteProlog
 from src.utilidades.agente_ia import AgenteIA
 from src.utilidades.youtube import construir_url_embed_youtube
 from src.utilidades.cache_ttl import CacheTTL
-from src.utilidades.supabase_client import (
-    actualizar_estadisticas_signo,
-    actualizar_estadisticas_usuario,
-    crear_conversacion,
-    guardar_mensaje,
-    obtener_cliente_supabase,
-    registrar_bitacora,
-)
 
 class ServicioChat:
     def __init__(self, puente_prolog: PuenteProlog, agente_ia: AgenteIA):
         """Inicializa el servicio de chat con dependencias inyectadas."""
         self.puente_prolog = puente_prolog
         self.agente_ia = agente_ia
-        self.supabase = obtener_cliente_supabase()
         self._cache_respuestas = CacheTTL[str, dict](ttl_seconds=300, max_items=512)
 
     def _inferir_categoria_por_contexto(self, mensaje: str) -> str | None:
@@ -82,8 +73,6 @@ class ServicioChat:
         mensaje: str,
         conversacion_id: str | None = None,
         clave_desambiguacion: str | None = None,
-        usuario_id: str | None = None,
-        ip: str | None = None,
     ) -> dict:
         """Procesa un mensaje: extrae palabra clave, busca signo y genera respuesta contextual."""
         cache_key = f"{mensaje.strip().lower()}|{(clave_desambiguacion or '').strip().lower()}"
@@ -197,36 +186,6 @@ class ServicioChat:
             )
 
         conversacion_resuelta = conversacion_id or ""
-        if self.supabase and usuario_id:
-            if not conversacion_resuelta:
-                conversacion = crear_conversacion(usuario_id, mensaje[:60])
-                conversacion_resuelta = conversacion.get("id") or ""
-            if conversacion_resuelta:
-                guardar_mensaje(
-                    conversacion_resuelta,
-                    "usuario",
-                    mensaje,
-                    palabra_clave,
-                    signo_info["signo_id"],
-                    url_video,
-                )
-                guardar_mensaje(
-                    conversacion_resuelta,
-                    "asistente",
-                    respuesta_ia,
-                    palabra_clave,
-                    signo_info["signo_id"],
-                    url_video,
-                )
-            if signo_info["encontrado"] and signo_info["signo_id"]:
-                actualizar_estadisticas_signo(
-                    signo_info["signo_id"],
-                    palabra_clave,
-                    categoria_info["categoria"] if categoria_info["encontrado"] else None,
-                )
-            actualizar_estadisticas_usuario(usuario_id)
-            registrar_bitacora(usuario_id, "chat", f"Consulta por {palabra_clave}", ip)
-
         return {
             "tipo_respuesta": tipo_respuesta,
             "mensaje_usuario": mensaje,
