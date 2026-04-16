@@ -19,9 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../components/ui/alert-dialog';
-import { Send, Menu, Trash2, Eraser, BookOpen, User } from 'lucide-react';
-import { Avatar, AvatarFallback } from '../components/ui/avatar';
-import { UserProfileDropdown } from '../components/UserProfileDropdown';
+import { Send, Menu, Trash2, Eraser, BookOpen } from 'lucide-react';
 import { api } from '../../services/api';
 
 const WELCOME_PHRASES = [
@@ -32,12 +30,17 @@ const WELCOME_PHRASES = [
   "Te quiero"
 ];
 
-const getConversationStorageKey = (email: string) => `segua_conversations_${email}`;
-const getCurrentConversationStorageKey = (email: string) => `segua_current_conversation_${email}`;
+const getConversationStorageKey = () => `segua_conversations_public`;
+const getCurrentConversationStorageKey = () => `segua_current_conversation_public`;
+const PUBLIC_USER = {
+  name: 'Visitante SEGUA',
+  email: 'public@segua.local',
+  avatar_url: null as string | null,
+};
 
 export function Chat() {
   const navigate = useNavigate();
-  const [user, setUser] = useState<{ name: string; email: string; avatar_url?: string | null } | null>(null);
+  const [user, setUser] = useState<typeof PUBLIC_USER>(PUBLIC_USER);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -50,16 +53,8 @@ export function Chat() {
   const [conversationToDelete, setConversationToDelete] = useState('');
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (!userData) {
-      navigate('/');
-      return;
-    }
-    const parsedUser = JSON.parse(userData) as { name: string; email: string; avatar_url?: string | null };
-    setUser(parsedUser);
-
-    const conversationsKey = getConversationStorageKey(parsedUser.email);
-    const currentConversationKey = getCurrentConversationStorageKey(parsedUser.email);
+    const conversationsKey = getConversationStorageKey();
+    const currentConversationKey = getCurrentConversationStorageKey();
 
     try {
       const savedConversations = localStorage.getItem(conversationsKey);
@@ -86,7 +81,7 @@ export function Chat() {
     const savedCurrentConversation = localStorage.getItem(currentConversationKey);
     setCurrentConversationId(savedCurrentConversation || '');
     setMessages([]);
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
     if (!currentConversationId) return;
@@ -97,14 +92,12 @@ export function Chat() {
   }, [conversations, currentConversationId]);
 
   useEffect(() => {
-    if (!user?.email) return;
-    localStorage.setItem(getConversationStorageKey(user.email), JSON.stringify(conversations));
-  }, [conversations, user?.email]);
+    localStorage.setItem(getConversationStorageKey(), JSON.stringify(conversations));
+  }, [conversations]);
 
   useEffect(() => {
-    if (!user?.email) return;
-    localStorage.setItem(getCurrentConversationStorageKey(user.email), currentConversationId);
-  }, [currentConversationId, user?.email]);
+    localStorage.setItem(getCurrentConversationStorageKey(), currentConversationId);
+  }, [currentConversationId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -147,16 +140,6 @@ export function Chat() {
         )
       );
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('access_token');
-    if (user?.email) {
-      localStorage.removeItem(getConversationStorageKey(user.email));
-      localStorage.removeItem(getCurrentConversationStorageKey(user.email));
-    }
-    navigate('/');
   };
 
   const handleRequestWord = (word: string) => {
@@ -301,8 +284,6 @@ export function Chat() {
     navigate('/dictionary');
   };
 
-  if (!user) return null;
-
   const showWelcome = messages.length === 0;
   const charCount = inputText.length;
   const maxChars = 500;
@@ -322,7 +303,6 @@ export function Chat() {
           onNewConversation={handleNewConversation}
           onSelectConversation={handleSelectConversation}
           onDeleteConversation={handleDeleteConversationFromSidebar}
-          onLogout={handleLogout}
         />
       </div>
 
@@ -338,7 +318,6 @@ export function Chat() {
             onNewConversation={handleNewConversation}
             onSelectConversation={handleSelectConversation}
             onDeleteConversation={handleDeleteConversationFromSidebar}
-            onLogout={handleLogout}
             isMobile={true}
             onClose={() => setIsMobileMenuOpen(false)}
           />
@@ -450,17 +429,6 @@ export function Chat() {
             />
           </div>
 
-          
-          <div className="md:hidden">
-            <UserProfileDropdown
-              userName={user.name}
-              userEmail={user.email}
-              avatarUrl={user.avatar_url}
-              onLogout={handleLogout}
-              mobileOnly={true}
-            />
-          </div>
-
         </div>
 
         
@@ -472,7 +440,7 @@ export function Chat() {
             {showWelcome ? (
               <div className="text-center py-2 md:py-4">
                 <img
-                  src="/Logo3.png"
+                  src="/logo1.png"
                   alt="SEGUA Logo"
                   className="w-16 h-16 md:w-32 md:h-32 mx-auto mb-2 md:mb-4"
                 />

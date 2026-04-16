@@ -42,7 +42,7 @@ export function VideoPlayer({ videoUrl, signLabel, active = true }: VideoPlayerP
           style={{ pointerEvents: 'none' }}
         >
           <span
-            className="text-white font-bold text-base md:text-lg text-left"
+            className="text-white font-bold text-base md:text-lg text-left uppercase"
             style={{
               fontFamily: 'Poppins, Arial, sans-serif',
               wordBreak: 'break-word',
@@ -57,26 +57,36 @@ export function VideoPlayer({ videoUrl, signLabel, active = true }: VideoPlayerP
                 '2px 2px 8px rgba(0,0,0,0.5)',
                 '-2px 2px 8px rgba(0,0,0,0.5)'
               ].join(','),
+              textTransform: 'uppercase',
             }}
           >
-            {signLabel}
+            {signLabel.toUpperCase()}
           </span>
         </div>
 
-        {/* Branding esquina inferior derecha */}
+        {/* Logo superior izquierdo */}
         <div
-          className="absolute bottom-3 right-3 z-10 flex flex-col items-center gap-1 md:gap-1.5"
+          className="absolute top-3 left-3 z-10"
           style={{ pointerEvents: 'none' }}
         >
           <img
-            src="/Logo3.png"
-            alt="SEGUA"
-            className="w-9 h-9 md:w-12 md:h-12 object-contain translate-y-1 md:translate-y-1.5 drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]"
+            src="/logowhite.png"
+            alt="Logo SEGUA"
+            className="h-12 w-auto object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]"
+            style={{ maxHeight: 60 }}
           />
+        </div>
+
+        {/* Bandera de Guatemala en esquina inferior derecha */}
+        <div
+          className="absolute bottom-3 right-3 z-10"
+          style={{ pointerEvents: 'none' }}
+        >
           <img
             src="/gt.png"
             alt="Bandera de Guatemala"
-            className="w-5 h-3 md:w-7 md:h-4 object-cover rounded-[2px] shadow-[0_1px_4px_rgba(0,0,0,0.45)]"
+            className="w-12 h-auto object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]"
+            style={{ maxWidth: 50 }}
           />
         </div>
       </div>

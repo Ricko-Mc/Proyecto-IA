@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from 'react-router';
-import { MessageSquare, BookOpen, CircleHelp, User } from 'lucide-react';
+import { MessageSquare, BookOpen, Info } from 'lucide-react';
 
 export function BottomNav() {
   const navigate = useNavigate();
@@ -8,8 +8,7 @@ export function BottomNav() {
   const tabs = [
     { id: 'chat', label: 'Traducir', icon: MessageSquare, path: '/chat' },
     { id: 'dictionary', label: 'Diccionario', icon: BookOpen, path: '/dictionary' },
-    { id: 'help', label: 'Soporte', icon: CircleHelp, path: '/help' },
-    { id: 'profile', label: 'Cuenta', icon: User, path: '/settings' },
+    { id: 'about', label: 'Acerca', icon: Info, path: '/about' },
   ];
 
   return (
