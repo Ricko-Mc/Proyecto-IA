@@ -1,14 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { Sidebar, Conversation } from '../components/Sidebar';
+import { Navbar } from '../components/Navbar';
 import { ChatMessage, Message } from '../components/ChatMessage';
-import { GuatemalanFlag } from '../components/GuatemalanFlag';
-import { LocationBadge } from '../components/LocationBadge';
 import { WordNotFoundDialog } from '../components/WordNotFoundDialog';
 import { BottomNav } from '../components/BottomNav';
 import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
-import { Sheet, SheetContent } from '../components/ui/sheet';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,7 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../components/ui/alert-dialog';
-import { Send, Menu, Trash2, Eraser, BookOpen } from 'lucide-react';
+import { Send, Trash2, BookOpen } from 'lucide-react';
 import { api } from '../../services/api';
 
 const WELCOME_PHRASES = [
@@ -45,7 +43,7 @@ export function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [notFoundWord, setNotFoundWord] = useState('');
   const [showNotFoundDialog, setShowNotFoundDialog] = useState(false);
@@ -140,6 +138,13 @@ export function Chat() {
         )
       );
     }
+  };
+
+  const handleNavbarSearch = async (query: string) => {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) return;
+    setInputText(trimmedQuery);
+    await enviarMensaje(trimmedQuery);
   };
 
   const handleRequestWord = (word: string) => {
@@ -293,7 +298,7 @@ export function Chat() {
 
   return (
     <div className="flex h-screen w-screen rounded-none overflow-hidden bg-[#f7f8fa] dark:bg-[rgba(10,10,10,0.82)]">
-      <div className="hidden md:block w-80 h-full">
+      <div className={`h-full ${isSidebarCollapsed ? 'w-16' : 'w-80'} transition-all duration-200 ease-in-out`}>
         <Sidebar
           conversations={conversations}
           currentConversationId={currentConversationId}
@@ -303,28 +308,10 @@ export function Chat() {
           onNewConversation={handleNewConversation}
           onSelectConversation={handleSelectConversation}
           onDeleteConversation={handleDeleteConversationFromSidebar}
+          isCollapsed={isSidebarCollapsed}
         />
       </div>
 
-      
-      <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-        <SheetContent side="left" className="p-1.5 w-72 bg-transparent border-0">
-          <Sidebar
-            conversations={conversations}
-            currentConversationId={currentConversationId}
-            userName={user.name}
-            userEmail={user.email}
-            avatarUrl={user.avatar_url}
-            onNewConversation={handleNewConversation}
-            onSelectConversation={handleSelectConversation}
-            onDeleteConversation={handleDeleteConversationFromSidebar}
-            isMobile={true}
-            onClose={() => setIsMobileMenuOpen(false)}
-          />
-        </SheetContent>
-      </Sheet>
-
-      
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -356,80 +343,15 @@ export function Chat() {
       
       <div className="flex-1 flex flex-col min-h-0 bg-[linear-gradient(180deg,#dff0ff_0%,#f3ecde_100%)] dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#101010_100%)] overflow-hidden">
         
-        <div className="topbar h-[78px] w-full px-4 md:px-7 flex items-center justify-between bg-transparent border-b border-black/5 dark:border-white/10">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden h-9 w-9 rounded-full bg-white dark:bg-[#1a1a1a] border border-[#dbe4ef] dark:border-[#333333] text-[#516276] dark:text-[#e4e4e4] hover:bg-[#eef4fc] dark:hover:bg-[#262626]"
-            onClick={() => setIsMobileMenuOpen(true)}
-          >
-            <Menu className="w-4 h-4" />
-          </Button>
+        <Navbar
+          title="Chat"
+          onToggleSidebar={() => setIsSidebarCollapsed((prev) => !prev)}
+          onClearConversation={handleClearConversation}
+          onSearch={handleNavbarSearch}
+          activePage="chat"
+        />
 
           
-          <div className="hidden md:flex items-center gap-2.5 flex-1 min-w-0">
-            <img
-              src="/logo2.png"
-              alt="SEGUA"
-              className="w-[28px] h-[28px] object-contain"
-            />
-            <div className="flex-1 min-w-0">
-              <h2 className="text-[14px] font-semibold tracking-[0.15px] text-[#111f33] dark:text-[#f2f2f2] truncate">
-                {currentConversationId
-                  ? conversations.find(c => c.id === currentConversationId)?.name || 'SEGUA'
-                  : 'SEGUA'}
-              </h2>
-            </div>
-
-            <div className="flex items-center gap-3">
-            <LocationBadge />
-            <Button
-              variant="ghost"
-              onClick={handleOpenDictionary}
-              className="h-[38px] px-[14px] gap-2 rounded-[12px] border border-[#93c2ef] dark:border-[#3a3a3a] bg-white dark:bg-[#171717] text-[#3f86cc] dark:text-[#e9e9e9] font-semibold transition-all duration-200 ease-in-out hover:-translate-y-0.5 hover:bg-[#edf6ff] dark:hover:bg-[#222222] hover:shadow-[0_6px_14px_rgba(63,134,204,0.2)] dark:hover:shadow-[0_6px_14px_rgba(0,0,0,0.45)]"
-            >
-              <BookOpen className="w-3.5 h-3.5" />
-              Diccionario
-            </Button>
-
-            {currentConversationId && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleClearConversation}
-                  title="Limpiar conversación"
-                  className="h-[36px] w-[36px] rounded-[10px] bg-white dark:bg-[#171717] border border-[#dbe4ef] dark:border-[#333333] text-[#75859a] dark:text-[#d4d4d4] hover:-translate-y-0.5 hover:bg-[#edf4fc] dark:hover:bg-[#232323]"
-                >
-                  <Eraser className="w-3.5 h-3.5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    setConversationToDelete(currentConversationId);
-                    setShowDeleteDialog(true);
-                  }}
-                  title="Eliminar conversación"
-                  className="h-[36px] w-[36px] rounded-[10px] bg-white dark:bg-[#171717] border border-[#f1d2d6] dark:border-[#4a2a2a] text-[#ef4444] dark:text-[#ff7d7d] hover:-translate-y-0.5 hover:bg-[#fff1f2] dark:hover:bg-[#231515]"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </Button>
-              </>
-            )}
-            </div>
-          </div>
-
-          
-          <div className="md:hidden flex-1 flex justify-center">
-            <img
-              src="/logo2.png"
-              alt="SEGUA"
-              className="h-8 w-auto"
-            />
-          </div>
-
-        </div>
 
         
         <div
