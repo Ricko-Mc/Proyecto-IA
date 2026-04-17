@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { Menu, Info, Eraser, Search, MessageSquare, BookOpen, Gamepad } from 'lucide-react';
+import { Menu, Info, Eraser, Search, MessageSquare, BookOpen, Gamepad, ArrowLeft, ArrowRight, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { LocationBadge } from './LocationBadge';
@@ -59,6 +59,7 @@ export function Navbar({
 }: NavbarProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [helpStep, setHelpStep] = useState(0);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [allSigns, setAllSigns] = useState<Signo[]>([]);
 
@@ -198,6 +199,51 @@ export function Navbar({
     handleSearchChange(value);
   };
 
+  const helpSteps = [
+    {
+      image: '/inicio.jpeg',
+      title: 'Inicio de SEGUA',
+      description:
+        'Aquí puedes ver el inicio de la interfaz. Usa el menú para navegar entre el chat, el diccionario y más.',
+    },
+    {
+      image: '/chat.jpeg',
+      title: 'Chat interactivo',
+      description:
+        'Escribe una palabra o frase y el chat te mostrará la seña correspondiente.',
+    },
+    {
+      image: '/videomostrado.png',
+      title: 'Video de la seña',
+      description:
+        'Cuando el sistema encuentre el video, se mostrará aquí para que puedas ver y repetir el movimiento de la seña.',
+    },
+    {
+      image: '/limpiar.jpeg',
+      title: 'Limpiar conversación',
+      description:
+        'Usa esta opción cuando quieras empezar de nuevo y borrar el historial actual del chat.',
+    },
+    {
+      image: '/filtradodiccionario.jpeg',
+      title: 'Filtrar diccionario',
+      description:
+        'Selecciona una categoría para ver solo los signos relacionados con ese tema.',
+    },
+    {
+      image: '/barrabusqueda.jpeg',
+      title: 'Barra de búsqueda',
+      description:
+        'Escribe aquí cualquier palabra para encontrar su seña rápidamente en el diccionario.',
+    },
+    {
+      image: '/sidebar.jpeg',
+      title: 'Menú lateral',
+      description:
+        'Abre el sidebar para cambiar de sección, iniciar una nueva conversación o ver opciones generales.',
+    },
+  ];
+
   const navbarClass = activePage === 'dictionary'
     ? 'topbar h-[78px] w-full px-4 md:px-7 flex items-center gap-3 bg-white border-b border-slate-200'
     : 'topbar h-[78px] w-full px-4 md:px-7 flex items-center gap-3 bg-transparent border-b border-black/5 dark:border-white/10';
@@ -312,7 +358,10 @@ export function Navbar({
             variant="ghost"
             size="icon"
             className="h-10 w-10 rounded-[12px] bg-white dark:bg-[#171717] border border-[#dbe4ef] dark:border-[#333333] text-[#75859a] dark:text-[#d4d4d4] hover:bg-[#edf4fc] dark:hover:bg-[#232323]"
-            onClick={() => setIsInfoOpen(true)}
+            onClick={() => {
+              setHelpStep(0);
+              setIsInfoOpen(true);
+            }}
             title="Información"
           >
             <Info className="w-4 h-4" />
@@ -323,27 +372,66 @@ export function Navbar({
       <AlertDialog open={isInfoOpen} onOpenChange={setIsInfoOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Cómo usar SEGUA?</AlertDialogTitle>
+            <div className="flex items-start justify-between gap-2">
+              <AlertDialogTitle>Guía rápida</AlertDialogTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 rounded-full text-slate-500 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                onClick={() => setIsInfoOpen(false)}
+                aria-label="Cerrar"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </AlertDialogHeader>
-          <AlertDialogDescription className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
-            <p>
-              Escribe una palabra o frase en español para ver su seña en Lengua de Señas de Guatemala.
-            </p>
-            <p>
-              Usa las frases sugeridas cuando quieras probar ejemplos rápidos.
-            </p>
-            <p>
-              El diccionario te permite explorar las señas por categorías y encontrar contenido educativo.
-            </p>
+          <AlertDialogDescription className="space-y-4 text-sm text-slate-600 dark:text-slate-300">
+            <div className="space-y-3">
+              <div className="rounded-3xl border border-border bg-slate-50 dark:bg-[#0e1625] p-3">
+                <img
+                  src={helpSteps[helpStep].image}
+                  alt={helpSteps[helpStep].title}
+                  className="w-full rounded-2xl object-cover"
+                />
+              </div>
+              <div>
+                <p className="text-base font-semibold text-slate-900 dark:text-white">
+                  {helpSteps[helpStep].title}
+                </p>
+                <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+                  {helpSteps[helpStep].description}
+                </p>
+              </div>
+            </div>
           </AlertDialogDescription>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cerrar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => setIsInfoOpen(false)}
-              className="bg-[#4997D0] text-white hover:bg-[#3A7FB8]"
-            >
-              Entendido
-            </AlertDialogAction>
+          <AlertDialogFooter className="flex items-center justify-between gap-2">
+            <div className="flex-1 text-left">
+              <Button
+                variant="outline"
+                onClick={() => setHelpStep((prev) => Math.max(prev - 1, 0))}
+                disabled={helpStep === 0}
+                className="rounded-full border border-[#dbe4ef] text-slate-700 dark:border-[#333333] dark:text-[#d4d4d4]"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="flex-1 text-center text-xs text-slate-500 dark:text-slate-400">
+              {helpStep + 1}/{helpSteps.length}
+            </div>
+            <div className="flex-1 text-right">
+              {helpStep < helpSteps.length - 1 ? (
+                <Button
+                  onClick={() => setHelpStep((prev) => Math.min(prev + 1, helpSteps.length - 1))}
+                  className="ml-auto rounded-full bg-[#4997D0] text-white hover:bg-[#3A7FB8]"
+                >
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              ) : (
+                <AlertDialogAction className="ml-auto rounded-full bg-[#4997D0] text-white hover:bg-[#3A7FB8]">
+                  <X className="h-4 w-4" />
+                </AlertDialogAction>
+              )}
+            </div>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
