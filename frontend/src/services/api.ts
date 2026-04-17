@@ -17,6 +17,9 @@ const clienteApi = axios.create({
   },
 });
 
+const cache: Record<string, any> = {};
+const pendingRequests: Record<string, Promise<any> | undefined> = {};
+
 async function requestAPI<T>(
   method: 'get' | 'post' | 'delete' | 'patch',
   endpoint: string,
@@ -55,18 +58,66 @@ export const api = {
   },
 
   obtenerTodosLosSignos: async (): Promise<RespuestaSignos> => {
-    return requestAPI<RespuestaSignos>('get', '/api/signos');
+    const cacheKey = '/api/signos';
+    if (cache[cacheKey]) {
+      return cache[cacheKey];
+    }
+    if (pendingRequests[cacheKey]) {
+      return pendingRequests[cacheKey];
+    }
+    pendingRequests[cacheKey] = requestAPI<RespuestaSignos>('get', cacheKey)
+      .then((resultado) => {
+        cache[cacheKey] = resultado;
+        delete pendingRequests[cacheKey];
+        return resultado;
+      })
+      .catch((error) => {
+        delete pendingRequests[cacheKey];
+        throw error;
+      });
+    return pendingRequests[cacheKey];
   },
 
   obtenerCategorias: async (): Promise<RespuestaCategorias> => {
-    return requestAPI<RespuestaCategorias>('get', '/api/categorias');
+    const cacheKey = '/api/categorias';
+    if (cache[cacheKey]) {
+      return cache[cacheKey];
+    }
+    if (pendingRequests[cacheKey]) {
+      return pendingRequests[cacheKey];
+    }
+    pendingRequests[cacheKey] = requestAPI<RespuestaCategorias>('get', cacheKey)
+      .then((resultado) => {
+        cache[cacheKey] = resultado;
+        delete pendingRequests[cacheKey];
+        return resultado;
+      })
+      .catch((error) => {
+        delete pendingRequests[cacheKey];
+        throw error;
+      });
+    return pendingRequests[cacheKey];
   },
 
   obtenerSignosPorCategoria: async (categoria: string): Promise<RespuestaPorCategoria> => {
-    return requestAPI<RespuestaPorCategoria>(
-      'get',
-      `/api/categorias/${encodeURIComponent(categoria)}`
-    );
+    const cacheKey = `/api/categorias/${encodeURIComponent(categoria)}`;
+    if (cache[cacheKey]) {
+      return cache[cacheKey];
+    }
+    if (pendingRequests[cacheKey]) {
+      return pendingRequests[cacheKey];
+    }
+    pendingRequests[cacheKey] = requestAPI<RespuestaPorCategoria>('get', cacheKey)
+      .then((resultado) => {
+        cache[cacheKey] = resultado;
+        delete pendingRequests[cacheKey];
+        return resultado;
+      })
+      .catch((error) => {
+        delete pendingRequests[cacheKey];
+        throw error;
+      });
+    return pendingRequests[cacheKey];
   },
 
   buscarSigno: async (palabra: string): Promise<BusquedaSigno> => {

@@ -17,7 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../components/ui/alert-dialog';
-import { Send, Trash2, BookOpen } from 'lucide-react';
+import { Send, BookOpen } from 'lucide-react';
 import { api } from '../../services/api';
 
 const WELCOME_PHRASES = [
@@ -47,6 +47,8 @@ export function Chat() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [notFoundWord, setNotFoundWord] = useState('');
   const [showNotFoundDialog, setShowNotFoundDialog] = useState(false);
+  const [insertedGamePrompt, setInsertedGamePrompt] = useState(false);
+  const [correctResponseCount, setCorrectResponseCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [conversationToDelete, setConversationToDelete] = useState('');
 
@@ -104,11 +106,13 @@ export function Chat() {
   const handleNewConversation = () => {
     setCurrentConversationId('');
     setMessages([]);
+    setInsertedGamePrompt(false);
   };
 
   const handleSelectConversation = (id: string) => {
     setCurrentConversationId(id);
     setMessages([]);
+    setInsertedGamePrompt(false);
   };
 
   const handleDeleteConversation = () => {
@@ -129,6 +133,7 @@ export function Chat() {
 
   const handleClearConversation = () => {
     setMessages([]);
+    setInsertedGamePrompt(false);
     if (currentConversationId) {
       setConversations(prev =>
         prev.map(conv =>
@@ -164,18 +169,17 @@ export function Chat() {
     const userMessage: Message = {
       id: `msg-${Date.now()}`,
       type: 'user',
-      text: textoUsuarioVisible || mensajeActual
+      text: textoUsuarioVisible || mensajeActual,
     };
 
-    setMessages((prev) => [...prev, userMessage]);
     const loadingMessage: Message = {
       id: `msg-${Date.now()}-loading`,
       type: 'system',
       text: '',
-      isLoading: true
+      isLoading: true,
     };
 
-    setMessages(prev => [...prev, loadingMessage]);
+    setMessages((prev) => [...prev, userMessage, loadingMessage]);
 
     try {
       const hasCurrentConversation = conversations.some((conv) => conv.id === currentConversationId);
@@ -198,9 +202,31 @@ export function Chat() {
         setConversations((prev) => [nuevaConv, ...prev]);
       }
 
-      setMessages(prev => {
-        const filtered = prev.filter(m => !m.isLoading);
-        const urlVideoPermitida = respuesta.url_video;
+      const shouldFetchCategories =
+        respuesta.tipo_respuesta === 'no_encontrado' ||
+        (respuesta.tipo_respuesta === 'video' && respuesta.signo_encontrado && !respuesta.url_video);
+
+      const categoryOptions = shouldFetchCategories
+        ? await api
+            .obtenerCategorias()
+            .then((resultado) => resultado.categorias)
+            .catch(() => [])
+        : [];
+
+      const urlVideoPermitida = respuesta.url_video;
+      const isCorrectResponse =
+        respuesta.tipo_respuesta === 'video' &&
+        respuesta.signo_encontrado &&
+        Boolean(urlVideoPermitida);
+      const nextCorrectCount = correctResponseCount + (isCorrectResponse ? 1 : 0);
+      const shouldInsertPrompt =
+        isCorrectResponse &&
+        nextCorrectCount >= 5 &&
+        !insertedGamePrompt &&
+        !messages.some((m) => m.gamePrompt);
+
+      setMessages((prev) => {
+        const filtered = prev.filter((m) => !m.isLoading);
 
         let systemMessage: Message;
         if (respuesta.tipo_respuesta === 'desambiguacion') {
@@ -212,14 +238,16 @@ export function Chat() {
             disambiguationOptions: respuesta.opciones || [],
           };
         } else if (respuesta.tipo_respuesta === 'video' && respuesta.signo_encontrado) {
+          const videoMissing = !urlVideoPermitida;
           systemMessage = {
             id: `msg-${Date.now()}-response`,
             type: 'system',
             text: '',
             videoUrl: urlVideoPermitida || undefined,
             signLabel: respuesta.palabra_clave || undefined,
-            noVideoAvailable: !urlVideoPermitida,
-            suggestionWord: mensajeActual,
+            noVideoAvailable: videoMissing,
+            categoryPrompt: videoMissing,
+            categories: videoMissing ? categoryOptions : undefined,
           };
         } else if (respuesta.tipo_respuesta === 'error_backend') {
           systemMessage = {
@@ -235,10 +263,34 @@ export function Chat() {
             text: respuesta.respuesta_ia,
             notFound: true,
             notFoundWord: mensajeActual,
+            categoryPrompt: true,
+            categories: categoryOptions,
           };
         }
-        return [...filtered, systemMessage];
+
+        const gamePromptMessage: Message | null = shouldInsertPrompt
+          ? {
+              id: `msg-${Date.now()}-game`,
+              type: 'system',
+              text: '¡Vas muy bien! ¿Quieres poner a prueba lo que has aprendido?',
+              gamePrompt: true,
+            }
+          : null;
+
+        return [
+          ...filtered,
+          systemMessage,
+          ...(gamePromptMessage ? [gamePromptMessage] : []),
+        ];
       });
+
+      if (isCorrectResponse) {
+        setCorrectResponseCount((prev) => prev + 1);
+      }
+      if (shouldInsertPrompt) {
+        setInsertedGamePrompt(true);
+      }
+
     } catch (_error) {
       setMessages(prev => {
         const filtered = prev.filter(m => !m.isLoading);
@@ -287,6 +339,10 @@ export function Chat() {
 
   const handleOpenDictionary = () => {
     navigate('/dictionary');
+  };
+
+  const handleSelectCategory = (category: string) => {
+    navigate(`/dictionary?category=${encodeURIComponent(category)}`);
   };
 
   const showWelcome = messages.length === 0;
@@ -364,6 +420,10 @@ export function Chat() {
                 <img
                   src="/logo1.png"
                   alt="SEGUA Logo"
+                  width={128}
+                  height={128}
+                  loading="eager"
+                  decoding="async"
                   className="w-16 h-16 md:w-32 md:h-32 mx-auto mb-2 md:mb-4"
                 />
                 <h2 className="text-sm md:text-lg font-semibold mb-1.5 md:mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
@@ -408,6 +468,8 @@ export function Chat() {
                     message={message}
                     onRequestWord={handleRequestWord}
                     onSelectDisambiguation={handleSelectDisambiguation}
+                    onSelectCategory={handleSelectCategory}
+                    onOpenDictionary={handleOpenDictionary}
                     isActiveVideo={message.id === activeVideoMessageId}
                   />
                 ))}

@@ -72,6 +72,10 @@ export function VideoPlayer({ videoUrl, signLabel, active = true }: VideoPlayerP
           <img
             src="/logowhite.png"
             alt="Logo SEGUA"
+            width={60}
+            height={60}
+            loading="eager"
+            decoding="async"
             className="h-12 w-auto object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]"
             style={{ maxHeight: 60 }}
           />
@@ -85,6 +89,10 @@ export function VideoPlayer({ videoUrl, signLabel, active = true }: VideoPlayerP
           <img
             src="/gt.png"
             alt="Bandera de Guatemala"
+            width={50}
+            height={50}
+            loading="lazy"
+            decoding="async"
             className="w-12 h-auto object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.35)]"
             style={{ maxWidth: 50 }}
           />

@@ -79,14 +79,32 @@ export function Sidebar({
     },
   ];
 
+  const activeClasses = 'bg-[#dbeeff] dark:bg-[#0f1830] text-slate-950 dark:text-white font-semibold';
+  const hoverClasses = 'hover:bg-[#dbeeff] dark:hover:bg-[#0f1830] transition-colors duration-200';
+
   return (
     <div className={`flex flex-col h-full ${isCollapsed ? 'w-16' : 'w-full'} bg-[rgba(244,249,255,0.55)] dark:bg-[rgba(18,18,18,0.42)] backdrop-blur-xl border border-[rgba(164,194,224,0.35)] dark:border-white/10 overflow-hidden shadow-[0_10px_28px_rgba(13,43,76,0.06)] dark:shadow-[0_10px_28px_rgba(0,0,0,0.25)] transition-all duration-200 ease-in-out`}>
       <div className={`px-3 ${isCollapsed ? 'py-3' : 'py-4'} ${isCollapsed ? 'space-y-3' : 'space-y-4'}`}>
         <div className="flex items-center justify-center">
           {!isCollapsed && (
-            <img src="/logo1.png" alt="SEGUA Logo" className="h-28 w-auto object-contain" />
+            <img
+              src="/logo1.png"
+              alt="SEGUA Logo"
+              width={112}
+              height={112}
+              loading="eager"
+              decoding="async"
+              className="h-28 w-auto object-contain cursor-pointer"
+              onClick={() => handleNavigate('/chat')}
+            />
           )}
         </div>
+
+        {!isCollapsed && (
+          <p className="text-center text-sm italic text-slate-900">
+            Señas de Guatemala
+          </p>
+        )}
 
         <Button
           onClick={handleNewConversation}
@@ -112,7 +130,7 @@ export function Sidebar({
                 key={item.path}
                 type="button"
                 onClick={() => handleNavigate(item.path)}
-                className={`flex ${isCollapsed ? 'justify-center' : 'items-center'} gap-3 w-full rounded-lg ${isCollapsed ? 'p-2.5' : 'px-2 py-2'} transition ${selected ? 'bg-slate-900/5 dark:bg-white/10 text-slate-950 dark:text-white font-semibold' : 'text-slate-800 dark:text-slate-200 hover:bg-white/5 dark:hover:bg-white/5'}`}
+                className={`flex ${isCollapsed ? 'justify-center' : 'items-center'} gap-3 w-full rounded-lg ${isCollapsed ? 'p-2.5' : 'px-2 py-2'} transition-colors duration-200 ${selected ? activeClasses : `text-slate-800 dark:text-slate-200 ${hoverClasses}`}`}
               >
                 <Icon className="h-5 w-5 text-slate-900 dark:text-slate-100" />
                 {!isCollapsed && <span className="text-sm">{item.label}</span>}
@@ -137,7 +155,7 @@ export function Sidebar({
                 key={item.path}
                 type="button"
                 onClick={() => handleNavigate(item.path)}
-                className={`flex ${isCollapsed ? 'justify-center' : 'items-center'} gap-3 w-full rounded-lg ${isCollapsed ? 'p-2.5' : 'px-2 py-2'} transition ${selected ? 'bg-slate-900/5 dark:bg-white/10 text-slate-950 dark:text-white font-semibold' : 'text-slate-800 dark:text-slate-200 hover:bg-white/5 dark:hover:bg-white/5'}`}
+                className={`flex ${isCollapsed ? 'justify-center' : 'items-center'} gap-3 w-full rounded-lg ${isCollapsed ? 'p-2.5' : 'px-2 py-2'} transition-colors duration-200 ${selected ? activeClasses : `text-slate-800 dark:text-slate-200 ${hoverClasses}`}`}
               >
                 <Icon className="h-5 w-5 text-slate-900 dark:text-slate-100" />
                 {!isCollapsed && <span className="text-sm">{item.label}</span>}
@@ -151,9 +169,9 @@ export function Sidebar({
         <button
           type="button"
           onClick={() => handleNavigate('/about')}
-          className={`flex ${isCollapsed ? 'justify-center' : 'items-center'} gap-2 w-full ${isCollapsed ? 'h-11 px-0' : 'px-2 py-2'} rounded-lg text-slate-800 dark:text-slate-200 transition hover:bg-white/5 dark:hover:bg-white/5`}
+          className={`flex ${isCollapsed ? 'justify-center' : 'items-center'} gap-2 w-full ${isCollapsed ? 'h-11 px-0' : 'px-2 py-2'} rounded-lg transition-colors duration-200 ${isActive('/about') ? activeClasses : `text-slate-800 dark:text-slate-200 ${hoverClasses}`}`}
         >
-          <Users className="h-4 w-4" />
+          <Users className="h-4 w-4 text-slate-900 dark:text-slate-100" />
           {!isCollapsed && <span className="text-sm">Acerca de SEGUA</span>}
         </button>
       </div>

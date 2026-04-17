@@ -1,8 +1,11 @@
-import { useState, type KeyboardEvent } from 'react';
-import { Menu, Info, Eraser, Search } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
+import { useLocation, useNavigate } from 'react-router';
+import { Menu, Info, Eraser, Search, MessageSquare, BookOpen, Gamepad } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { LocationBadge } from './LocationBadge';
+import { api } from '../../services/api';
+import type { Signo } from '../../types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,6 +16,29 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from './ui/alert-dialog';
+
+const sectionItems = [
+  {
+    path: '/chat',
+    label: 'Chat',
+    icon: MessageSquare,
+  },
+  {
+    path: '/dictionary',
+    label: 'Diccionario',
+    icon: BookOpen,
+  },
+  {
+    path: '/chat',
+    label: 'Juego',
+    icon: Gamepad,
+  },
+  {
+    path: '/about',
+    label: 'Acerca de SEGUA',
+    icon: Info,
+  },
+];
 
 interface NavbarProps {
   title: string;
@@ -33,23 +59,143 @@ export function Navbar({
 }: NavbarProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [allSigns, setAllSigns] = useState<Signo[]>([]);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const placeholder = activePage === 'dictionary' ? 'Buscar signo...' : 'Buscar...';
 
-  const handleInputChange = (value: string) => {
+  const normalizedQuery = searchQuery.toLowerCase().trim();
+
+  const matchingSectionItems = useMemo(
+    () =>
+      sectionItems.filter((item) =>
+        item.label.toLowerCase().includes(normalizedQuery)
+      ),
+    [normalizedQuery]
+  );
+
+  const matchingSignItems = useMemo(
+    () =>
+      allSigns
+        .filter((signo) => signo.palabra.toLowerCase().includes(normalizedQuery))
+        .slice(0, 5),
+    [allSigns, normalizedQuery]
+  );
+
+  const closeSuggestions = () => setShowSuggestions(false);
+
+  const handleSearchChange = (value: string) => {
     setSearchQuery(value);
+    setShowSuggestions(Boolean(value.trim()));
     if (activePage === 'dictionary') {
       onSearch?.(value);
+    }
+  };
+
+  const navigateToSection = (path: string) => {
+    navigate(path);
+    closeSuggestions();
+  };
+
+  const navigateToDictionarySearch = (term: string) => {
+    navigate(`/dictionary?search=${encodeURIComponent(term)}`);
+    setSearchQuery(term);
+    setShowSuggestions(false);
+  };
+
+  const executeSearch = (value: string) => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+
+    const exactSectionMatch = sectionItems.find(
+      (item) => item.label.toLowerCase() === trimmed.toLowerCase()
+    );
+
+    if (exactSectionMatch) {
+      navigateToSection(exactSectionMatch.path);
+      return;
+    }
+
+    const exactSignMatch = allSigns.find(
+      (signo) => signo.palabra.toLowerCase() === trimmed.toLowerCase()
+    );
+
+    if (exactSignMatch) {
+      navigateToDictionarySearch(exactSignMatch.palabra);
+      return;
+    }
+
+    if (matchingSectionItems.length > 0) {
+      navigateToSection(matchingSectionItems[0].path);
+      return;
+    }
+
+    if (matchingSignItems.length > 0) {
+      navigateToDictionarySearch(matchingSignItems[0].palabra);
+      return;
+    }
+
+    if (activePage === 'dictionary') {
+      onSearch?.(trimmed);
+      closeSuggestions();
     }
   };
 
   const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      if (activePage !== 'dictionary') {
-        onSearch?.(searchQuery.trim());
-      }
+      executeSearch(searchQuery);
     }
+  };
+
+  useEffect(() => {
+    if (!normalizedQuery || allSigns.length > 0) return;
+
+    let mounted = true;
+    api.obtenerTodosLosSignos()
+      .then((response) => {
+        if (mounted) {
+          setAllSigns(response.signos);
+        }
+      })
+      .catch(() => {
+        // Ignore load errors for suggestions.
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [normalizedQuery, allSigns.length]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        closeSuggestions();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (activePage !== 'dictionary' || !onSearch) return;
+
+    const params = new URLSearchParams(location.search);
+    const searchParam = params.get('search') || '';
+    if (searchParam) {
+      setSearchQuery(searchParam);
+      onSearch(searchParam);
+      setShowSuggestions(false);
+    }
+  }, [activePage, location.search, onSearch]);
+
+  const handleInputChange = (value: string) => {
+    handleSearchChange(value);
   };
 
   const navbarClass = activePage === 'dictionary'
@@ -81,9 +227,68 @@ export function Navbar({
                 placeholder={placeholder}
                 value={searchQuery}
                 onChange={(e) => handleInputChange(e.target.value)}
+                onFocus={() => setShowSuggestions(Boolean(searchQuery.trim()))}
                 onKeyDown={handleSearchKeyDown}
                 className="h-10 w-full pl-10 pr-3 rounded-full border border-border/30 bg-transparent text-sm text-slate-900 dark:text-white placeholder:text-slate-400"
               />
+              {showSuggestions && normalizedQuery.length > 0 && (
+                <div
+                  ref={dropdownRef}
+                  className="absolute left-0 right-0 mt-2 overflow-hidden rounded-3xl border border-border/60 bg-white shadow-lg dark:border-slate-700 dark:bg-[#0f172a] z-30"
+                >
+                  <div className="divide-y divide-slate-200 dark:divide-slate-800">
+                    {matchingSectionItems.length > 0 && (
+                      <div className="p-2">
+                        <p className="px-3 pb-2 text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+                          Secciones
+                        </p>
+                        {matchingSectionItems.map((item) => {
+                          const Icon = item.icon;
+                          return (
+                            <button
+                              key={item.path + item.label}
+                              type="button"
+                              onClick={() => navigateToSection(item.path)}
+                              className="flex w-full items-center gap-3 px-3 py-3 text-left text-sm text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900"
+                            >
+                              <Icon className="h-4 w-4 text-[#4997D0]" />
+                              <span className="truncate">{item.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {matchingSignItems.length > 0 && (
+                      <div className="p-2">
+                        <p className="px-3 pb-2 text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+                          Signos
+                        </p>
+                        {matchingSignItems.map((signo) => (
+                          <button
+                            key={signo.signo_id}
+                            type="button"
+                            onClick={() => navigateToDictionarySearch(signo.palabra)}
+                            className="flex w-full items-center gap-3 px-3 py-3 text-left text-sm text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-900"
+                          >
+                            <BookOpen className="h-4 w-4 text-[#4997D0]" />
+                            <div className="min-w-0">
+                              <p className="truncate font-medium">{signo.palabra}</p>
+                              <p className="truncate text-xs text-slate-500 dark:text-slate-400">Signo</p>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {matchingSectionItems.length === 0 && matchingSignItems.length === 0 && (
+                      <div className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
+                        No se encontraron sugerencias para "{searchQuery}".
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

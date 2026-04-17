@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
 import { VideoPlayer } from '../components/VideoPlayer';
 import { BottomNav } from '../components/BottomNav';
 import { Button } from '../components/ui/button';
@@ -14,6 +14,7 @@ import {
 } from '../components/ui/select';
 import { BookOpen, Search, Video, Filter, Play, Palette, PawPrint, Apple, Hand } from 'lucide-react';
 import { api } from '../../services/api';
+import { toYouTubeThumbnailUrl } from '../../services/youtube';
 import { MainLayout } from '../layouts/MainLayout';
 
 interface DictionaryWord {
@@ -31,15 +32,25 @@ const formatearEtiqueta = (valor: string): string =>
 
 export function Dictionary() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedCategory, setSelectedCategory] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedWord, setSelectedWord] = useState<DictionaryWord | null>(null);
   const [words, setWords] = useState<DictionaryWord[]>([]);
+  const [visibleCount, setVisibleCount] = useState(20);
   const [categories, setCategories] = useState<string[]>(['Todos']);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const thumbnailCache = useRef<Record<string, boolean>>({});
 
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const categoryParam = params.get('category');
+    if (categoryParam) {
+      setSelectedCategory(formatearEtiqueta(categoryParam));
+    }
+
     const cargarDiccionario = async () => {
       setLoading(true);
       setError('');
@@ -70,6 +81,10 @@ export function Dictionary() {
     void cargarDiccionario();
   }, []);
 
+  useEffect(() => {
+    setVisibleCount(20);
+  }, [searchQuery, selectedCategory, words.length]);
+
   const filteredWords = useMemo(
     () =>
       words.filter((word) => {
@@ -80,7 +95,44 @@ export function Dictionary() {
     [words, selectedCategory, searchQuery]
   );
 
+  const displayedWords = filteredWords.slice(0, visibleCount);
+  const canLoadMore = visibleCount < filteredWords.length;
   const shouldShowResults = searchQuery.trim().length > 0 || selectedCategory !== '';
+
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => Math.min(prev + 20, filteredWords.length));
+  };
+
+  useEffect(() => {
+    if (!canLoadMore || !loadMoreRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleCount((prev) => Math.min(prev + 20, filteredWords.length));
+          }
+        });
+      },
+      { rootMargin: '200px', threshold: 0.1 }
+    );
+
+    observer.observe(loadMoreRef.current);
+
+    return () => observer.disconnect();
+  }, [canLoadMore, filteredWords.length]);
+
+  useEffect(() => {
+    if (displayedWords.length === 0) return;
+
+    displayedWords.slice(0, 15).forEach((word) => {
+      const thumbnailUrl = toYouTubeThumbnailUrl(word.videoUrl);
+      if (!thumbnailUrl || thumbnailCache.current[thumbnailUrl]) return;
+      const img = new Image();
+      img.src = thumbnailUrl;
+      thumbnailCache.current[thumbnailUrl] = true;
+    });
+  }, [displayedWords]);
 
   const getCategoryIcon = (category: string) => {
     switch (category.toLowerCase()) {
@@ -184,13 +236,31 @@ export function Dictionary() {
           ) : null}
         </div>
 
-        {!shouldShowResults ? (
+        {loading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div
+                key={index}
+                className="w-full flex items-center justify-between gap-3 rounded-3xl border border-border bg-white/90 text-left px-4 py-3 transition"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-11 w-11 rounded-3xl bg-slate-200 dark:bg-slate-700 animate-pulse" />
+                  <div className="space-y-2">
+                    <div className="h-4 w-36 rounded bg-slate-200 dark:bg-slate-700 animate-pulse" />
+                    <div className="h-3 w-24 rounded bg-slate-200 dark:bg-slate-700 animate-pulse" />
+                  </div>
+                </div>
+                <div className="h-8 w-20 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse" />
+              </div>
+            ))}
+          </div>
+        ) : !shouldShowResults ? (
           <div className="text-center py-10 md:py-16">
             <p className="text-sm text-slate-500">Ingresa una palabra o selecciona una categoría para ver resultados.</p>
           </div>
         ) : (
           <div className="space-y-2">
-            {filteredWords.map((word) => {
+            {displayedWords.map((word) => {
               const Icon = getCategoryIcon(word.category);
               return (
                 <button
@@ -215,6 +285,17 @@ export function Dictionary() {
                 </button>
               );
             })}
+            {canLoadMore && (
+              <div className="flex flex-col items-center gap-3 py-4">
+                <Button
+                  onClick={handleLoadMore}
+                  className="bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#1f1f1f] dark:hover:bg-[#2b2b2b] text-white text-xs md:text-sm px-5 py-2"
+                >
+                  Cargar más
+                </Button>
+                <div ref={loadMoreRef} className="h-1 w-full" />
+              </div>
+            )}
           </div>
         )}
 
