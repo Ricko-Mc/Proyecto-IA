@@ -1,8 +1,22 @@
+import { Suspense, lazy, type ReactNode } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router';
-import { Chat } from './pages/Chat';
-import { Dictionary } from './pages/Dictionary';
-import { About } from './pages/About';
 import { NotFound } from './pages/NotFound';
+
+const Chat = lazy(() => import('./pages/Chat').then((module) => ({ default: module.Chat })));
+const Dictionary = lazy(() => import('./pages/Dictionary').then((module) => ({ default: module.Dictionary })));
+const About = lazy(() => import('./pages/About').then((module) => ({ default: module.About })));
+
+const SuspenseWrapper = ({ children }: { children: ReactNode }) => (
+  <Suspense
+    fallback={
+      <div className="flex min-h-screen items-center justify-center bg-[#f7f8fa] dark:bg-[#050816]">
+        <div className="h-10 w-10 rounded-full border-4 border-[#4997D0]/30 border-t-[#4997D0] animate-spin" />
+      </div>
+    }
+  >
+    {children}
+  </Suspense>
+);
 
 export const router = createBrowserRouter([
   {
@@ -11,15 +25,27 @@ export const router = createBrowserRouter([
   },
   {
     path: '/chat',
-    Component: Chat,
+    element: (
+      <SuspenseWrapper>
+        <Chat />
+      </SuspenseWrapper>
+    ),
   },
   {
     path: '/dictionary',
-    Component: Dictionary,
+    element: (
+      <SuspenseWrapper>
+        <Dictionary />
+      </SuspenseWrapper>
+    ),
   },
   {
     path: '/about',
-    Component: About,
+    element: (
+      <SuspenseWrapper>
+        <About />
+      </SuspenseWrapper>
+    ),
   },
   {
     path: '*',

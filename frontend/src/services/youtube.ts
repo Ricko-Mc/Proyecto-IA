@@ -1,4 +1,4 @@
-const DEFAULT_PARAMS = "autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1";
+const DEFAULT_PARAMS = "autoplay=0&rel=0&modestbranding=1&playsinline=1";
 
 export function extractYouTubeId(reference: string | null | undefined): string | null {
   if (!reference) return null;
@@ -69,5 +69,5 @@ export function toYouTubePlaylistEmbedUrl(
 export function toYouTubeThumbnailUrl(reference: string | null | undefined): string | null {
   const videoId = extractYouTubeId(reference);
   if (!videoId) return null;
-  return `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+  return `https://i.ytimg.com/vi/${videoId}/mqdefault.jpg`;
 }

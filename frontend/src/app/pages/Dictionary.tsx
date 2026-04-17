@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
 import { VideoPlayer } from '../components/VideoPlayer';
 import { BottomNav } from '../components/BottomNav';
 import { Button } from '../components/ui/button';
@@ -12,8 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { ArrowLeft, BookOpen, Search, Video, Filter } from 'lucide-react';
+import { BookOpen, Search, Video, Filter, Play, Palette, PawPrint, Apple, Hand } from 'lucide-react';
 import { api } from '../../services/api';
+import { toYouTubeThumbnailUrl } from '../../services/youtube';
+import { MainLayout } from '../layouts/MainLayout';
 
 interface DictionaryWord {
   id: string;
@@ -27,54 +29,28 @@ const formatearEtiqueta = (valor: string): string =>
     .replaceAll('_', ' ')
     .replace(/\b\w/g, (letra) => letra.toUpperCase());
 
-interface DictionaryLayoutProps {
-  onBack: () => void;
-  children: React.ReactNode;
-}
-
-function DictionaryLayout({ onBack, children }: DictionaryLayoutProps) {
-  return (
-    <div className="min-h-screen bg-white dark:bg-[#020617] pb-20 md:pb-0">
-      
-      <div className="sticky top-0 z-10 border-b border-black/5 dark:border-white/10 bg-transparent">
-        <div className="max-w-7xl mx-auto px-4 md:px-7 h-[72px] flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onBack}
-            className="h-9 w-9 rounded-[10px] bg-white dark:bg-[#1a1a1a] border border-[#dbe4ef] dark:border-[#333333] text-[#516276] dark:text-[#e4e4e4] hover:bg-[#eef4fc] dark:hover:bg-[#262626] transition-all duration-200 ease-in-out"
-          >
-            <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
-          </Button>
-          <img src="/logo_black.png" alt="SEGUA Logo" className="h-8 w-auto md:h-10" />
-          <div className="flex-1">
-            <h1 className="text-sm md:text-base font-semibold flex items-center gap-2 text-[#111f33] dark:text-[#f2f2f2]" style={{ fontFamily: 'Poppins, sans-serif' }}>
-              <BookOpen className="w-4 h-4 md:w-5 md:h-5 text-[#4997D0] dark:text-[#dcdcdc]" />
-              Diccionario SEGUA
-            </h1>
-          </div>
-        </div>
-      </div>
-
-      {children}
-
-      
-      <BottomNav />
-    </div>
-  );
-}
 
 export function Dictionary() {
   const navigate = useNavigate();
-  const [selectedCategory, setSelectedCategory] = useState('Todos');
+  const location = useLocation();
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedWord, setSelectedWord] = useState<DictionaryWord | null>(null);
   const [words, setWords] = useState<DictionaryWord[]>([]);
+  const [visibleCount, setVisibleCount] = useState(20);
   const [categories, setCategories] = useState<string[]>(['Todos']);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const thumbnailCache = useRef<Record<string, boolean>>({});
 
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const categoryParam = params.get('category');
+    if (categoryParam) {
+      setSelectedCategory(formatearEtiqueta(categoryParam));
+    }
+
     const cargarDiccionario = async () => {
       setLoading(true);
       setError('');
@@ -91,10 +67,7 @@ export function Dictionary() {
           videoUrl: signo.url_video ?? null,
         }));
 
-        const categoriasData = [
-          'Todos',
-          ...respuestaCategorias.categorias.map((categoria) => formatearEtiqueta(categoria)),
-        ];
+        const categoriasData = respuestaCategorias.categorias.map((categoria) => formatearEtiqueta(categoria));
 
         setWords(wordsData);
         setCategories(categoriasData);
@@ -108,28 +81,90 @@ export function Dictionary() {
     void cargarDiccionario();
   }, []);
 
+  useEffect(() => {
+    setVisibleCount(20);
+  }, [searchQuery, selectedCategory, words.length]);
+
   const filteredWords = useMemo(
     () =>
       words.filter((word) => {
-        const matchesCategory = selectedCategory === 'Todos' || word.category === selectedCategory;
-        const matchesSearch = word.word.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesCategory = !selectedCategory || word.category === selectedCategory;
+        const matchesSearch = !searchQuery.trim() || word.word.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
       }),
     [words, selectedCategory, searchQuery]
   );
 
-  const handleBack = () => {
-    navigate('/chat');
+  const displayedWords = filteredWords.slice(0, visibleCount);
+  const canLoadMore = visibleCount < filteredWords.length;
+  const shouldShowResults = searchQuery.trim().length > 0 || selectedCategory !== '';
+
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => Math.min(prev + 20, filteredWords.length));
+  };
+
+  useEffect(() => {
+    if (!canLoadMore || !loadMoreRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setVisibleCount((prev) => Math.min(prev + 20, filteredWords.length));
+          }
+        });
+      },
+      { rootMargin: '200px', threshold: 0.1 }
+    );
+
+    observer.observe(loadMoreRef.current);
+
+    return () => observer.disconnect();
+  }, [canLoadMore, filteredWords.length]);
+
+  useEffect(() => {
+    if (displayedWords.length === 0) return;
+
+    displayedWords.slice(0, 15).forEach((word) => {
+      const thumbnailUrl = toYouTubeThumbnailUrl(word.videoUrl);
+      if (!thumbnailUrl || thumbnailCache.current[thumbnailUrl]) return;
+      const img = new Image();
+      img.src = thumbnailUrl;
+      thumbnailCache.current[thumbnailUrl] = true;
+    });
+  }, [displayedWords]);
+
+  const getCategoryIcon = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'colores':
+        return Palette;
+      case 'animales':
+        return PawPrint;
+      case 'alimentos':
+        return Apple;
+      case 'saludos':
+        return Hand;
+      default:
+        return Video;
+    }
   };
 
   const handleSearch = () => {
+    // The dictionary filters in real time via the navbar and local search input.
   };
 
   return (
-    <DictionaryLayout onBack={handleBack}>
-      <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
-        
-        <div className="text-center mb-4 md:mb-6 pt-2 md:pt-4">
+    <MainLayout
+      title="Diccionario"
+      activePage="dictionary"
+      showClearButton={false}
+      onNavbarSearch={setSearchQuery}
+      onNewConversation={() => navigate('/chat')}
+    >
+      <div className="flex-1 bg-white dark:bg-white">
+        <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
+          
+          <div className="text-center mb-4 md:mb-6 pt-2 md:pt-4">
           <h2 className="text-lg md:text-2xl lg:text-3xl font-semibold mb-1 md:mb-2">
             ¿Qué seña deseas aprender?
           </h2>
@@ -201,27 +236,70 @@ export function Dictionary() {
           ) : null}
         </div>
 
-        
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 md:gap-2 scroll-smooth">
-          {filteredWords.map((word) => (
-            <button
-              key={word.id}
-              onClick={() => setSelectedWord(word)}
-              className="group bg-muted dark:bg-[#171717] hover:bg-accent dark:hover:bg-[#1f1f1f] rounded-xl p-2 md:p-2 transition-all duration-200 ease-in-out hover:shadow-md border border-border dark:border-[#2d2d2d] hover:border-[#4997D0] dark:hover:border-[#404040]"
-              style={{ fontFamily: 'Poppins, sans-serif' }}
-            >
-              <div className="aspect-square bg-gradient-to-br from-[#4997D0] to-[#2B5F8F] dark:from-[#232323] dark:to-[#151515] rounded-xl mb-2 p-2 md:p-3 flex items-center justify-center">
-                <Video className="w-6 h-6 text-white" />
+        {loading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div
+                key={index}
+                className="w-full flex items-center justify-between gap-3 rounded-3xl border border-border bg-white/90 text-left px-4 py-3 transition"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-11 w-11 rounded-3xl bg-slate-200 dark:bg-slate-700 animate-pulse" />
+                  <div className="space-y-2">
+                    <div className="h-4 w-36 rounded bg-slate-200 dark:bg-slate-700 animate-pulse" />
+                    <div className="h-3 w-24 rounded bg-slate-200 dark:bg-slate-700 animate-pulse" />
+                  </div>
+                </div>
+                <div className="h-8 w-20 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse" />
               </div>
-              <p className="font-medium text-[11px] md:text-xs mb-1 group-hover:text-[#4997D0] dark:group-hover:text-[#d0d0d0] transition-colors duration-200 line-clamp-2">
-                {word.word}
-              </p>
-              <p className="text-[9px] md:text-xs text-muted-foreground line-clamp-1">{word.category}</p>
-            </button>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : !shouldShowResults ? (
+          <div className="text-center py-10 md:py-16">
+            <p className="text-sm text-slate-500">Ingresa una palabra o selecciona una categoría para ver resultados.</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {displayedWords.map((word) => {
+              const Icon = getCategoryIcon(word.category);
+              return (
+                <button
+                  key={word.id}
+                  onClick={() => setSelectedWord(word)}
+                  className="w-full flex items-center justify-between gap-3 rounded-3xl border border-border bg-white/90 text-left px-4 py-3 transition hover:border-[#4997D0] hover:bg-[#f5fbff]"
+                  style={{ fontFamily: 'Poppins, sans-serif' }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="inline-flex h-11 w-11 items-center justify-center rounded-3xl bg-[#4997D0]/10 text-[#4997D0]">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900 dark:text-white">{word.word}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{word.category}</p>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-[#4997D0] bg-[#4997D0]/10 px-3 py-2 text-xs font-semibold text-[#1769aa]">
+                    <Play className="h-4 w-4" />
+                    Ver
+                  </span>
+                </button>
+              );
+            })}
+            {canLoadMore && (
+              <div className="flex flex-col items-center gap-3 py-4">
+                <Button
+                  onClick={handleLoadMore}
+                  className="bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#1f1f1f] dark:hover:bg-[#2b2b2b] text-white text-xs md:text-sm px-5 py-2"
+                >
+                  Cargar más
+                </Button>
+                <div ref={loadMoreRef} className="h-1 w-full" />
+              </div>
+            )}
+          </div>
+        )}
 
-        {!loading && filteredWords.length === 0 && (
+        {shouldShowResults && !loading && filteredWords.length === 0 && (
           <div className="text-center py-8 md:py-12">
             <p className="text-xs md:text-sm text-muted-foreground">
               No se encontraron resultados para tu búsqueda
@@ -230,7 +308,6 @@ export function Dictionary() {
         )}
       </div>
 
-      
       <Sheet open={!!selectedWord} onOpenChange={() => setSelectedWord(null)}>
         <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto p-0 dark:bg-[#101010] dark:border-l-[#2a2a2a]">
           {selectedWord && (
@@ -276,6 +353,7 @@ export function Dictionary() {
           )}
         </SheetContent>
       </Sheet>
-    </DictionaryLayout>
+      </div>
+    </MainLayout>
   );
 }

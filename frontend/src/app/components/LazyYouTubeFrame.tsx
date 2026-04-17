@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { PlayCircle } from 'lucide-react';
 
 interface LazyYouTubeFrameProps {
   src: string;
@@ -9,42 +10,57 @@ interface LazyYouTubeFrameProps {
 }
 
 export function LazyYouTubeFrame({ src, title, className, thumbnailUrl, active = true }: LazyYouTubeFrameProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [shouldLoad, setShouldLoad] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setLoaded(false);
-    setShouldLoad(active);
+    setShouldLoad(false);
+    setIsVisible(false);
   }, [src]);
 
   useEffect(() => {
-    setShouldLoad(active);
-  }, [active]);
+    if (!containerRef.current) return;
 
-  const activarCarga = () => setShouldLoad(true);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          setIsVisible(entry.isIntersecting);
+        });
+      },
+      { rootMargin: '200px', threshold: 0.1 }
+    );
+
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
+  const activarCarga = () => {
+    if (isVisible) {
+      setShouldLoad(true);
+    }
+  };
 
   return (
-    <div className={className || 'w-full h-full'}>
+    <div ref={containerRef} className={className || 'relative w-full h-full'}>
       {shouldLoad ? (
         <iframe
-          key={src}
           src={src}
           title={title}
           className="w-full h-full border-0"
           allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-          loading={active ? 'eager' : 'lazy'}
+          loading="lazy"
           referrerPolicy="strict-origin-when-cross-origin"
           onLoad={() => setLoaded(true)}
         />
-      ) : null}
-
-      {!shouldLoad && (
+      ) : (
         <button
           type="button"
           onClick={activarCarga}
-          onMouseEnter={activarCarga}
-          onFocus={activarCarga}
-          className="absolute inset-0 w-full h-full cursor-default"
+          className="absolute inset-0 w-full h-full cursor-pointer overflow-hidden"
           aria-label={`Cargar video: ${title}`}
         >
           {thumbnailUrl ? (
@@ -52,13 +68,19 @@ export function LazyYouTubeFrame({ src, title, className, thumbnailUrl, active =
               src={thumbnailUrl}
               alt={title}
               className="absolute inset-0 w-full h-full object-cover"
-              loading="lazy"
+              width={480}
+              height={270}
+              loading="eager"
+              decoding="async"
             />
           ) : (
-            <div className="absolute inset-0 bg-black/30" />
+            <div className="absolute inset-0 bg-black/40" />
           )}
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <PlayCircle className="h-16 w-16 text-white/90 drop-shadow-lg" />
+          </div>
         </button>
       )}
 

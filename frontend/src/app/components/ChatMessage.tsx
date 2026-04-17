@@ -1,7 +1,15 @@
 import { VideoPlayer } from './VideoPlayer';
 import { VideoCarousel } from './VideoCarousel';
 import { Button } from './ui/button';
-import { Loader2, Send, Clapperboard } from 'lucide-react';
+import {
+  Loader2,
+  Send,
+  Clapperboard,
+  Gamepad2,
+  Puzzle,
+  BookOpen,
+  ArrowRight,
+} from 'lucide-react';
 
 export interface Message {
   id: string;
@@ -18,12 +26,17 @@ export interface Message {
   disambiguationWord?: string;
   disambiguationOptions?: Array<{ label: string; clave: string }>;
   backendError?: boolean;
+  gamePrompt?: boolean;
+  categoryPrompt?: boolean;
+  categories?: string[];
 }
 
 interface ChatMessageProps {
   message: Message;
   onRequestWord?: (word: string) => void;
   onSelectDisambiguation?: (word: string, clave: string, label: string) => void;
+  onSelectCategory?: (category: string) => void;
+  onOpenDictionary?: () => void;
   isActiveVideo?: boolean;
 }
 
@@ -41,6 +54,8 @@ export function ChatMessage({
   message,
   onRequestWord,
   onSelectDisambiguation,
+  onSelectCategory,
+  onOpenDictionary,
   isActiveVideo = false,
 }: ChatMessageProps) {
   const botBubbleClass =
@@ -63,6 +78,36 @@ export function ChatMessage({
             <Loader2 className="w-5 h-5 animate-spin text-[#4997D0] dark:text-[#d8d8d8]" />
             <span className="text-sm text-muted-foreground">Procesando...</span>
           </div>
+        ) : message.gamePrompt ? (
+          <div className="space-y-3 rounded-[18px] px-4 py-4 border-l-4 border-[#4997D0] bg-[#dbeeff] dark:bg-[#0f1830] dark:border-[#5ea8ff]">
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              {message.text}
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Button
+                size="sm"
+                disabled
+                className="justify-start gap-2 bg-white/95 text-slate-900 border border-[#4997D0]/30 dark:bg-[#111827] dark:text-slate-100 dark:border-[#5ea8ff]/40"
+              >
+                <Gamepad2 className="w-4 h-4" />
+                Adivina la seña
+                <span className="ml-auto rounded-full bg-[#4997D0]/10 text-[#1b4d7a] text-[11px] font-semibold px-2 py-0.5">
+                  Próximamente
+                </span>
+              </Button>
+              <Button
+                size="sm"
+                disabled
+                className="justify-start gap-2 bg-white/95 text-slate-900 border border-[#4997D0]/30 dark:bg-[#111827] dark:text-slate-100 dark:border-[#5ea8ff]/40"
+              >
+                <Puzzle className="w-4 h-4" />
+                Completa la frase
+                <span className="ml-auto rounded-full bg-[#4997D0]/10 text-[#1b4d7a] text-[11px] font-semibold px-2 py-0.5">
+                  Próximamente
+                </span>
+              </Button>
+            </div>
+          </div>
         ) : message.backendError ? (
           <div className={botBubbleClass}>
             <p className="text-sm text-destructive font-medium">Error del servidor</p>
@@ -78,14 +123,37 @@ export function ChatMessage({
             <p className="text-sm text-muted-foreground">
               Lo sentimos, "{message.notFoundWord || 'esta palabra'}" aún no tiene seña disponible en nuestro sistema.
             </p>
-            <Button
-              onClick={() => onRequestWord?.(message.notFoundWord || '')}
-              size="sm"
-              className="w-full bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#1f1f1f] dark:hover:bg-[#2b2b2b]"
-            >
-              <Send className="w-4 h-4 mr-2" />
-              Solicitar esta palabra
-            </Button>
+            <div className="mt-4 rounded-[16px] border border-[#4997D0]/20 bg-white/80 dark:bg-[#0f1720]/90 p-3">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">
+                ¿Quizás quieres explorar por categorías?
+              </p>
+              <div className="flex flex-wrap gap-2 mb-3">
+                {message.categories && message.categories.length > 0 ? (
+                  message.categories.map((category) => (
+                    <Button
+                      key={category}
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onSelectCategory?.(category)}
+                      className="gap-2 rounded-full border-[#4997D0] text-[#12477f] hover:bg-[#4997d0]/10 hover:text-[#0f3f6f] dark:border-[#5ea8ff]/60 dark:text-[#cde6ff] dark:hover:bg-[#2c4f75]/60"
+                    >
+                      <ArrowRight className="w-4 h-4" />
+                      {category}
+                    </Button>
+                  ))
+                ) : (
+                  <p className="text-sm text-slate-700 dark:text-slate-300">No se pudo cargar la lista de categorías en este momento.</p>
+                )}
+              </div>
+              <Button
+                size="sm"
+                className="w-full justify-center bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#1f1f1f] dark:hover:bg-[#2b2b2b]"
+                onClick={onOpenDictionary}
+              >
+                <BookOpen className="w-4 h-4 mr-2" />
+                Ver Diccionario Completo
+              </Button>
+            </div>
           </div>
         ) : message.noVideoAvailable ? (
           <div className={botBubbleClass}>
@@ -93,16 +161,39 @@ export function ChatMessage({
               Aun no hay video disponible para esta seña
             </p>
             <p className="text-sm text-muted-foreground">
-              Puedes enviarnos la sugerencia para agregar esta seña al sistema.
+              Mientras tanto, puedes explorar otros signos por categoría.
             </p>
-            <Button
-              onClick={() => onRequestWord?.(message.suggestionWord || message.signLabel || '')}
-              size="sm"
-              className="w-full bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#1f1f1f] dark:hover:bg-[#2b2b2b]"
-            >
-              <Send className="w-4 h-4 mr-2" />
-              Enviar sugerencia de seña
-            </Button>
+            <div className="mt-4 rounded-[16px] border border-[#4997D0]/20 bg-white/80 dark:bg-[#0f1720]/90 p-3">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">
+                ¿Quizás quieres explorar por categorías?
+              </p>
+              <div className="flex flex-wrap gap-2 mb-3">
+                {message.categories && message.categories.length > 0 ? (
+                  message.categories.map((category) => (
+                    <Button
+                      key={category}
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onSelectCategory?.(category)}
+                      className="gap-2 rounded-full border-[#4997D0] text-[#12477f] hover:bg-[#4997d0]/10 hover:text-[#0f3f6f] dark:border-[#5ea8ff]/60 dark:text-[#cde6ff] dark:hover:bg-[#2c4f75]/60"
+                    >
+                      <ArrowRight className="w-4 h-4" />
+                      {category}
+                    </Button>
+                  ))
+                ) : (
+                  <p className="text-sm text-slate-700 dark:text-slate-300">No se pudo cargar la lista de categorías en este momento.</p>
+                )}
+              </div>
+              <Button
+                size="sm"
+                className="w-full justify-center bg-[#4997D0] hover:bg-[#3A7FB8] dark:bg-[#1f1f1f] dark:hover:bg-[#2b2b2b]"
+                onClick={onOpenDictionary}
+              >
+                <BookOpen className="w-4 h-4 mr-2" />
+                Ver Diccionario Completo
+              </Button>
+            </div>
           </div>
         ) : message.disambiguationOptions && message.disambiguationOptions.length > 0 ? (
           <div className={botBubbleClass}>
