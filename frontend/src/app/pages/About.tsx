@@ -3,8 +3,6 @@ import { GuatemalanFlag } from '../components/GuatemalanFlag';
 import { BottomNav } from '../components/BottomNav';
 import { Button } from '../components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import logoImage from "../../assets/2196c88c8e6b71450386427e39960842b5b3abc1.png";
-import umgLogo from '/umg.png';
 
 export function About() {
   const navigate = useNavigate();
@@ -42,7 +40,7 @@ export function About() {
           
           <div className="text-center py-3">
             <img
-              src={logoImage}
+              src="/logo1.png"
               alt="SEGUA Logo"
               className="w-16 h-16 mx-auto mb-2"
             />
@@ -88,7 +86,7 @@ export function About() {
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-xs font-semibold uppercase tracking-wide">Desarrollado por</h3>
               <img
-                src={umgLogo}
+                src="/umg.png"
                 alt="Logo UMG"
                 className="h-7 w-auto object-contain"
               />
