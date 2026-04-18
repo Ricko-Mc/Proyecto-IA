@@ -34,7 +34,7 @@ const GAME_CARDS: GameCard[] = [
     cta: 'Jugar',
     enabled: true,
     accent: '#7fc8ff',
-    imageSrc: '/Hangman.png',
+    imageSrc: '/Hangman.png?v=20260418',
   },
   {
     id: 'memoria-visual',
@@ -178,7 +178,7 @@ export function GameCarousel() {
                   <div className="h-full w-full bg-[linear-gradient(160deg,#4d7ab8_0%,#2f4f7f_100%)]" />
                 )}
 
-                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.7)_0%,rgba(0,0,0,0.48)_40%,rgba(0,0,0,0.16)_65%,rgba(0,0,0,0.06)_100%)]" />
+                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(20,40,80,0.75)_0%,rgba(20,40,80,0.2)_55%,transparent_100%)]" />
 
                 <div className="absolute inset-x-0 bottom-0 z-10 p-4 pb-24 md:p-5 md:pb-24 text-white">
                   <h2
