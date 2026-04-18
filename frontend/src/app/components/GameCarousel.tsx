@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, Play, Sparkles } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Play, Sparkles } from 'lucide-react';
 import { Button } from './ui/button';
 
 type GameCard = {
@@ -8,6 +8,8 @@ type GameCard = {
   description: string;
   cta: string;
   enabled: boolean;
+  accent: string;
+  imageSrc?: string;
 };
 
 const CARD_WIDTH = 300;
@@ -22,13 +24,16 @@ const GAME_CARDS: GameCard[] = [
     description: 'Observa el video y selecciona la respuesta correcta.',
     cta: 'Jugar',
     enabled: true,
+    accent: '#37b7ff',
   },
   {
     id: 'completa-frase',
-    title: 'Completa la frase',
-    description: 'Construye correctamente la oracion en señas.',
+    title: 'Ahorcado',
+    description: 'Adivina la palabra en señas antes de quedarte sin intentos.',
     cta: 'Jugar',
     enabled: true,
+    accent: '#7fc8ff',
+    imageSrc: '/Hangman.png',
   },
   {
     id: 'memoria-visual',
@@ -36,29 +41,50 @@ const GAME_CARDS: GameCard[] = [
     description: 'Relaciona señas con palabras.',
     cta: 'Proximamente',
     enabled: false,
+    accent: '#40d7cf',
   },
 ];
 
 export function GameCarousel() {
   const [index, setIndex] = useState(() => Math.min(1, GAME_CARDS.length - 1));
+  const [autoMove, setAutoMove] = useState(false);
+  const [autoDirection, setAutoDirection] = useState<-1 | 1>(1);
+  const lastAutoStepAt = useRef(0);
+
+  const stepByDirection = (direction: -1 | 1) => {
+    setIndex((prev) => {
+      const next = prev + direction;
+      if (next < 0 || next >= GAME_CARDS.length) {
+        return prev;
+      }
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    if (!autoMove) return;
+
+    const timer = window.setInterval(() => {
+      stepByDirection(autoDirection);
+    }, 640);
+
+    return () => window.clearInterval(timer);
+  }, [autoDirection, autoMove]);
 
   const trackStyle = useMemo(
     () => ({
-      transform: `translateX(calc(50% - ${CARD_WIDTH / 2}px - ${index * STEP}px))`,
+      transform: `translate3d(calc(50% - ${CARD_WIDTH / 2}px - ${index * STEP}px), 0, 0)`,
+      transition: 'transform 320ms cubic-bezier(0.22, 0.61, 0.36, 1)',
+      willChange: 'transform',
     }),
     [index]
   );
 
-  const moveLeft = () => {
-    setIndex((prev) => (prev > 0 ? prev - 1 : prev));
-  };
-
-  const moveRight = () => {
-    setIndex((prev) => (prev < GAME_CARDS.length - 1 ? prev + 1 : prev));
-  };
-
   return (
-    <div className="game-carousel w-full min-h-[760px] rounded-[30px] p-5 md:p-10 bg-[linear-gradient(135deg,#dbeafe_0%,#f2e9e4_100%)] dark:bg-[linear-gradient(135deg,#131e2f_0%,#1f1a19_100%)] border border-white/40 dark:border-white/10">
+    <div className="game-carousel relative w-full min-h-[760px] rounded-[30px] p-5 md:p-10 bg-[radial-gradient(circle_at_20%_15%,rgba(118,194,255,0.42),transparent_32%),radial-gradient(circle_at_80%_82%,rgba(136,196,255,0.24),transparent_35%),linear-gradient(135deg,#dbeafe_0%,#f2e9e4_100%)] dark:bg-[linear-gradient(135deg,#102036_0%,#1c1d2b_100%)] border border-white/40 dark:border-white/10 overflow-hidden flex flex-col justify-center">
+      <div className="pointer-events-none absolute -left-12 top-20 h-28 w-28 rotate-12 bg-[#63b8ff]/20" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }} />
+      <div className="pointer-events-none absolute right-16 bottom-14 h-24 w-24 -rotate-12 bg-[#63b8ff]/18" style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%)' }} />
+
       <div className="flex items-center justify-center mb-4 md:mb-6">
         <div className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs md:text-sm font-medium bg-white/70 dark:bg-white/10 text-slate-700 dark:text-slate-200">
           <Sparkles className="w-3.5 h-3.5" />
@@ -66,9 +92,53 @@ export function GameCarousel() {
         </div>
       </div>
 
-      <div className="relative mx-auto w-full max-w-[1420px] overflow-hidden py-4 md:py-8">
+      <p className="text-center text-sm md:text-base text-slate-700/90 dark:text-slate-300 mb-3 md:mb-5">
+        Practica lo aprendido con dinamicas interactivas en Lengua de Señas de Guatemala.
+      </p>
+
+      <div
+        className={`relative mx-auto w-full max-w-[1420px] overflow-hidden py-4 md:py-8 select-none cursor-default`}
+        onMouseEnter={(event) => {
+          const rect = event.currentTarget.getBoundingClientRect();
+          const ratio = (event.clientX - rect.left) / rect.width;
+          const direction = ratio >= 0.5 ? 1 : -1;
+          setAutoDirection(direction);
+          setAutoMove(true);
+
+          const now = performance.now();
+          if (now - lastAutoStepAt.current > 220) {
+            stepByDirection(direction);
+            lastAutoStepAt.current = now;
+          }
+        }}
+        onMouseMove={(event) => {
+          const rect = event.currentTarget.getBoundingClientRect();
+          const ratio = (event.clientX - rect.left) / rect.width;
+          const now = performance.now();
+
+          if (ratio > 0.66) {
+            setAutoDirection(1);
+            setAutoMove(true);
+            if (now - lastAutoStepAt.current > 320) {
+              stepByDirection(1);
+              lastAutoStepAt.current = now;
+            }
+          } else if (ratio < 0.34) {
+            setAutoDirection(-1);
+            setAutoMove(true);
+            if (now - lastAutoStepAt.current > 320) {
+              stepByDirection(-1);
+              lastAutoStepAt.current = now;
+            }
+          } else {
+            // Keep center area calm so the movement feels subtle.
+            setAutoMove(false);
+          }
+        }}
+        onMouseLeave={() => setAutoMove(false)}
+      >
         <div
-          className="carousel-track flex items-stretch gap-11 transition-transform duration-500 ease-out"
+          className="carousel-track flex items-stretch gap-11"
           style={trackStyle}
         >
           {GAME_CARDS.map((card, i) => {
@@ -76,18 +146,42 @@ export function GameCarousel() {
             return (
               <div
                 key={card.id}
-                className={`game-card p-6 md:p-7 rounded-[22px] bg-[rgba(255,255,255,0.62)] dark:bg-[rgba(22,22,22,0.62)] backdrop-blur-[12px] border border-white/55 dark:border-white/10 flex flex-col justify-between text-center transition-all duration-300 ease-out ${
+                className={`game-card relative overflow-hidden p-6 md:p-7 rounded-[22px] bg-[rgba(255,255,255,0.74)] dark:bg-[rgba(22,22,22,0.68)] backdrop-blur-[12px] border border-white/65 dark:border-white/10 flex flex-col justify-between text-center transition-all duration-300 ease-out ${
                   active
-                    ? 'scale-110 opacity-100 shadow-[0_20px_44px_rgba(0,0,0,0.16)] z-20'
-                    : 'scale-[0.9] opacity-65 hover:scale-[0.95]'
+                    ? 'scale-[1.14] opacity-100 [filter:none] shadow-[0_24px_56px_rgba(0,0,0,0.2)] z-20'
+                    : 'scale-[0.9] opacity-60 [filter:blur(0.2px)] hover:scale-[0.95]'
                 }`}
-                style={{ width: CARD_WIDTH, height: CARD_HEIGHT }}
+                style={{
+                  width: CARD_WIDTH,
+                  height: CARD_HEIGHT,
+                  boxShadow: active
+                    ? '0 0 0 5px rgba(255,255,255,0.95), 0 24px 56px rgba(0,0,0,0.2)'
+                    : `0 0 0 4px ${card.accent}66`,
+                }}
               >
-                <div className="space-y-4">
-                  <h2 className="text-3xl font-semibold text-slate-900 dark:text-slate-100 leading-tight">
+                <div className="space-y-4 relative z-10">
+                  {card.imageSrc ? (
+                    <div className="w-full h-[210px] rounded-[16px] overflow-hidden border border-white/75 dark:border-white/20 bg-black shadow-[0_10px_24px_rgba(0,0,0,0.25)]">
+                      <img
+                        src={card.imageSrc}
+                        alt={`Vista previa de ${card.title}`}
+                        className="w-full h-full object-contain"
+                        loading="eager"
+                        decoding="async"
+                      />
+                    </div>
+                  ) : null}
+
+                  <h2
+                    className="text-[2rem] md:text-[2.15rem] font-bold leading-[1.08] tracking-[-0.01em] text-slate-900 dark:text-slate-100"
+                    style={{
+                      fontFamily: 'Poppins, sans-serif',
+                      textShadow: '0 2px 10px rgba(43,86,130,0.08)',
+                    }}
+                  >
                     {card.title}
                   </h2>
-                  <p className="text-base text-slate-700/95 dark:text-slate-300 leading-relaxed">
+                  <p className="text-base leading-relaxed text-slate-700/95 dark:text-slate-300">
                     {card.description}
                   </p>
                 </div>
@@ -95,7 +189,7 @@ export function GameCarousel() {
                 <Button
                   type="button"
                   disabled={!card.enabled}
-                  className="w-full h-12 text-base font-semibold"
+                  className="w-full h-12 text-base font-semibold relative z-10"
                 >
                   <Play className="w-4 h-4" />
                   {card.cta}
@@ -104,26 +198,6 @@ export function GameCarousel() {
             );
           })}
         </div>
-
-        <button
-          type="button"
-          onClick={moveLeft}
-          disabled={index === 0}
-          aria-label="Mover a la izquierda"
-          className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 h-10 w-10 md:h-12 md:w-12 rounded-full border border-[#4997D0]/40 bg-[#4997D0]/12 text-[#3A7FB8] hover:bg-[#4997D0]/20 dark:border-[#5ea8ff]/35 dark:bg-[#4997D0]/20 dark:text-[#b9dcff] disabled:opacity-45 disabled:cursor-not-allowed"
-        >
-          <ChevronLeft className="w-5 h-5 mx-auto" />
-        </button>
-
-        <button
-          type="button"
-          onClick={moveRight}
-          disabled={index === GAME_CARDS.length - 1}
-          aria-label="Mover a la derecha"
-          className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 h-10 w-10 md:h-12 md:w-12 rounded-full border border-[#4997D0]/40 bg-[#4997D0]/12 text-[#3A7FB8] hover:bg-[#4997D0]/20 dark:border-[#5ea8ff]/35 dark:bg-[#4997D0]/20 dark:text-[#b9dcff] disabled:opacity-45 disabled:cursor-not-allowed"
-        >
-          <ChevronRight className="w-5 h-5 mx-auto" />
-        </button>
       </div>
 
       <div className="dots mt-4 md:mt-5 flex justify-center gap-2">
@@ -141,6 +215,16 @@ export function GameCarousel() {
           />
         ))}
       </div>
+
+      <p
+        className="mt-6 text-center text-sm md:text-[21px] font-bold tracking-[0.015em] text-[#3A7FB8] dark:text-[#9fd1ff]"
+        style={{
+          fontFamily: 'Poppins, sans-serif',
+          textShadow: '0 2px 12px rgba(73,151,208,0.16)',
+        }}
+      >
+        Selecciona un modo de juego
+      </p>
     </div>
   );
 }
