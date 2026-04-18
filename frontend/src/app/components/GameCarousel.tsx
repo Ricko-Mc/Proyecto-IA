@@ -83,16 +83,19 @@ export function GameCarousel() {
   );
 
   return (
-    <div className="game-carousel relative w-full min-h-[700px] rounded-[30px] p-4 md:p-8 bg-[radial-gradient(circle_at_20%_15%,rgba(118,194,255,0.42),transparent_32%),radial-gradient(circle_at_80%_82%,rgba(136,194,255,0.24),transparent_35%),linear-gradient(135deg,#dbeafe_0%,#f2e9e4_100%)] dark:bg-[linear-gradient(135deg,#102036_0%,#1c1d2b_100%)] border border-white/40 dark:border-white/10 overflow-hidden flex flex-col justify-center">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(117,170,230,0.22),transparent_28%),radial-gradient(circle_at_80%_75%,rgba(160,220,210,0.18),transparent_24%),linear-gradient(135deg,rgba(214,231,251,0.75),rgba(245,239,234,0.72))] opacity-70" />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.06)_1px,transparent_1px)] [background-size:40px_40px]" />
+    <div className="game-carousel relative w-full min-h-[700px] rounded-[30px] p-4 md:p-8 bg-[radial-gradient(circle_at_20%_20%,rgba(80,160,255,0.18),transparent_28%),radial-gradient(circle_at_80%_70%,rgba(123,97,255,0.16),transparent_24%),linear-gradient(135deg,#d7e4f4_0%,#ece8f2_55%,#f3eee7_100%)] dark:bg-[linear-gradient(135deg,#0d1b30_0%,#171a2b_100%)] border border-white/35 dark:border-white/10 overflow-hidden flex flex-col justify-center">
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(10,20,40,0.02),rgba(10,20,40,0.08))]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(255,255,255,.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.04)_1px,transparent_1px)] [background-size:48px_48px] [mix-blend-mode:soft-light]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.22] [background-image:linear-gradient(128deg,rgba(255,255,255,.11)_1px,transparent_1px)] [background-size:180px_180px]" />
+      <div className="pointer-events-none absolute -left-24 top-28 h-40 w-40 rounded-full bg-[#6fa9ff]/25 blur-3xl" />
+      <div className="pointer-events-none absolute -right-16 bottom-24 h-44 w-44 rounded-full bg-[#8a7dff]/22 blur-3xl" />
       <div className="pointer-events-none absolute -left-12 top-20 h-28 w-28 rotate-12 bg-[#63b8ff]/20" style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }} />
       <div className="pointer-events-none absolute right-16 bottom-14 h-24 w-24 -rotate-12 bg-[#63b8ff]/18" style={{ clipPath: 'polygon(100% 0, 100% 100%, 0 100%)' }} />
 
       <div className="relative z-10 flex items-center justify-center mb-2 md:mb-3">
         <div className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs md:text-sm font-medium bg-white/70 dark:bg-white/10 text-slate-700 dark:text-slate-200">
           <Sparkles className="w-3.5 h-3.5" />
-          Espacio de practica educativa
+          Zona de practica
         </div>
       </div>
 
@@ -147,6 +150,18 @@ export function GameCarousel() {
         >
           {GAME_CARDS.map((card, i) => {
             const active = i === index;
+            const modeOverlay =
+              card.id === 'adivina-sena'
+                ? 'bg-[linear-gradient(to_top,rgba(0,180,255,0.56)_0%,rgba(0,180,255,0.1)_52%,transparent_100%)]'
+                : card.id === 'completa-frase'
+                ? 'bg-[linear-gradient(to_top,rgba(123,97,255,0.58)_0%,rgba(123,97,255,0.1)_52%,transparent_100%)]'
+                : 'bg-[linear-gradient(to_top,rgba(64,214,168,0.54)_0%,rgba(64,214,168,0.09)_52%,transparent_100%)]';
+            const activeGlow =
+              card.id === 'adivina-sena'
+                ? '0 22px 58px rgba(0,0,0,0.22), 0 0 40px rgba(0,180,255,0.26)'
+                : card.id === 'completa-frase'
+                ? '0 22px 58px rgba(0,0,0,0.22), 0 0 40px rgba(123,97,255,0.3)'
+                : '0 22px 58px rgba(0,0,0,0.22), 0 0 40px rgba(64,214,168,0.28)';
 
             return (
               <div
@@ -154,22 +169,24 @@ export function GameCarousel() {
                 className={`game-card relative overflow-hidden p-0 rounded-[26px] border border-white/20 ring-1 ring-white/10 flex flex-col justify-start transition-all duration-[350ms] ease-[ease] ${
                   active
                     ? 'scale-[1.15] opacity-100 z-20'
-                    : 'scale-[0.9] opacity-60 z-10'
+                    : 'scale-[0.9] opacity-[0.9] [filter:saturate(0.95)_brightness(0.96)] z-10'
                 }`}
                 style={{
                   width: CARD_WIDTH,
                   height: CARD_HEIGHT,
-                  boxShadow: active
-                    ? '0 30px 70px rgba(8,18,36,0.42), 0 0 45px rgba(120,160,220,0.35)'
-                    : `0 8px 26px ${card.accent}33`,
+                  boxShadow: active ? activeGlow : `0 8px 26px ${card.accent}33`,
                 }}
               >
+                {active ? (
+                  <div className="pointer-events-none absolute left-0 top-0 z-20 h-1 w-full rounded-t-[24px] bg-[linear-gradient(90deg,#00c2ff,#7c3aed,#40d6a8)]" />
+                ) : null}
+
                 {card.imageSrc ? (
                   <img
                     src={card.imageSrc}
                     alt={`Vista previa de ${card.title}`}
                     className={`h-full w-full object-cover ${
-                      active ? 'scale-[1.02]' : 'scale-100'
+                      active ? 'scale-[1.02] object-[center_30%]' : 'scale-100 object-[center_30%]'
                     } transition-transform duration-500`}
                     loading="eager"
                     decoding="async"
@@ -178,11 +195,11 @@ export function GameCarousel() {
                   <div className="h-full w-full bg-[linear-gradient(160deg,#4d7ab8_0%,#2f4f7f_100%)]" />
                 )}
 
-                <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(20,40,80,0.75)_0%,rgba(20,40,80,0.2)_55%,transparent_100%)]" />
+                <div className={`pointer-events-none absolute inset-0 ${modeOverlay}`} />
 
-                <div className="absolute inset-x-0 bottom-0 z-10 p-4 pb-24 md:p-5 md:pb-24 text-white">
+                <div className="absolute inset-x-0 bottom-0 z-10 p-4 pb-24 md:p-5 md:pb-24 text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.5)]">
                   <h2
-                    className={`${active ? 'text-[30px]' : 'text-[26px]'} font-extrabold leading-[1.05] tracking-[-0.01em]`}
+                    className="text-[28px] font-bold leading-[1.05] tracking-[-0.01em]"
                     style={{
                       fontFamily: 'Poppins, sans-serif',
                       textShadow: '0 2px 12px rgba(0,0,0,0.42)',
@@ -190,7 +207,7 @@ export function GameCarousel() {
                   >
                     {card.title}
                   </h2>
-                  <p className="mt-3 text-[0.95rem] leading-relaxed text-white/90 min-h-[3.6rem]">
+                  <p className="mt-3 text-[15px] leading-relaxed text-white/90 min-h-[3.6rem]">
                     {card.description}
                   </p>
                 </div>
@@ -200,7 +217,7 @@ export function GameCarousel() {
                   disabled={!card.enabled}
                   className={`play-btn absolute left-4 right-4 bottom-5 h-11 text-base font-semibold z-20 ${
                     active
-                      ? 'bg-[linear-gradient(135deg,#3fb1ea,#5b8fe8)] shadow-[0_16px_34px_rgba(77,145,225,0.48)] hover:-translate-y-1'
+                      ? 'bg-[linear-gradient(135deg,#7c3aed,#4f46e5)] text-white shadow-[0_14px_30px_rgba(124,58,237,0.35)] hover:-translate-y-1'
                       : 'bg-[#4997D0]/85 hover:bg-[#3A7FB8] shadow-[0_12px_24px_rgba(56,198,255,0.28)]'
                   }`}
                 >
@@ -222,7 +239,7 @@ export function GameCarousel() {
             aria-label={`Ir a ${card.title}`}
             className={`h-2.5 rounded-full transition-all duration-300 ${
               i === index
-                ? 'w-6 bg-[linear-gradient(90deg,#6b8fbf,#8eaecf)]'
+                ? 'w-[26px] bg-[linear-gradient(90deg,#6b8fbf,#8eaecf)]'
                 : 'w-2.5 bg-[#4997D0]/35 hover:bg-[#4997D0]/60 dark:bg-[#5ea8ff]/35 dark:hover:bg-[#5ea8ff]/60'
             }`}
           />
@@ -240,7 +257,7 @@ export function GameCarousel() {
             textShadow: '0 1px 8px rgba(44,108,184,0.16)',
           }}
         >
-          Selecciona un modo de juego
+          Elige tu desafio
         </span>
       </p>
     </div>
