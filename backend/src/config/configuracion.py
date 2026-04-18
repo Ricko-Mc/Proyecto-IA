@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Configuracion(BaseSettings):
     PROJECT_NAME: str = "LenguaIA"
@@ -12,9 +12,11 @@ class Configuracion(BaseSettings):
     ALLOWED_ORIGINS: str = "http://localhost:5173,http://localhost:5174,http://localhost:3000"
     PROLOG_REGLAS_PATH: str = "src/prolog/reglas.pl"
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        extra="ignore",
+    )
 
     @property
     def origenes_permitidos(self) -> list[str]:

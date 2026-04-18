@@ -5,6 +5,7 @@ import { NotFound } from './pages/NotFound';
 const Chat = lazy(() => import('./pages/Chat').then((module) => ({ default: module.Chat })));
 const Dictionary = lazy(() => import('./pages/Dictionary').then((module) => ({ default: module.Dictionary })));
 const About = lazy(() => import('./pages/About').then((module) => ({ default: module.About })));
+const Games = lazy(() => import('./pages/Games').then((module) => ({ default: module.Games })));
 
 const SuspenseWrapper = ({ children }: { children: ReactNode }) => (
   <Suspense
@@ -36,6 +37,14 @@ export const router = createBrowserRouter([
     element: (
       <SuspenseWrapper>
         <Dictionary />
+      </SuspenseWrapper>
+    ),
+  },
+  {
+    path: '/games',
+    element: (
+      <SuspenseWrapper>
+        <Games />
       </SuspenseWrapper>
     ),
   },

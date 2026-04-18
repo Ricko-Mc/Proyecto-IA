@@ -1,12 +1,11 @@
 import { VideoPlayer } from './VideoPlayer';
 import { VideoCarousel } from './VideoCarousel';
+import { GameCarousel } from './GameCarousel';
 import { Button } from './ui/button';
 import {
   Loader2,
   Send,
   Clapperboard,
-  Gamepad2,
-  Puzzle,
   BookOpen,
   ArrowRight,
 } from 'lucide-react';
@@ -79,34 +78,11 @@ export function ChatMessage({
             <span className="text-sm text-muted-foreground">Procesando...</span>
           </div>
         ) : message.gamePrompt ? (
-          <div className="space-y-3 rounded-[18px] px-4 py-4 border-l-4 border-[#4997D0] bg-[#dbeeff] dark:bg-[#0f1830] dark:border-[#5ea8ff]">
+          <div className="space-y-3">
             <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
               {message.text}
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Button
-                size="sm"
-                disabled
-                className="justify-start gap-2 bg-white/95 text-slate-900 border border-[#4997D0]/30 dark:bg-[#111827] dark:text-slate-100 dark:border-[#5ea8ff]/40"
-              >
-                <Gamepad2 className="w-4 h-4" />
-                Adivina la seña
-                <span className="ml-auto rounded-full bg-[#4997D0]/10 text-[#1b4d7a] text-[11px] font-semibold px-2 py-0.5">
-                  Próximamente
-                </span>
-              </Button>
-              <Button
-                size="sm"
-                disabled
-                className="justify-start gap-2 bg-white/95 text-slate-900 border border-[#4997D0]/30 dark:bg-[#111827] dark:text-slate-100 dark:border-[#5ea8ff]/40"
-              >
-                <Puzzle className="w-4 h-4" />
-                Completa la frase
-                <span className="ml-auto rounded-full bg-[#4997D0]/10 text-[#1b4d7a] text-[11px] font-semibold px-2 py-0.5">
-                  Próximamente
-                </span>
-              </Button>
-            </div>
+            <GameCarousel />
           </div>
         ) : message.backendError ? (
           <div className={botBubbleClass}>

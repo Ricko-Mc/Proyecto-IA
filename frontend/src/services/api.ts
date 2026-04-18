@@ -50,7 +50,7 @@ export const api = {
     conversacion_id?: string,
     clave_desambiguacion?: string
   ): Promise<RespuestaChat> => {
-    return requestAPI<RespuestaChat>('post', '/api/chat', {
+    return requestAPI<RespuestaChat>('post', '/chat', {
       mensaje,
       conversacion_id: conversacion_id || null,
       clave_desambiguacion: clave_desambiguacion || null,
@@ -58,7 +58,7 @@ export const api = {
   },
 
   obtenerTodosLosSignos: async (): Promise<RespuestaSignos> => {
-    const cacheKey = '/api/signos';
+    const cacheKey = '/signos';
     if (cache[cacheKey]) {
       return cache[cacheKey];
     }
@@ -79,7 +79,7 @@ export const api = {
   },
 
   obtenerCategorias: async (): Promise<RespuestaCategorias> => {
-    const cacheKey = '/api/categorias';
+    const cacheKey = '/categorias';
     if (cache[cacheKey]) {
       return cache[cacheKey];
     }
@@ -100,7 +100,7 @@ export const api = {
   },
 
   obtenerSignosPorCategoria: async (categoria: string): Promise<RespuestaPorCategoria> => {
-    const cacheKey = `/api/categorias/${encodeURIComponent(categoria)}`;
+    const cacheKey = `/categorias/${encodeURIComponent(categoria)}`;
     if (cache[cacheKey]) {
       return cache[cacheKey];
     }

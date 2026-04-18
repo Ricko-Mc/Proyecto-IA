@@ -13,35 +13,20 @@ export function LazyYouTubeFrame({ src, title, className, thumbnailUrl, active =
   const containerRef = useRef<HTMLDivElement>(null);
   const [shouldLoad, setShouldLoad] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setLoaded(false);
     setShouldLoad(false);
-    setIsVisible(false);
   }, [src]);
 
   useEffect(() => {
-    if (!containerRef.current) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          setIsVisible(entry.isIntersecting);
-        });
-      },
-      { rootMargin: '200px', threshold: 0.1 }
-    );
-
-    observer.observe(containerRef.current);
-
-    return () => observer.disconnect();
-  }, []);
-
-  const activarCarga = () => {
-    if (isVisible) {
+    if (active) {
       setShouldLoad(true);
     }
+  }, [active, src]);
+
+  const activarCarga = () => {
+    setShouldLoad(true);
   };
 
   return (

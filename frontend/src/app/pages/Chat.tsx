@@ -416,48 +416,50 @@ export function Chat() {
         >
           <div className="max-w-3xl mx-auto px-2 md:px-3 py-2 md:py-4">
             {showWelcome ? (
-              <div className="text-center py-2 md:py-4">
-                <img
-                  src="/logo1.png"
-                  alt="SEGUA Logo"
-                  width={128}
-                  height={128}
-                  loading="eager"
-                  decoding="async"
-                  className="w-16 h-16 md:w-32 md:h-32 mx-auto mb-2 md:mb-4"
-                />
-                <h2 className="text-sm md:text-lg font-semibold mb-1.5 md:mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                  ¡Bienvenido a SEGUA!
-                </h2>
-                <p className="text-muted-foreground mb-3 md:mb-4 max-w-sm mx-auto text-xs md:text-sm px-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                  Escribe una palabra o frase en español y te mostraré su seña en
-                  Lengua de Señas de Guatemala
-                </p>
-                <div className="space-y-1 md:space-y-2">
-                  <p className="text-xs md:text-sm font-medium text-muted-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                    Prueba con estas frases:
+              <div className="min-h-[63vh] md:min-h-[68vh] flex items-center justify-center -mt-5 md:-mt-8 px-2 md:px-4">
+                <div className="w-full max-w-2xl text-center px-2 md:px-4 py-2 md:py-3">
+                  <img
+                    src="/logo1.png"
+                    alt="SEGUA Logo"
+                    width={168}
+                    height={168}
+                    loading="eager"
+                    decoding="async"
+                    className="w-20 h-20 md:w-32 md:h-32 mx-auto mb-2 md:mb-4"
+                  />
+                  <h2 className="text-base md:text-2xl font-semibold mb-1.5 md:mb-2.5 tracking-tight" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                    ¡Bienvenido a SEGUA!
+                  </h2>
+                  <p className="text-foreground/80 mb-3 md:mb-4 max-w-xl mx-auto text-xs md:text-sm px-1 md:px-2 leading-relaxed" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                    Escribe una palabra o frase en español y te mostraré su seña en
+                    Lengua de Señas de Guatemala.
                   </p>
-                  <div className="grid grid-cols-2 md:flex md:flex-wrap gap-0.5 md:gap-1.5 justify-center px-2">
-                    {WELCOME_PHRASES.map((phrase, index) => (
-                      <Button
-                        key={index}
-                        variant="outline"
-                        onClick={() => handleTryPhrase(phrase)}
-                        className="border-[#4997D0]/70 dark:border-[#3f3f3f] bg-white/55 dark:bg-white/5 text-[#4997D0] dark:text-[#dcdcdc] backdrop-blur-sm hover:bg-[#4997D0] dark:hover:bg-[#2a2a2a] hover:text-white text-xs md:text-sm h-7 md:h-8 py-1 px-2 md:px-3"
-                      >
-                        {phrase}
-                      </Button>
-                    ))}
+                  <div className="space-y-1.5 md:space-y-2">
+                    <p className="text-xs md:text-sm font-medium text-muted-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                      Prueba con estas frases:
+                    </p>
+                    <div className="grid grid-cols-2 md:flex md:flex-wrap gap-1.5 md:gap-2 justify-center px-1">
+                      {WELCOME_PHRASES.map((phrase, index) => (
+                        <Button
+                          key={index}
+                          variant="outline"
+                          onClick={() => handleTryPhrase(phrase)}
+                          className="border-[#4997D0]/70 dark:border-[#3f3f3f] bg-white/70 dark:bg-white/5 text-[#4997D0] dark:text-[#dcdcdc] backdrop-blur-sm hover:bg-[#4997D0] dark:hover:bg-[#2a2a2a] hover:text-white text-[11px] md:text-xs h-7 md:h-8 py-1 px-2 md:px-3"
+                        >
+                          {phrase}
+                        </Button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                <div className="mt-2 md:mt-3 px-2">
-                  <Button
-                    onClick={handleOpenDictionary}
-                    className="bg-[#4997D0]/90 dark:bg-[#1d1d1d]/90 border border-white/55 dark:border-white/10 backdrop-blur-sm hover:bg-[#3A7FB8] dark:hover:bg-[#2a2a2a] w-full md:w-auto text-xs md:text-sm h-9 md:h-10 py-2"
-                  >
-                    <BookOpen className="w-3 h-3 md:w-4 md:h-4 mr-1.5" />
-                    Explorar Diccionario
-                  </Button>
+                  <div className="mt-2.5 md:mt-4 px-1">
+                    <Button
+                      onClick={handleOpenDictionary}
+                      className="bg-[#4997D0]/90 dark:bg-[#1d1d1d]/90 border border-white/55 dark:border-white/10 backdrop-blur-sm hover:bg-[#3A7FB8] dark:hover:bg-[#2a2a2a] w-full md:w-auto text-xs md:text-sm h-9 md:h-10 py-2 px-4 md:px-5"
+                    >
+                      <BookOpen className="w-3.5 h-3.5 md:w-4 md:h-4 mr-1.5" />
+                      Explorar Diccionario
+                    </Button>
+                  </div>
                 </div>
               </div>
             ) : (
