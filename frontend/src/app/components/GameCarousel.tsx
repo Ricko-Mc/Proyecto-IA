@@ -179,7 +179,7 @@ export function GameCarousel() {
                   ) : null}
 
                   <h2
-                    className="text-[2rem] md:text-[2.05rem] font-bold leading-[1.08] tracking-[-0.01em] text-slate-900 dark:text-slate-100 min-h-[4.2rem] md:min-h-[4.4rem] flex items-center justify-center"
+                    className={`${active ? 'text-[28px] md:text-[28px]' : 'text-[2rem] md:text-[2.05rem]'} font-bold leading-[1.08] tracking-[-0.01em] text-slate-900 dark:text-slate-100 min-h-[4.2rem] md:min-h-[4.4rem] flex items-center justify-center`}
                     style={{
                       fontFamily: 'Poppins, sans-serif',
                       textShadow: '0 2px 10px rgba(43,86,130,0.08)',
@@ -215,7 +215,7 @@ export function GameCarousel() {
             aria-label={`Ir a ${card.title}`}
             className={`h-2.5 rounded-full transition-all duration-300 ${
               i === index
-                ? 'w-7 bg-[#4997D0]'
+                ? 'w-6 bg-[linear-gradient(90deg,#6b8fbf,#8eaecf)]'
                 : 'w-2.5 bg-[#4997D0]/35 hover:bg-[#4997D0]/60 dark:bg-[#5ea8ff]/35 dark:hover:bg-[#5ea8ff]/60'
             }`}
           />
