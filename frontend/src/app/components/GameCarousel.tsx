@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Play, Sparkles } from 'lucide-react';
 import { Button } from './ui/button';
+import { useNavigate } from 'react-router';
 
 type GameCard = {
   id: string;
@@ -50,6 +51,7 @@ const GAME_CARDS: GameCard[] = [
 export function GameCarousel() {
   const [index, setIndex] = useState(() => Math.min(1, GAME_CARDS.length - 1));
   const [autoMove, setAutoMove] = useState(false);
+  const navigate = useNavigate();
   const [autoDirection, setAutoDirection] = useState<-1 | 1>(1);
   const lastAutoStepAt = useRef(0);
 
@@ -215,6 +217,7 @@ export function GameCarousel() {
                 <Button
                   type="button"
                   disabled={!card.enabled}
+                  onClick={() => card.enabled && navigate(`/games/${card.id}`)} 
                   className={`play-btn absolute left-4 right-4 bottom-5 h-11 text-base font-semibold z-20 ${
                     active
                       ? 'bg-[linear-gradient(135deg,#7c3aed,#4f46e5)] text-white shadow-[0_14px_30px_rgba(124,58,237,0.35)] hover:-translate-y-1'

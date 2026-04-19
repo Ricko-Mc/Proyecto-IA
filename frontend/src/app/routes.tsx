@@ -6,6 +6,7 @@ const Chat = lazy(() => import('./pages/Chat').then((module) => ({ default: modu
 const Dictionary = lazy(() => import('./pages/Dictionary').then((module) => ({ default: module.Dictionary })));
 const About = lazy(() => import('./pages/About').then((module) => ({ default: module.About })));
 const Games = lazy(() => import('./pages/Games').then((module) => ({ default: module.Games })));
+const AdivinaSena = lazy(() => import('./pages/AdivinaSena').then((module) => ({ default: module.AdivinaSena })));
 
 const SuspenseWrapper = ({ children }: { children: ReactNode }) => (
   <Suspense
@@ -48,6 +49,16 @@ export const router = createBrowserRouter([
       </SuspenseWrapper>
     ),
   },
+
+  {
+    path: '/games/adivina-sena',
+    element: (
+      <SuspenseWrapper>
+        <AdivinaSena />
+      </SuspenseWrapper>
+    ),
+  },
+
   {
     path: '/about',
     element: (
