@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Play, Sparkles } from 'lucide-react';
+import { Play, Sparkles, X } from 'lucide-react';
 import { Button } from './ui/button';
-import { useNavigate } from 'react-router';
 
 type GameCard = {
   id: string;
@@ -51,8 +50,8 @@ const GAME_CARDS: GameCard[] = [
 export function GameCarousel() {
   const [index, setIndex] = useState(() => Math.min(1, GAME_CARDS.length - 1));
   const [autoMove, setAutoMove] = useState(false);
-  const navigate = useNavigate();
   const [autoDirection, setAutoDirection] = useState<-1 | 1>(1);
+  const [activeGameId, setActiveGameId] = useState<string | null>(null);
   const lastAutoStepAt = useRef(0);
 
   const stepByDirection = (direction: -1 | 1) => {
@@ -217,7 +216,7 @@ export function GameCarousel() {
                 <Button
                   type="button"
                   disabled={!card.enabled}
-                  onClick={() => card.enabled && navigate(`/games/${card.id}`)} 
+                  onClick={() => card.enabled && setActiveGameId(card.id)}
                   className={`play-btn absolute left-4 right-4 bottom-5 h-11 text-base font-semibold z-20 ${
                     active
                       ? 'bg-[linear-gradient(135deg,#7c3aed,#4f46e5)] text-white shadow-[0_14px_30px_rgba(124,58,237,0.35)] hover:-translate-y-1'
@@ -263,6 +262,45 @@ export function GameCarousel() {
           Elige tu desafio
         </span>
       </p>
+
+      {activeGameId && (
+        <div className="absolute inset-0 z-40 p-3 md:p-6 bg-[#0f172a]/35 backdrop-blur-[2px]">
+          <div className="h-full w-full rounded-[24px] border border-white/20 bg-white/80 dark:bg-[#0f172a]/85 shadow-[0_20px_60px_rgba(15,23,42,0.35)] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200/70 dark:border-white/10 bg-white/80 dark:bg-[#0b1220]/90">
+              <p className="text-sm md:text-base font-semibold text-slate-700 dark:text-slate-100">
+                {activeGameId === 'adivina-sena' ? 'Adivina la seña' : 'Ahorcado'}
+              </p>
+              <button
+                type="button"
+                onClick={() => setActiveGameId(null)}
+                className="inline-flex items-center justify-center rounded-full h-8 w-8 text-slate-600 hover:bg-slate-200/70 dark:text-slate-200 dark:hover:bg-white/10 transition-colors"
+                aria-label="Cerrar juego"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="flex-1 min-h-0">
+              {activeGameId === 'adivina-sena' ? (
+                <iframe
+                  src="/games/adivina-sena?embed=1"
+                  title="Juego Adivina la seña"
+                  className="h-full w-full border-0"
+                />
+              ) : (
+                <div className="h-full w-full flex items-center justify-center p-6 text-center bg-[linear-gradient(135deg,#e5edf9_0%,#efe9f8_55%,#f7f2e9_100%)] dark:bg-[linear-gradient(135deg,#0f1f3b_0%,#1a1735_100%)]">
+                  <div className="max-w-md">
+                    <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Ahorcado</h3>
+                    <p className="mt-2 text-slate-600 dark:text-slate-300">
+                      Este juego se mostrará también dentro de este recuadro cuando termine su integración.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
