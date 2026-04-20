@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { Navbar } from '../components/Navbar';
 
@@ -28,10 +28,20 @@ export function MainLayout({
   };
 
   const isDictionaryPage = activePage === 'dictionary';
+  const isGamesPage = activePage === 'games';
+  const sidebarCollapsed = isSidebarCollapsed;
+
+  useEffect(() => {
+    if (isGamesPage) {
+      setIsSidebarCollapsed(true);
+    } else {
+      setIsSidebarCollapsed(false);
+    }
+  }, [isGamesPage]);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#f7f8fa] dark:bg-[rgba(10,10,10,0.82)]">
-      <div className={`h-full ${isSidebarCollapsed ? 'w-16' : 'w-80'} transition-all duration-200 ease-in-out`}>
+      <div className={`h-full ${sidebarCollapsed ? 'w-16' : 'w-80'} transition-all duration-200 ease-in-out`}>
         <Sidebar
           conversations={[]}
           currentConversationId=""
@@ -41,20 +51,32 @@ export function MainLayout({
           onNewConversation={onNewConversation}
           onSelectConversation={() => undefined}
           onDeleteConversation={() => undefined}
-          isCollapsed={isSidebarCollapsed}
+          isCollapsed={sidebarCollapsed}
         />
       </div>
 
       <div className={`flex-1 flex flex-col min-h-0 ${isDictionaryPage ? 'bg-white dark:bg-white' : 'bg-[linear-gradient(180deg,#dff0ff_0%,#f3ecde_100%)] dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#101010_100%)]'} overflow-hidden`}>
-        <Navbar
-          title={title}
-          onToggleSidebar={handleNavbarToggle}
-          onClearConversation={onClearConversation}
-          showClearButton={showClearButton}
-          onSearch={onNavbarSearch}
-          activePage={activePage}
-        />
-        <div className="content-area flex-1 overflow-y-auto pb-16 md:pb-0">
+        {!isGamesPage && (
+          <Navbar
+            title={title}
+            onToggleSidebar={handleNavbarToggle}
+            onClearConversation={onClearConversation}
+            showClearButton={showClearButton}
+            onSearch={onNavbarSearch}
+            activePage={activePage}
+          />
+        )}
+        <div className={`content-area relative flex-1 overflow-y-auto ${isGamesPage ? 'pb-20 md:pb-0' : 'pb-16 md:pb-0'}`}>
+          {isGamesPage && (
+            <button
+              type="button"
+              onClick={handleNavbarToggle}
+              className="absolute top-4 left-4 z-50 h-11 w-11 text-slate-900 dark:text-white transition hover:text-[#1f5ebf]"
+              aria-label="Colapsar sidebar"
+            >
+              ≡
+            </button>
+          )}
           {children}
         </div>
       </div>

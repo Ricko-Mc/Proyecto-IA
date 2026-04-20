@@ -8,7 +8,10 @@ import {
   HealthCheck,
 } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const rawApiUrl = import.meta.env.VITE_API_URL;
+const API_BASE_URL = rawApiUrl
+  ? `${rawApiUrl.replace(/\/+$|\/api$/g, '').replace(/\/api$/, '')}/api`
+  : '/api';
 
 const clienteApi = axios.create({
   baseURL: API_BASE_URL,
