@@ -1,5 +1,6 @@
 import re
 import unicodedata
+from typing import Any
 from anthropic import (
     APIConnectionError,
     APIError,
@@ -30,7 +31,7 @@ class AgenteIA:
             (r"letra\s+(.+)$", "abecedario"),
             (r"(?:como|cómo)\s+decir\s+(?:la|el)?\s*(.+)$", None),          # "como decir morado"
             (r"(?:como|cómo)\s+(?:se\s+)?dice\s+el\s+color\s+(.+)$", "colores"),  # "como se dice el color x"
-            (r"(?:como|cómo)\s+(?:se\s+)?dice\s+la\s+letra\s+(.+)$", "abecedario"), 
+            (r"(?:como|cómo)\s+(?:se\s+)?dice\s+la\s+letra\s+(.+)$", "abecedario"),
         ]
 
         for patron, categoria in patrones:
@@ -43,9 +44,9 @@ class AgenteIA:
             palabra = re.sub(r"^(la|el|los|las)\s+", "", palabra).strip()
             palabra = re.sub(r"^letra\s+", "", palabra).strip()
             palabra = re.sub(r"^color\s+", "", palabra).strip()
-            palabra = re.sub(r"^se[ñn]a\s+(?:de\s+)?", "", palabra).strip() 
-            palabra = re.sub(r"^signo\s+(?:de\s+)?", "", palabra).strip()  
-            palabra = re.sub(r"\?$", "", palabra).strip()  
+            palabra = re.sub(r"^se[ñn]a\s+(?:de\s+)?", "", palabra).strip()
+            palabra = re.sub(r"^signo\s+(?:de\s+)?", "", palabra).strip()
+            palabra = re.sub(r"\?$", "", palabra).strip()
             if palabra:
                 return palabra, categoria
 
@@ -92,7 +93,7 @@ class AgenteIA:
                 system="Extrae solo una palabra clave en espanol sin tildes.",
                 messages=[{"role": "user", "content": mensaje_usuario}],
             )
-            palabra = respuesta.content[0].text.strip().lower()
+            palabra = self._extraer_texto_respuesta(respuesta).lower()
         except (
             APIError,
             APIConnectionError,
@@ -104,6 +105,23 @@ class AgenteIA:
         ):
             palabra = self._extraer_palabra_local(mensaje_usuario)
         return {"palabra_extraida": palabra, "palabra_normalizada": self.normalizar(palabra)}
+
+    def _extraer_texto_respuesta(self, respuesta: Any) -> str:
+        if respuesta is None:
+            return ""
+        contenido = getattr(respuesta, "content", None)
+        if isinstance(contenido, list) and contenido:
+            primer = contenido[0]
+            if isinstance(primer, dict):
+                return str(primer.get("text", primer.get("value", ""))).strip()
+            if hasattr(primer, "text"):
+                return str(getattr(primer, "text", "")).strip()
+            if hasattr(primer, "value"):
+                return str(getattr(primer, "value", "")).strip()
+            return str(primer).strip()
+        if isinstance(respuesta, dict):
+            return str(respuesta.get("content", "")).strip()
+        return str(respuesta).strip()
 
     def generar_respuesta_contextual(self, mensaje_usuario: str, signo_info: dict) -> str:
         """Genera respuesta contextual sobre el signo encontrado usando Claude o fallback."""
@@ -124,7 +142,7 @@ class AgenteIA:
                 system="Responde en espanol guatemalteco de forma educativa.",
                 messages=[{"role": "user", "content": f"{mensaje_usuario}\n{contexto}"}],
             )
-            return respuesta.content[0].text.strip()
+            return self._extraer_texto_respuesta(respuesta)
         except (
             APIError,
             APIConnectionError,
