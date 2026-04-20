@@ -28,6 +28,9 @@ class AgenteIA:
             (r"(?:se[ñn]a|signo)\s+(?:de|para)\s+(.+)$", None),
             (r"color\s+(.+)$", "colores"),
             (r"letra\s+(.+)$", "abecedario"),
+            (r"(?:como|cómo)\s+decir\s+(?:la|el)?\s*(.+)$", None),          # "como decir morado"
+            (r"(?:como|cómo)\s+(?:se\s+)?dice\s+el\s+color\s+(.+)$", "colores"),  # "como se dice el color x"
+            (r"(?:como|cómo)\s+(?:se\s+)?dice\s+la\s+letra\s+(.+)$", "abecedario"), 
         ]
 
         for patron, categoria in patrones:
@@ -38,6 +41,11 @@ class AgenteIA:
             palabra = re.sub(r"\s+(por favor|pls|porfa)$", "", palabra).strip()
             palabra = re.sub(r"\s+(en\s+se[nñ]as|en\s+lensegua|por\s+favor|pls|porfa)$", "", palabra).strip()
             palabra = re.sub(r"^(la|el|los|las)\s+", "", palabra).strip()
+            palabra = re.sub(r"^letra\s+", "", palabra).strip()
+            palabra = re.sub(r"^color\s+", "", palabra).strip()
+            palabra = re.sub(r"^se[ñn]a\s+(?:de\s+)?", "", palabra).strip() 
+            palabra = re.sub(r"^signo\s+(?:de\s+)?", "", palabra).strip()  
+            palabra = re.sub(r"\?$", "", palabra).strip()  
             if palabra:
                 return palabra, categoria
 
