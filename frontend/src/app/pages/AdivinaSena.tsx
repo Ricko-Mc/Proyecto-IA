@@ -1,4 +1,46 @@
 import { type ReactNode, useState } from 'react';
+
+function Confetti() {
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[100] overflow-hidden">
+      {Array.from({ length: 42 }).map((_, i) => {
+        const colors = ['#60A5FA', '#A78BFA', '#F59E0B', '#34D399', '#F472B6', '#FACC15'];
+        const size = 6 + Math.random() * 8;
+
+        return (
+          <span
+            key={i}
+            className="absolute rounded-sm"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: '-20px',
+              width: `${size}px`,
+              height: `${size * 0.6}px`,
+              backgroundColor: colors[Math.floor(Math.random() * colors.length)],
+              transform: `rotate(${Math.random() * 360}deg)`,
+              animation: `confetti-fall ${1.8 + Math.random() * 1.6}s ease-in forwards`,
+              animationDelay: `${Math.random() * 0.25}s`,
+            }}
+          />
+        );
+      })}
+
+      <style>{`
+        @keyframes confetti-fall {
+          0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(105vh) rotate(720deg);
+            opacity: 0;
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 import { useLocation, useNavigate } from 'react-router';
 import type { ElementType } from 'react';
 import {
@@ -45,60 +87,60 @@ const CATEGORIAS: CategoriaItem[] = [
     label: 'Mixta',
     descripcion: 'Preguntas variadas para practicar de forma general.',
     Icono: Dice5,
-    fondo: 'from-[#d7c8ef] via-[#c9bee9] to-[#bdb7e3]',
-    borde: 'border-[#c6bae7]',
-    acento: 'from-[#8f7cc9] to-[#7d8ccf]',
-    iconBoxFondo: 'from-[#ebe3fb] to-[#d9e4fb]',
+    fondo: 'from-[#c9b4e8] via-[#bda5e3] to-[#b395dd]',
+    borde: 'border-[#b395dd]',
+    acento: 'from-[#8b6fb5] to-[#7a5fa5]',
+    iconBoxFondo: 'from-[#dfd0f2] to-[#d2c2ed]',
   },
   {
     id: 'colores',
     label: 'Colores',
     descripcion: 'Reconoce tonos y vocabulario visual básico.',
     Icono: Palette,
-    fondo: 'from-[#f4c8bd] via-[#efc1bc] to-[#e6c8d8]',
-    borde: 'border-[#e9c1bf]',
-    acento: 'from-[#d9968b] to-[#d7a9b8]',
-    iconBoxFondo: 'from-[#f9e2d8] to-[#f3dce7]',
+    fondo: 'from-[#f0b4a5] via-[#eaa599] to-[#e4968d]',
+    borde: 'border-[#e4968d]',
+    acento: 'from-[#d97965] to-[#c45a4a]',
+    iconBoxFondo: 'from-[#f5d0c5] to-[#f0c1b5]',
   },
   {
     id: 'animales',
     label: 'Animales',
     descripcion: 'Relaciona señas con nombres de animales.',
     Icono: PawPrint,
-    fondo: 'from-[#c8e7d2] via-[#c3e2d2] to-[#b9dcd8]',
-    borde: 'border-[#bdddcf]',
-    acento: 'from-[#7eb89a] to-[#7db5ab]',
-    iconBoxFondo: 'from-[#dff3e5] to-[#d7eee8]',
+    fondo: 'from-[#a6e2bd] via-[#99dab3] to-[#8cd2a9]',
+    borde: 'border-[#8cd2a9]',
+    acento: 'from-[#62b89a] to-[#509d80]',
+    iconBoxFondo: 'from-[#c5ead6] to-[#b5e3ce]',
   },
   {
     id: 'alimentos',
     label: 'Alimentos',
     descripcion: 'Practica vocabulario de comida y bebida.',
     Icono: Apple,
-    fondo: 'from-[#f1ddab] via-[#eed7a7] to-[#e9cfa8]',
-    borde: 'border-[#e9d1a6]',
-    acento: 'from-[#d5ab67] to-[#d3a58f]',
-    iconBoxFondo: 'from-[#f8e7c9] to-[#f3ddd2]',
+    fondo: 'from-[#e8d68f] via-[#e2cf82] to-[#dcc875]',
+    borde: 'border-[#dcc875]',
+    acento: 'from-[#c9b856] to-[#b5a245]',
+    iconBoxFondo: 'from-[#f0e5b8] to-[#ead9a8]',
   },
   {
     id: 'saludos',
     label: 'Saludos',
     descripcion: 'Expresiones comunes para iniciar conversaciones.',
     Icono: Hand,
-    fondo: 'from-[#c3d9f3] via-[#bad2ef] to-[#b2caea]',
-    borde: 'border-[#b7cdea]',
-    acento: 'from-[#7fa8d6] to-[#7f95cf]',
-    iconBoxFondo: 'from-[#dce9fb] to-[#d5e1f6]',
+    fondo: 'from-[#90bee5] via-[#82b0dd] to-[#74a2d5]',
+    borde: 'border-[#74a2d5]',
+    acento: 'from-[#5885b8] to-[#456a95]',
+    iconBoxFondo: 'from-[#b9d8f1] to-[#a7ceea]',
   },
   {
     id: 'abecedario',
     label: 'Abecedario',
     descripcion: 'Refuerza letras y base del lenguaje de señas.',
     Icono: BookOpen,
-    fondo: 'from-[#c3e7e3] via-[#bce1df] to-[#b7d9d9]',
-    borde: 'border-[#b8d9d8]',
-    acento: 'from-[#7fbdb8] to-[#7eaeb8]',
-    iconBoxFondo: 'from-[#dbf1ef] to-[#d3eae8]',
+    fondo: 'from-[#88ddd2] via-[#77d5c8] to-[#66cdbe]',
+    borde: 'border-[#66cdbe]',
+    acento: 'from-[#4ab8a6] to-[#399d8e]',
+    iconBoxFondo: 'from-[#b5ebde] to-[#a3e3d6]',
   },
 ];
 
@@ -167,6 +209,7 @@ export function AdivinaSena() {
 
   const [gameState, setGameState] = useState<GameState>('playing');
   const [score, setScore] = useState(0);
+  const [scoreAdded, setScoreAdded] = useState(false);
   const [preguntaNum, setPreguntaNum] = useState(1);
   const [currentSign, setCurrentSign] = useState<Signo | null>(null);
   const [opciones, setOpciones] = useState<string[]>([]);
@@ -221,7 +264,9 @@ export function AdivinaSena() {
 
     if (answer === currentSign.palabra) {
       setGameState('correct');
+      setScoreAdded(true);
       setScore(s => s + 1);
+      setTimeout(() => setScoreAdded(false), 600);
     } else {
       setGameState('wrong');
     }
@@ -240,6 +285,8 @@ export function AdivinaSena() {
     setPreguntaNum(n => n + 1);
     seleccionarPregunta(signos, nuevosUsados);
   };
+
+  
 
   const getButtonStyle = (option: string) => {
     if (gameState === 'playing') {
@@ -261,7 +308,7 @@ export function AdivinaSena() {
     const panelHeightClass = isEmbedded ? 'min-h-[calc(100vh-32px)]' : 'min-h-[620px]';
 
     return renderShell(
-      <div className={`w-full flex flex-col items-center justify-start gap-8 px-4 md:px-8 py-8 md:py-10 ${panelHeightClass} max-w-6xl mx-auto`}>
+      <div className={`w-full flex flex-col items-center justify-start gap-8 px-4 md:px-8 py-8 md:py-10 ${panelHeightClass} max-w-6xl mx-auto font-poppins`}>
         <div className="text-center">
           <span className="inline-flex items-center rounded-full bg-white/75 px-4 py-1.5 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-white/50 backdrop-blur-md">
             Zona de práctica
@@ -280,7 +327,7 @@ export function AdivinaSena() {
           <p className="text-red-500 text-sm">Error al cargar. Intenta de nuevo.</p>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-4xl mx-auto">
           {CATEGORIAS.map((cat) => {
             const activa = categoriaSeleccionada === cat.id;
             const Icono = cat.Icono;
@@ -302,26 +349,26 @@ export function AdivinaSena() {
                 <span className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.28),transparent_28%)]" />
                 <span className="absolute -left-10 top-8 h-28 w-28 rounded-full bg-white/15 blur-2xl" />
 
-                <div className="relative flex items-center gap-4 p-5 md:p-6">
+                <div className="relative flex items-center gap-3 p-3 md:p-4">
                   <div
                     className={`
-                      shrink-0 h-20 w-20 rounded-[24px] bg-gradient-to-br ${cat.iconBoxFondo}
+                      shrink-0 h-16 w-16 rounded-[20px] bg-gradient-to-br ${cat.iconBoxFondo}
                       ring-1 ring-white/40 shadow-[0_12px_26px_rgba(15,23,42,0.18)]
                       flex items-center justify-center transition-transform duration-300
                       group-hover:scale-105
                     `}
                   >
-                    <div className="flex h-[70px] w-[70px] items-center justify-center rounded-[20px] bg-white/20 backdrop-blur-sm">
+                    <div className="flex h-[56px] w-[56px] items-center justify-center rounded-[16px] bg-white/20 backdrop-blur-sm">
                       <Icono
-                        className="h-9 w-9 text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.25)]"
+                        className="h-7 w-7 text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.25)]"
                         strokeWidth={2.2}
                       />
                     </div>
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-[22px] font-bold text-slate-800 tracking-[-0.02em] dark:text-white">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-[18px] font-bold text-slate-800 tracking-[-0.02em] dark:text-white">
                         {cat.label}
                       </h3>
 
@@ -332,7 +379,7 @@ export function AdivinaSena() {
                       )}
                     </div>
 
-                    <p className="mt-1.5 max-w-[32ch] text-sm leading-6 text-slate-700/80 dark:text-slate-200/85">
+                    <p className="mt-1 max-w-[28ch] text-xs leading-5 text-slate-700/80 dark:text-slate-200/85">
                       {cat.descripcion}
                     </p>
                   </div>
@@ -370,7 +417,7 @@ export function AdivinaSena() {
             : 'Sigue practicando 📚';
 
     return renderShell(
-      <div className="flex flex-col items-center gap-6 px-4 py-10 max-w-xl mx-auto text-center">
+      <div className="flex flex-col items-center gap-6 px-4 py-10 max-w-xl mx-auto text-center font-poppins">
         <h2 className="text-3xl font-bold text-slate-700 dark:text-slate-200">
           {mensaje}
         </h2>
@@ -419,39 +466,79 @@ export function AdivinaSena() {
   }
 
   return renderShell(
-    <div className="flex flex-col items-center gap-5 px-4 py-6 max-w-xl mx-auto">
-      <div className="flex items-center justify-between w-full">
-        <span className="text-sm text-gray-500 dark:text-gray-400">
-          Pregunta {preguntaNum} de {TOTAL_PREGUNTAS}
-        </span>
+    <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col gap-4 font-poppins min-h-screen justify-start pt-4">
 
-        <span className="bg-[#4997D0] text-white px-4 py-1 rounded-full font-semibold text-sm">
-          Puntos: {score}
-        </span>
+      {/* HEADER */}
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-slate-500 dark:text-slate-400">
+          Pregunta {preguntaNum} de {TOTAL_PREGUNTAS}
+        </div>
       </div>
 
-      <div className="w-full bg-gray-200 dark:bg-white/10 rounded-full h-2">
+      {/* BARRA DE PROGRESO */}
+      <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
         <div
-          className="bg-[#4997D0] h-2 rounded-full transition-all duration-500"
+          className="h-full bg-gradient-to-r from-[#7aa7d9] to-[#5c8ec4] transition-all duration-500"
           style={{ width: `${((preguntaNum - 1) / TOTAL_PREGUNTAS) * 100}%` }}
         />
       </div>
 
-      <VideoPlayer videoUrl={currentSign.url_video} signLabel="???" active={true} />
+      {/* CONTENIDO PRINCIPAL */}
+      <div className="grid md:grid-cols-[1fr_1fr] gap-6">
 
-      <p className="text-gray-600 dark:text-gray-300 text-sm text-center">
-        Observa el video y elige la seña correcta
+        {/* VIDEO CARD */}
+        <div className="rounded-3xl overflow-hidden bg-transparent shadow-none border-0 flex items-center justify-center">
+  <VideoPlayer videoUrl={currentSign.url_video} signLabel="???" active={true} />
+</div>
+
+        {/* PANEL DERECHO */}
+        <div className="flex flex-col gap-4">
+
+          <div className="rounded-2xl p-4 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border border-white/40 dark:border-slate-700/40 shadow-sm">
+            <p className="text-sm text-slate-500 dark:text-slate-400">Instrucción</p>
+            <p className="font-medium text-slate-700 dark:text-slate-200 mt-1">
+              Observa la seña y selecciona la respuesta correcta
+            </p>
+          </div>
+
+          <div className="rounded-[28px] p-4 bg-gradient-to-br from-[#edf3fb] via-[#e9f0fb] to-[#eef3fa] dark:from-slate-700 dark:to-slate-800 border border-[#dbe6f2] dark:border-slate-600 shadow-[0_14px_28px_rgba(15,23,42,0.08)]">
+  <div className="flex items-center gap-4">
+    <div className="h-20 w-20 shrink-0 rounded-2xl bg-white/70 flex items-center justify-center shadow-inner">
+      <img
+        src="https://media.giphy.com/media/fUQ4rhUZJYiQsas6WD/giphy.gif"
+        alt="mascota animada"
+        className="h-16 w-16 object-contain"
+      />
+    </div>
+
+    <div className="flex-1">
+      <p className="text-sm text-slate-500 dark:text-slate-400">Puntos</p>
+      <p className={`text-4xl font-bold text-[#5c8ec4] leading-none transition-all duration-300 ${
+        scoreAdded ? 'scale-125 text-green-500' : 'scale-100'
+      }`}>{score}</p>
+      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+        Sigue así, vas avanzando muy bien.
       </p>
+    </div>
+  </div>
+</div> 
 
-      <div className="grid grid-cols-2 gap-3 w-full">
+        </div>
+      </div>
+
+      {/* OPCIONES */}
+      <div className="grid grid-cols-2 gap-4">
         {opciones.map(option => (
           <button
             key={option}
             onClick={() => handleAnswer(option)}
             disabled={gameState !== 'playing'}
             className={`
-              py-4 rounded-xl font-semibold text-base transition-all duration-200 uppercase
-              ${getButtonStyle(option)} disabled:cursor-not-allowed
+              py-5 rounded-2xl font-medium text-lg uppercase tracking-wide
+              transition-all duration-200
+              ${getButtonStyle(option)}
+              hover:scale-[1.03] active:scale-[0.98] disabled:cursor-not-allowed
+              shadow-[0_10px_20px_rgba(0,0,0,0.08)]
             `}
           >
             {option}
@@ -459,22 +546,70 @@ export function AdivinaSena() {
         ))}
       </div>
 
+      {/* FEEDBACK */}
       {gameState !== 'playing' && (
-        <div className="flex flex-col items-center gap-3">
-          <p className="text-xl font-semibold">
-            {gameState === 'correct'
-              ? '¡Correcto!'
-              : `Era: ${currentSign.palabra.toUpperCase()}`}
-          </p>
+  <div className="flex flex-col items-center gap-3 relative mt-6">
+    {gameState === 'correct' && <Confetti />}
 
-          <button
-            onClick={handleNext}
-            className="bg-[#4997D0] hover:bg-[#357ab8] text-white px-8 py-3 rounded-xl font-semibold transition-colors"
-          >
-            {preguntaNum >= TOTAL_PREGUNTAS ? 'Ver resultados' : 'Siguiente'}
-          </button>
-        </div>
-      )}
+    <div
+      className={`
+        rounded-full px-8 py-6 shadow-[0_20px_50px_rgba(15,23,42,0.15)]
+        border backdrop-blur-xl
+        ${gameState === 'correct'
+          ? 'bg-white/40 border-[#86efac]/30'
+          : 'bg-white/40 border-[#fca5a5]/30'
+        }
+        animate-float-up
+      `}
+    >
+      <p className="text-lg font-bold text-slate-800 text-center">
+        {gameState === 'correct'
+          ? '¡Correcto! +1 punto'
+          : `La respuesta era ${currentSign?.palabra.toUpperCase()}`}
+      </p>
+      <p className="mt-1 text-sm text-slate-600 text-center">
+        {gameState === 'correct'
+          ? 'Muy bien, sigue avanzando.'
+          : 'No te preocupes, inténtalo en la siguiente.'}
+      </p>
+    </div>
+
+    <button
+      onClick={handleNext}
+      className="bg-gradient-to-r from-[#7aa7d9] to-[#5c8ec4] text-white px-8 py-3 rounded-xl font-medium shadow hover:opacity-90 transition-opacity"
+    >
+      {preguntaNum >= TOTAL_PREGUNTAS ? 'Ver resultados' : 'Siguiente'}
+    </button>
+
+    <style>{`
+      @keyframes bubble-float {
+        0% {
+          opacity: 0;
+          transform: translateY(60px) scale(0.8);
+        }
+        10% {
+          opacity: 1;
+          transform: translateY(45px) scale(0.95);
+        }
+        50% {
+          opacity: 1;
+          transform: translateY(0px) scale(1);
+        }
+        90% {
+          opacity: 0.3;
+          transform: translateY(-50px) scale(1.05);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(-80px) scale(1.1);
+        }
+      }
+      .animate-float-up {
+        animation: bubble-float 4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+      }
+    `}</style>
+  </div>
+)}
     </div>
   );
 }
