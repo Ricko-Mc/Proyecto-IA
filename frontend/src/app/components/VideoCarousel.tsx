@@ -61,6 +61,7 @@ function cargarYoutubeApi(): Promise<YoutubeApi> {
 
 export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [playerReady, setPlayerReady] = useState(false);
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YoutubePlayer | null>(null);
   const ids = useMemo(
@@ -89,6 +90,7 @@ export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
       return;
     }
 
+    setPlayerReady(false);
     let disposed = false;
 
     void cargarYoutubeApi().then((YT) => {
@@ -101,12 +103,20 @@ export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
         playerVars: {
           autoplay: active ? 1 : 0,
           mute: 1,
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
           playsinline: 1,
           rel: 0,
           modestbranding: 1,
+          showinfo: 0,
+          iv_load_policy: 3,
+          loop: 1,
+          playlist: ids.join(','),
         },
         events: {
           onReady: (event: { target: YoutubePlayer }) => {
+            setPlayerReady(true);
             event.target.mute();
             if (active) {
               event.target.playVideo();
@@ -183,9 +193,19 @@ export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
       <div className="relative">
         <div className="w-full max-w-sm md:max-w-lg mx-auto">
           <div className="relative bg-gray-900 rounded-[12px] overflow-hidden aspect-video shadow-sm">
-            <div ref={playerContainerRef} className="w-full h-full" />
+            <div
+              ref={playerContainerRef}
+              className="w-full h-full"
+              style={{
+                opacity: playerReady ? 1 : 0,
+                transition: 'opacity 150ms ease-in-out',
+              }}
+            />
+            {!playerReady && (
+              <div className="absolute inset-0 bg-black z-10" />
+            )}
             {!active && (
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
                 <p className="text-white/85 text-xs md:text-sm">Video en pausa</p>
               </div>
             )}

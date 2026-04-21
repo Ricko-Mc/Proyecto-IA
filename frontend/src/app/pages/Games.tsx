@@ -13,8 +13,8 @@ export function Games() {
       showClearButton={false}
       onNewConversation={() => navigate('/chat')}
     >
-      <div className="min-h-full px-1 md:px-3 py-3 md:py-5">
-        <div className="max-w-[1500px] mx-auto">
+      <div className="min-h-screen px-1 md:px-3 py-2 md:py-3">
+        <div className="max-w-full mx-auto">
           <GameCarousel />
         </div>
       </div>

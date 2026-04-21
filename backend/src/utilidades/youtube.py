@@ -1,6 +1,6 @@
 from urllib.parse import parse_qs, urlparse
 
-YOUTUBE_EMBED_PARAMS = "autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1"
+YOUTUBE_EMBED_PARAMS = "autoplay=1&mute=1&controls=0&rel=0&modestbranding=1&playsinline=1"
 
 def extraer_youtube_id(referencia: str | None) -> str | None:
     if not referencia:

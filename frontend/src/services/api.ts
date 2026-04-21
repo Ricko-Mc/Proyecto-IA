@@ -8,7 +8,10 @@ import {
   HealthCheck,
 } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const rawApiUrl = import.meta.env.VITE_API_URL;
+const API_BASE_URL = rawApiUrl
+  ? `${rawApiUrl.replace(/\/+$|\/api$/g, '').replace(/\/api$/, '')}/api`
+  : '/api';
 
 const clienteApi = axios.create({
   baseURL: API_BASE_URL,
@@ -18,6 +21,7 @@ const clienteApi = axios.create({
 });
 
 const cache: Record<string, any> = {};
+const categoryCache: Record<string, any> = {};
 const pendingRequests: Record<string, Promise<any> | undefined> = {};
 
 async function requestAPI<T>(
@@ -100,16 +104,19 @@ export const api = {
   },
 
   obtenerSignosPorCategoria: async (categoria: string): Promise<RespuestaPorCategoria> => {
-    const cacheKey = `/categorias/${encodeURIComponent(categoria)}`;
-    if (cache[cacheKey]) {
-      return cache[cacheKey];
+    const cacheKey = categoria;
+    if (categoryCache[cacheKey]) {
+      return categoryCache[cacheKey];
     }
     if (pendingRequests[cacheKey]) {
       return pendingRequests[cacheKey];
     }
-    pendingRequests[cacheKey] = requestAPI<RespuestaPorCategoria>('get', cacheKey)
+    pendingRequests[cacheKey] = requestAPI<RespuestaPorCategoria>(
+      'get',
+      `/categorias/${encodeURIComponent(categoria)}`
+    )
       .then((resultado) => {
-        cache[cacheKey] = resultado;
+        categoryCache[cacheKey] = resultado;
         delete pendingRequests[cacheKey];
         return resultado;
       })

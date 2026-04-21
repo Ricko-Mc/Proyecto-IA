@@ -29,47 +29,49 @@ const formatearEtiqueta = (valor: string): string =>
     .replaceAll('_', ' ')
     .replace(/\b\w/g, (letra) => letra.toUpperCase());
 
+const convertirEtiquetaACategoria = (valor: string): string =>
+  valor.toLowerCase().replaceAll(' ', '_');
 
 export function Dictionary() {
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [activeSearchQuery, setActiveSearchQuery] = useState('');
   const [selectedWord, setSelectedWord] = useState<DictionaryWord | null>(null);
   const [words, setWords] = useState<DictionaryWord[]>([]);
   const [visibleCount, setVisibleCount] = useState(20);
-  const [categories, setCategories] = useState<string[]>(['Todos']);
+  const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [slowLoading, setSlowLoading] = useState(false);
+  const [pageVisible, setPageVisible] = useState(false);
+  const [categoriesPrefetched, setCategoriesPrefetched] = useState(false);
+  const [searchPerformed, setSearchPerformed] = useState(false);
   const [error, setError] = useState('');
+  const [wordsLoaded, setWordsLoaded] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const pageRef = useRef<HTMLDivElement | null>(null);
   const thumbnailCache = useRef<Record<string, boolean>>({});
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const categoryParam = params.get('category');
+    const searchParam = params.get('search');
+
     if (categoryParam) {
       setSelectedCategory(formatearEtiqueta(categoryParam));
     }
+    if (searchParam) {
+      setSearchInput(searchParam);
+      setActiveSearchQuery(searchParam);
+    }
 
-    const cargarDiccionario = async () => {
+    const cargarCategorias = async () => {
       setLoading(true);
       setError('');
       try {
-        const [respuestaSignos, respuestaCategorias] = await Promise.all([
-          api.obtenerTodosLosSignos(),
-          api.obtenerCategorias(),
-        ]);
-
-        const wordsData: DictionaryWord[] = respuestaSignos.signos.map((signo) => ({
-          id: signo.signo_id,
-          word: formatearEtiqueta(signo.palabra),
-          category: formatearEtiqueta(signo.categoria),
-          videoUrl: signo.url_video ?? null,
-        }));
-
+        const respuestaCategorias = await api.obtenerCategorias();
         const categoriasData = respuestaCategorias.categorias.map((categoria) => formatearEtiqueta(categoria));
-
-        setWords(wordsData);
         setCategories(categoriasData);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'No se pudo cargar el diccionario');
@@ -78,30 +80,61 @@ export function Dictionary() {
       }
     };
 
-    void cargarDiccionario();
+    void cargarCategorias();
+  }, [location.search]);
+
+  useEffect(() => {
+    const node = pageRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setPageVisible(true);
+          observer.disconnect();
+        }
+      },
+      { root: null, threshold: 0.1 }
+    );
+
+    observer.observe(node);
+
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   useEffect(() => {
+    if (!pageVisible || categories.length === 0 || categoriesPrefetched) return;
+
+    const rawCategories = categories.map(convertirEtiquetaACategoria);
+    void Promise.all(rawCategories.map((categoria) => api.obtenerSignosPorCategoria(categoria)))
+      .then(() => setCategoriesPrefetched(true))
+      .catch(() => setCategoriesPrefetched(true));
+  }, [pageVisible, categories, categoriesPrefetched]);
+
+  useEffect(() => {
     setVisibleCount(20);
-  }, [searchQuery, selectedCategory, words.length]);
+  }, [searchPerformed, words.length]);
 
   const filteredWords = useMemo(
     () =>
       words.filter((word) => {
         const matchesCategory = !selectedCategory || word.category === selectedCategory;
-        const matchesSearch = !searchQuery.trim() || word.word.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSearch = !activeSearchQuery.trim() || word.word.toLowerCase().includes(activeSearchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
       }),
-    [words, selectedCategory, searchQuery]
+    [words, selectedCategory, activeSearchQuery]
   );
 
   const displayedWords = filteredWords.slice(0, visibleCount);
   const canLoadMore = visibleCount < filteredWords.length;
-  const shouldShowResults = searchQuery.trim().length > 0 || selectedCategory !== '';
+  const shouldShowResults = searchPerformed;
 
   const handleLoadMore = () => {
     setVisibleCount((prev) => Math.min(prev + 20, filteredWords.length));
   };
+
 
   useEffect(() => {
     if (!canLoadMore || !loadMoreRef.current) return;
@@ -149,8 +182,57 @@ export function Dictionary() {
     }
   };
 
+  const cargarSignos = async (query: string, category: string | null) => {
+    setLoading(true);
+    setSlowLoading(false);
+    setError('');
+    const slowTimer = window.setTimeout(() => setSlowLoading(true), 3000);
+
+    try {
+      let respuestaSignos;
+
+      if (category && query) {
+        const categoryData = await api.obtenerSignosPorCategoria(category);
+        const signosFiltrados = categoryData.signos.filter((signo) =>
+          formatearEtiqueta(signo.palabra).toLowerCase().includes(query.toLowerCase())
+        );
+        respuestaSignos = { ...categoryData, signos: signosFiltrados };
+      } else if (category) {
+        respuestaSignos = await api.obtenerSignosPorCategoria(category);
+      } else if (query) {
+        const allSigns = await api.obtenerTodosLosSignos();
+        respuestaSignos = {
+          ...allSigns,
+          signos: allSigns.signos.filter((signo) =>
+            formatearEtiqueta(signo.palabra).toLowerCase().includes(query.toLowerCase())
+          ),
+        };
+      } else {
+        respuestaSignos = await api.obtenerTodosLosSignos();
+      }
+
+      const wordsData: DictionaryWord[] = respuestaSignos.signos.map((signo) => ({
+        id: signo.signo_id,
+        word: formatearEtiqueta(signo.palabra),
+        category: formatearEtiqueta(signo.categoria),
+        videoUrl: signo.url_video ?? null,
+      }));
+      setWords(wordsData);
+      setWordsLoaded(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'No se pudo cargar el diccionario');
+    } finally {
+      clearTimeout(slowTimer);
+      setSlowLoading(false);
+      setLoading(false);
+    }
+  };
+
   const handleSearch = () => {
-    // The dictionary filters in real time via the navbar and local search input.
+    const query = searchInput.trim();
+    setActiveSearchQuery(query);
+    setSearchPerformed(true);
+    void cargarSignos(query, selectedCategory ? convertirEtiquetaACategoria(selectedCategory) : null);
   };
 
   return (
@@ -158,10 +240,10 @@ export function Dictionary() {
       title="Diccionario"
       activePage="dictionary"
       showClearButton={false}
-      onNavbarSearch={setSearchQuery}
+      onNavbarSearch={setSearchInput}
       onNewConversation={() => navigate('/chat')}
     >
-      <div className="flex-1 bg-white dark:bg-white">
+      <div ref={pageRef} className="flex-1 bg-white dark:bg-white">
         <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 py-4 md:py-6 lg:py-8">
           
           <div className="text-center mb-4 md:mb-6 pt-2 md:pt-4">
@@ -187,8 +269,22 @@ export function Dictionary() {
                   <Input
                     type="text"
                     placeholder="Ej: agua, tamal, buenos dias..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    value={searchInput}
+                    onChange={(e) => {
+                      setSearchInput(e.target.value);
+                      setSelectedCategory('');
+                      setActiveSearchQuery('');
+                      setSearchPerformed(false);
+                      setWords([]);
+                      setWordsLoaded(false);
+                      setError('');
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault();
+                        handleSearch();
+                      }
+                    }}
                     className="h-10 md:h-11 pl-9 pr-3 text-xs md:text-sm bg-background dark:bg-[#171717] border border-border dark:border-[#313131] focus:border-[#4997D0] dark:focus:border-[#4a4a4a]"
                   />
                 </div>
@@ -199,7 +295,18 @@ export function Dictionary() {
                   <Filter className="w-4 h-4 text-[#4997D0] dark:text-[#d0d0d0]" />
                   Filtrar por tema
                 </label>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <Select
+                  value={selectedCategory}
+                  onValueChange={(value) => {
+                    setSelectedCategory(value);
+                    setSearchInput('');
+                    setActiveSearchQuery('');
+                    setSearchPerformed(false);
+                    setWords([]);
+                    setWordsLoaded(false);
+                    setError('');
+                  }}
+                >
                   <SelectTrigger className="h-10 md:h-11 bg-background dark:bg-[#171717] border border-border dark:border-[#313131] text-xs md:text-sm">
                     <SelectValue placeholder="Selecciona una categoría" />
                   </SelectTrigger>
@@ -224,17 +331,22 @@ export function Dictionary() {
         </div>
 
         
-        <div className="mb-3 md:mb-4">
-          <h3 className="text-sm md:text-lg font-semibold">
-            Resultados ({filteredWords.length})
-          </h3>
-          {loading ? (
-            <p className="text-xs text-muted-foreground mt-1">Cargando diccionario...</p>
-          ) : null}
-          {error ? (
-            <p className="text-xs text-red-500 mt-1">{error}</p>
-          ) : null}
-        </div>
+{shouldShowResults && (
+          <div className="mb-3 md:mb-4">
+            <h3 className="text-sm md:text-lg font-semibold">
+              Resultados ({filteredWords.length})
+            </h3>
+            {loading ? (
+              <p className="text-xs text-muted-foreground mt-1">Cargando diccionario...</p>
+            ) : null}
+            {slowLoading ? (
+              <p className="text-xs text-muted-foreground mt-1">Esto está tardando más de lo normal...</p>
+            ) : null}
+            {error ? (
+              <p className="text-xs text-red-500 mt-1">{error}</p>
+            ) : null}
+          </div>
+        )}
 
         {loading ? (
           <div className="space-y-3">
