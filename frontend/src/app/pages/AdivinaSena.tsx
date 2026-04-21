@@ -1,46 +1,4 @@
-import { type ReactNode, useState } from 'react';
-
-function Confetti() {
-  return (
-    <div className="pointer-events-none fixed inset-0 z-[100] overflow-hidden">
-      {Array.from({ length: 42 }).map((_, i) => {
-        const colors = ['#60A5FA', '#A78BFA', '#F59E0B', '#34D399', '#F472B6', '#FACC15'];
-        const size = 6 + Math.random() * 8;
-
-        return (
-          <span
-            key={i}
-            className="absolute rounded-sm"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: '-20px',
-              width: `${size}px`,
-              height: `${size * 0.6}px`,
-              backgroundColor: colors[Math.floor(Math.random() * colors.length)],
-              transform: `rotate(${Math.random() * 360}deg)`,
-              animation: `confetti-fall ${1.8 + Math.random() * 1.6}s ease-in forwards`,
-              animationDelay: `${Math.random() * 0.25}s`,
-            }}
-          />
-        );
-      })}
-
-      <style>{`
-        @keyframes confetti-fall {
-          0% {
-            transform: translateY(0) rotate(0deg);
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(105vh) rotate(720deg);
-            opacity: 0;
-          }
-        }
-      `}</style>
-    </div>
-  );
-}
-
+import { type ReactNode, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import type { ElementType } from 'react';
 import {
@@ -50,9 +8,25 @@ import {
   Hand,
   Palette,
   PawPrint,
+  Sparkles,
+  Star,
+  Trophy,
+  LogOut,
+  ArrowLeft,
 } from 'lucide-react';
 import { MainLayout } from '../layouts/MainLayout';
 import { VideoPlayer } from '../components/VideoPlayer';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../components/ui/alert-dialog';
+
 
 type GameState = 'playing' | 'correct' | 'wrong';
 type Categoria =
@@ -174,6 +148,47 @@ async function cargarSignos(categoria: Categoria): Promise<Signo[]> {
   return (data.signos as Signo[]).filter(s => s.url_video);
 }
 
+function ConfettiBurst() {
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[100] overflow-hidden">
+      {Array.from({ length: 48 }).map((_, i) => {
+        const colors = ['#60A5FA', '#A78BFA', '#F59E0B', '#34D399', '#F472B6', '#FACC15'];
+        const size = 6 + Math.random() * 10;
+
+        return (
+          <span
+            key={i}
+            className="absolute rounded-sm"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: '-16px',
+              width: `${size}px`,
+              height: `${size * 0.65}px`,
+              backgroundColor: colors[Math.floor(Math.random() * colors.length)],
+              transform: `rotate(${Math.random() * 360}deg)`,
+              animation: `confetti-fall ${1.8 + Math.random() * 1.6}s ease-in forwards`,
+              animationDelay: `${Math.random() * 0.25}s`,
+            }}
+          />
+        );
+      })}
+
+      <style>{`
+        @keyframes confetti-fall {
+          0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(105vh) rotate(720deg);
+            opacity: 0;
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 export function AdivinaSena() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -182,7 +197,7 @@ export function AdivinaSena() {
   const renderShell = (content: ReactNode) => {
     if (isEmbedded) {
       return (
-        <div className="min-h-screen w-full overflow-y-auto px-3 py-3 md:px-4 md:py-4 bg-[radial-gradient(circle_at_16%_18%,rgba(112,154,225,0.22),transparent_32%),radial-gradient(circle_at_82%_74%,rgba(120,200,180,0.18),transparent_30%),linear-gradient(135deg,#e8eef7_0%,#f2edf6_54%,#f2eee6_100%)] dark:bg-[linear-gradient(135deg,#0f1f3b_0%,#1a1735_100%)]">
+        <div className="min-h-screen w-full overflow-y-auto px-3 py-3 md:px-4 md:py-4 bg-[linear-gradient(135deg,#eef2f8_0%,#f5f3f8_50%,#f3efe9_100%)] dark:bg-[linear-gradient(135deg,#0f1f3b_0%,#1a1735_100%)] font-poppins">
           {content}
         </div>
       );
@@ -195,13 +210,14 @@ export function AdivinaSena() {
         showClearButton={false}
         onNewConversation={() => navigate('/chat')}
       >
-        {content}
+        <div className="font-poppins">{content}</div>
       </MainLayout>
     );
   };
 
   const [screen, setScreen] = useState<'select' | 'playing' | 'finished'>('select');
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<Categoria | null>(null);
+  const [showExitDialog, setShowExitDialog] = useState(false);
 
   const [signos, setSignos] = useState<Signo[]>([]);
   const [loading, setLoading] = useState(false);
@@ -215,6 +231,12 @@ export function AdivinaSena() {
   const [opciones, setOpciones] = useState<string[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [usados, setUsados] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!scoreAdded) return;
+    const timer = setTimeout(() => setScoreAdded(false), 700);
+    return () => clearTimeout(timer);
+  }, [scoreAdded]);
 
   const seleccionarPregunta = (lista: Signo[], yaUsados: Set<string>) => {
     const disponibles = lista.filter(s => !yaUsados.has(s.signo_id));
@@ -264,9 +286,8 @@ export function AdivinaSena() {
 
     if (answer === currentSign.palabra) {
       setGameState('correct');
-      setScoreAdded(true);
       setScore(s => s + 1);
-      setTimeout(() => setScoreAdded(false), 600);
+      setScoreAdded(true);
     } else {
       setGameState('wrong');
     }
@@ -286,29 +307,53 @@ export function AdivinaSena() {
     seleccionarPregunta(signos, nuevosUsados);
   };
 
-  
-
   const getButtonStyle = (option: string) => {
     if (gameState === 'playing') {
-      return 'bg-[#4997D0] hover:bg-[#357ab8] text-white';
+      return `
+        bg-[#5DADE2]
+        hover:bg-[#6BB6D6]
+        text-white
+        shadow-[0_10px_25px_rgba(93,173,226,0.35)]
+      `;
     }
 
     if (option === currentSign?.palabra) {
-      return 'bg-green-500 text-white';
+      return `
+        bg-gradient-to-r from-[#22c55e] to-[#16a34a]
+        text-white
+        shadow-[0_10px_25px_rgba(34,197,94,0.4)]
+      `;
     }
 
     if (option === selectedAnswer && gameState === 'wrong') {
-      return 'bg-red-500 text-white';
+      return `
+        bg-gradient-to-r from-[#ef4444] to-[#dc2626]
+        text-white
+        shadow-[0_10px_25px_rgba(239,68,68,0.4)]
+      `;
     }
 
-    return 'bg-[#4997D0]/40 text-white';
+    return `
+      bg-[#5DADE2]/40 text-white/70
+    `;
   };
 
   if (screen === 'select') {
     const panelHeightClass = isEmbedded ? 'min-h-[calc(100vh-32px)]' : 'min-h-[620px]';
 
     return renderShell(
-      <div className={`w-full flex flex-col items-center justify-start gap-8 px-4 md:px-8 py-8 md:py-10 ${panelHeightClass} max-w-6xl mx-auto font-poppins`}>
+      <div className={`w-full flex flex-col items-center justify-start gap-8 px-4 md:px-8 py-8 md:py-10 ${panelHeightClass} max-w-6xl mx-auto`}>
+        <div className="w-full flex items-center justify-between">
+          <button
+            onClick={() => navigate('/games')}
+            className="flex items-center gap-2 px-4 py-2 rounded-[16px] bg-slate-200/60 hover:bg-slate-300/60 text-slate-700 font-semibold transition-colors duration-200"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Atrás
+          </button>
+          <div />
+        </div>
+
         <div className="text-center">
           <span className="inline-flex items-center rounded-full bg-white/75 px-4 py-1.5 text-sm font-medium text-slate-600 shadow-sm ring-1 ring-white/50 backdrop-blur-md">
             Zona de práctica
@@ -417,38 +462,50 @@ export function AdivinaSena() {
             : 'Sigue practicando 📚';
 
     return renderShell(
-      <div className="flex flex-col items-center gap-6 px-4 py-10 max-w-xl mx-auto text-center font-poppins">
-        <h2 className="text-3xl font-bold text-slate-700 dark:text-slate-200">
-          {mensaje}
-        </h2>
-
-        <div className="bg-white dark:bg-white/10 rounded-3xl p-8 w-full border border-[#4997D0]/20 flex flex-col items-center gap-4">
-          <p className="text-6xl font-extrabold text-[#4997D0]">
-            {score}/{TOTAL_PREGUNTAS}
+      <div className="max-w-3xl mx-auto px-4 py-10 flex flex-col items-center gap-6 text-center">
+        <div>
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-[-0.03em] text-slate-800">
+            {mensaje}
+          </h2>
+          <p className="mt-2 text-slate-500 text-base">
+            Terminaste la ronda. Aquí está tu resultado final.
           </p>
-          <p className="text-gray-500">respuestas correctas</p>
-
-          <div className="w-full bg-gray-200 dark:bg-white/10 rounded-full h-3">
-            <div
-              className="bg-[#4997D0] h-3 rounded-full transition-all duration-700"
-              style={{ width: `${porcentaje}%` }}
-            />
-          </div>
-
-          <p className="text-sm text-gray-400">{porcentaje}% de aciertos</p>
         </div>
 
-        <div className="flex flex-col gap-3 w-full">
+        <div className="w-full rounded-[32px] border border-white/50 bg-[linear-gradient(180deg,rgba(255,255,255,0.92)_0%,rgba(248,249,253,0.88)_100%)] shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-md p-8 md:p-10">
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-3 text-[#6D8FBC]">
+              <Trophy className="h-8 w-8" />
+              <span className="text-6xl md:text-7xl font-extrabold leading-none">
+                {score}/{TOTAL_PREGUNTAS}
+              </span>
+            </div>
+
+            <p className="mt-3 text-slate-500 text-base">respuestas correctas</p>
+          </div>
+
+          <div className="mt-6 w-full max-w-[430px] mx-auto">
+            <div className="h-4 rounded-full bg-slate-200/80 overflow-hidden shadow-inner">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-[#7BA7D1] via-[#6E8DE0] to-[#6D5CFF] transition-all duration-700"
+                style={{ width: `${porcentaje}%` }}
+              />
+            </div>
+            <p className="mt-3 text-sm text-slate-500 text-center">{porcentaje}% de aciertos</p>
+          </div>
+        </div>
+
+        <div className="w-full flex flex-col gap-3">
           <button
             onClick={() => categoriaSeleccionada && iniciarJuego(categoriaSeleccionada)}
-            className="bg-[#4997D0] hover:bg-[#357ab8] text-white py-3 rounded-xl font-semibold transition-colors"
+            className="w-full py-4 rounded-[20px] bg-gradient-to-r from-[#7BA7D1] to-[#5B8EFF] text-white font-semibold shadow-[0_12px_28px_rgba(91,142,255,0.22)] hover:scale-[1.01] transition-all"
           >
             Jugar de nuevo
           </button>
 
           <button
             onClick={() => setScreen('select')}
-            className="border border-[#4997D0] text-[#4997D0] hover:bg-[#4997D0]/10 py-3 rounded-xl font-semibold transition-colors"
+            className="w-full py-4 rounded-[20px] border border-[#7BA7D1]/60 bg-white/60 text-[#4E87C2] font-semibold hover:bg-white/75 transition-all"
           >
             Cambiar categoría
           </button>
@@ -466,150 +523,208 @@ export function AdivinaSena() {
   }
 
   return renderShell(
-    <div className="max-w-5xl mx-auto px-4 py-4 flex flex-col gap-4 font-poppins min-h-screen justify-start pt-4">
-
-      {/* HEADER */}
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-slate-500 dark:text-slate-400">
-          Pregunta {preguntaNum} de {TOTAL_PREGUNTAS}
+    <>
+    <div className="w-full flex justify-center px-3 py-6">
+      <div className="w-full max-w-[950px] flex flex-col gap-4">
+        <div className="relative z-10 w-full rounded-[28px] bg-white/18 backdrop-blur-md border border-white/30 shadow-[0_20px_50px_rgba(15,23,42,0.10)] p-4 md:p-6 flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs text-slate-700 font-semibold">Ronda actual</p>
+            <h2 className="text-lg md:text-xl font-bold tracking-[-0.03em] text-slate-800">
+              Pregunta {preguntaNum} de {TOTAL_PREGUNTAS}
+            </h2>
+          </div>
+          <button
+            onClick={() => setShowExitDialog(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-[14px] bg-red-500/90 hover:bg-red-600 text-white font-semibold text-sm transition-colors duration-200"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            Salir
+          </button>
         </div>
-      </div>
 
-      {/* BARRA DE PROGRESO */}
-      <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-gradient-to-r from-[#7aa7d9] to-[#5c8ec4] transition-all duration-500"
-          style={{ width: `${((preguntaNum - 1) / TOTAL_PREGUNTAS) * 100}%` }}
-        />
-      </div>
+        <div className="w-full h-2 bg-white/30 rounded-full overflow-hidden shadow-inner">
+          <div
+            className="h-full bg-gradient-to-r from-[#82AEE3] via-[#8A8CE4] to-[#6E7ED9] transition-all duration-500"
+            style={{ width: `${((preguntaNum - 1) / TOTAL_PREGUNTAS) * 100}%` }}
+          />
+        </div>
 
-      {/* CONTENIDO PRINCIPAL */}
-      <div className="grid md:grid-cols-[1fr_1fr] gap-6">
-
-        {/* VIDEO CARD */}
-        <div className="rounded-3xl overflow-hidden bg-transparent shadow-none border-0 flex items-center justify-center">
-  <VideoPlayer videoUrl={currentSign.url_video} signLabel="???" active={true} />
-</div>
-
-        {/* PANEL DERECHO */}
-        <div className="flex flex-col gap-4">
-
-          <div className="rounded-2xl p-4 bg-white/70 dark:bg-slate-800/70 backdrop-blur-md border border-white/40 dark:border-slate-700/40 shadow-sm">
-            <p className="text-sm text-slate-500 dark:text-slate-400">Instrucción</p>
-            <p className="font-medium text-slate-700 dark:text-slate-200 mt-1">
-              Observa la seña y selecciona la respuesta correcta
-            </p>
+        <div className="grid lg:grid-cols-[1.5fr_0.8fr] gap-3 items-stretch w-full">
+          <div className="relative rounded-[20px] overflow-hidden w-full aspect-video bg-transparent shadow-[0_6px_14px_rgba(0,0,0,0.12)]">
+            <VideoPlayer videoUrl={currentSign.url_video} signLabel="???" active={true} />
           </div>
 
-          <div className="rounded-[28px] p-4 bg-gradient-to-br from-[#edf3fb] via-[#e9f0fb] to-[#eef3fa] dark:from-slate-700 dark:to-slate-800 border border-[#dbe6f2] dark:border-slate-600 shadow-[0_14px_28px_rgba(15,23,42,0.08)]">
-  <div className="flex items-center gap-4">
-    <div className="h-20 w-20 shrink-0 rounded-2xl bg-white/70 flex items-center justify-center shadow-inner">
-      <img
-        src="https://media.giphy.com/media/fUQ4rhUZJYiQsas6WD/giphy.gif"
-        alt="mascota animada"
-        className="h-16 w-16 object-contain"
-      />
-    </div>
+          <div className="rounded-[28px] p-4 bg-gradient-to-br from-[#5B21B6] via-[#6D28D9] to-[#7C3AED] shadow-[0_25px_60px_rgba(0,0,0,0.22)] text-white relative overflow-hidden flex flex-col items-center justify-center min-h-full gap-5">
+            <div className="absolute bottom-0 right-0 w-28 h-28 rounded-full bg-white/5 blur-3xl" />
+            <div className="absolute top-0 left-0 w-24 h-24 rounded-full bg-white/3 blur-2xl" />
 
-    <div className="flex-1">
-      <p className="text-sm text-slate-500 dark:text-slate-400">Puntos</p>
-      <p className={`text-4xl font-bold text-[#5c8ec4] leading-none transition-all duration-300 ${
-        scoreAdded ? 'scale-125 text-green-500' : 'scale-100'
-      }`}>{score}</p>
-      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-        Sigue así, vas avanzando muy bien.
-      </p>
-    </div>
-  </div>
-</div> 
+            <div className="relative z-10 flex flex-col gap-3 w-full">
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-white/70 font-semibold">
+                  Ronda actual
+                </p>
 
+                <h3 className="mt-2 text-base font-bold leading-tight text-white">
+                  Elige la opción correcta
+                </h3>
+
+                <p className="mt-1 text-xs text-white/80 leading-relaxed">
+                  Observa la seña del video y responde correctamente.
+                </p>
+              </div>
+
+              <div className="h-px bg-white/20" />
+
+              <div className="flex items-center gap-2">
+                <div className="h-11 w-11 rounded-lg overflow-hidden flex items-center justify-center bg-white/20 border border-white/30">
+                  <img
+                    src="https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3bTdzcjBieTg1cmNrN3Y4ZHJxOXhtM21hbDdzczJwYnJ6b2R4NmNybSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/Fj0MaDHcLycOk/giphy.gif"
+                    alt="Mascota animada"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-white/80">Compañero</p>
+                  <p className="font-semibold text-sm text-white">¡Sigue así!</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="relative z-10 text-center">
+              <p className="text-[10px] tracking-widest text-white/70 font-semibold uppercase">
+                Puntuación
+              </p>
+              <p className={`text-4xl font-extrabold mt-2 transition-all duration-300 text-white ${scoreAdded ? 'scale-110' : ''}`}>
+                {score}
+              </p>
+              <p className="text-xs text-white/60 mt-0.5">de {TOTAL_PREGUNTAS}</p>
+
+              {scoreAdded && (
+                <span className="inline-block mt-2 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white">
+                  +1 punto
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
+          {opciones.map(option => (
+            <button
+              key={option}
+              onClick={() => handleAnswer(option)}
+              disabled={gameState !== 'playing'}
+              className={`
+                py-4 rounded-[18px] px-3 text-center font-semibold text-sm uppercase
+                transition-all duration-200 disabled:cursor-not-allowed
+                hover:scale-[1.03] active:scale-[0.97]
+                ${getButtonStyle(option)}
+              `}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+
+        {gameState !== 'playing' && (
+          <div className="relative flex flex-col items-center gap-0 -mt-4">
+            {gameState === 'correct' && <ConfettiBurst />}
+
+            <div
+              className={`
+                rounded-[20px] px-5 py-3
+                bg-white/10 backdrop-blur-xl
+                border border-white/20
+                shadow-[0_15px_40px_rgba(0,0,0,0.20)]
+                text-center
+                ${gameState === 'correct' ? 'animate-[balloonFloat_2.2s_ease-out_forwards]' : 'animate-[popIn_0.35s_ease]'}
+                ${gameState === 'correct' ? 'border-[#86EFAC]' : 'border-[#FCA5A5]'}
+              `}
+            >
+              <p className="text-base font-bold text-slate-800">
+                {gameState === 'correct'
+                  ? '¡Correcto! +1 punto'
+                  : `La respuesta correcta era ${currentSign.palabra.toUpperCase()}`}
+              </p>
+
+              <p className="mt-1 text-xs text-slate-600">
+                {gameState === 'correct'
+                  ? 'Excelente, continúa con la siguiente ronda.'
+                  : 'No te preocupes, inténtalo de nuevo en la próxima.'}
+              </p>
+            </div>
+
+            <button
+              onClick={handleNext}
+              className="bg-gradient-to-r from-[#8B7CFF] to-[#6D5CFF] hover:from-[#988BFF] hover:to-[#7868FF] text-white px-6 py-2.5 rounded-[18px] font-semibold text-sm shadow-[0_10px_25px_rgba(0,0,0,0.18)] hover:scale-[1.03] transition-all active:scale-[0.98]"
+            >
+              {preguntaNum >= TOTAL_PREGUNTAS ? 'Ver resultados' : 'Siguiente'}
+            </button>
+
+            <style>{`
+              @keyframes popIn {
+                0% {
+                  transform: scale(0.92) translateY(8px);
+                  opacity: 0;
+                }
+                100% {
+                  transform: scale(1) translateY(0);
+                  opacity: 1;
+                }
+              }
+              @keyframes balloonFloat {
+                0% {
+                  transform: scale(0.92) translateY(8px);
+                  opacity: 0;
+                }
+                12% {
+                  transform: scale(1) translateY(0);
+                  opacity: 1;
+                }
+                85% {
+                  transform: translateY(-140px);
+                  opacity: 1;
+                }
+                100% {
+                  transform: translateY(-180px);
+                  opacity: 0;
+                }
+              }
+            `}</style>
+          </div>
+        )}
         </div>
       </div>
+    </div>
 
-      {/* OPCIONES */}
-      <div className="grid grid-cols-2 gap-4">
-        {opciones.map(option => (
-          <button
-            key={option}
-            onClick={() => handleAnswer(option)}
-            disabled={gameState !== 'playing'}
-            className={`
-              py-5 rounded-2xl font-medium text-lg uppercase tracking-wide
-              transition-all duration-200
-              ${getButtonStyle(option)}
-              hover:scale-[1.03] active:scale-[0.98] disabled:cursor-not-allowed
-              shadow-[0_10px_20px_rgba(0,0,0,0.08)]
-            `}
+    <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Si sales ahora, perderás todo tu progreso en esta partida.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Seguir jugando</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              setShowExitDialog(false);
+              setScreen('select');
+              setScore(0);
+              setPreguntaNum(1);
+              setUsados(new Set());
+              setCategoriaSeleccionada(null);
+            }}
+            className="bg-red-500 hover:bg-red-600"
           >
-            {option}
-          </button>
-        ))}
-      </div>
-
-      {/* FEEDBACK */}
-      {gameState !== 'playing' && (
-  <div className="flex flex-col items-center gap-3 relative mt-6">
-    {gameState === 'correct' && <Confetti />}
-
-    <div
-      className={`
-        rounded-full px-8 py-6 shadow-[0_20px_50px_rgba(15,23,42,0.15)]
-        border backdrop-blur-xl
-        ${gameState === 'correct'
-          ? 'bg-white/40 border-[#86efac]/30'
-          : 'bg-white/40 border-[#fca5a5]/30'
-        }
-        animate-float-up
-      `}
-    >
-      <p className="text-lg font-bold text-slate-800 text-center">
-        {gameState === 'correct'
-          ? '¡Correcto! +1 punto'
-          : `La respuesta era ${currentSign?.palabra.toUpperCase()}`}
-      </p>
-      <p className="mt-1 text-sm text-slate-600 text-center">
-        {gameState === 'correct'
-          ? 'Muy bien, sigue avanzando.'
-          : 'No te preocupes, inténtalo en la siguiente.'}
-      </p>
-    </div>
-
-    <button
-      onClick={handleNext}
-      className="bg-gradient-to-r from-[#7aa7d9] to-[#5c8ec4] text-white px-8 py-3 rounded-xl font-medium shadow hover:opacity-90 transition-opacity"
-    >
-      {preguntaNum >= TOTAL_PREGUNTAS ? 'Ver resultados' : 'Siguiente'}
-    </button>
-
-    <style>{`
-      @keyframes bubble-float {
-        0% {
-          opacity: 0;
-          transform: translateY(60px) scale(0.8);
-        }
-        10% {
-          opacity: 1;
-          transform: translateY(45px) scale(0.95);
-        }
-        50% {
-          opacity: 1;
-          transform: translateY(0px) scale(1);
-        }
-        90% {
-          opacity: 0.3;
-          transform: translateY(-50px) scale(1.05);
-        }
-        100% {
-          opacity: 0;
-          transform: translateY(-80px) scale(1.1);
-        }
-      }
-      .animate-float-up {
-        animation: bubble-float 4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-      }
-    `}</style>
-  </div>
-)}
-    </div>
+            Salir
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }

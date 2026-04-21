@@ -23,8 +23,7 @@ export function VideoPlayer({ videoUrl, signLabel, active = true }: VideoPlayerP
 
   return (
     <div
-      className=""
-      style={{ width: 420, marginLeft: 0, alignSelf: 'flex-start' }}
+      className="w-full"
     >
       <div className="relative bg-gray-900 rounded-[12px] overflow-hidden aspect-video shadow-sm">
         {/* Video */}
