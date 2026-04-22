@@ -21,10 +21,17 @@ export function MainLayout({
   showClearButton = true,
   onNewConversation,
 }: MainLayoutProps) {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem('segua_sidebar_collapsed');
+    return saved ? JSON.parse(saved) : false;
+  });
 
   const handleNavbarToggle = () => {
-    setIsSidebarCollapsed((prev) => !prev);
+    setIsSidebarCollapsed((prev) => {
+      const newState = !prev;
+      localStorage.setItem('segua_sidebar_collapsed', JSON.stringify(newState));
+      return newState;
+    });
   };
 
   const isDictionaryPage = activePage === 'dictionary';
@@ -32,12 +39,8 @@ export function MainLayout({
   const sidebarCollapsed = isSidebarCollapsed;
 
   useEffect(() => {
-    if (isGamesPage) {
-      setIsSidebarCollapsed(true);
-    } else {
-      setIsSidebarCollapsed(false);
-    }
-  }, [isGamesPage]);
+    localStorage.setItem('segua_sidebar_collapsed', JSON.stringify(isSidebarCollapsed));
+  }, [isSidebarCollapsed]);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#f7f8fa] dark:bg-[rgba(10,10,10,0.82)]">

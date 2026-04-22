@@ -43,7 +43,10 @@ export function Chat() {
   const [currentConversationId, setCurrentConversationId] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem('segua_sidebar_collapsed');
+    return saved ? JSON.parse(saved) : false;
+  });
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [notFoundWord, setNotFoundWord] = useState('');
   const [showNotFoundDialog, setShowNotFoundDialog] = useState(false);
@@ -102,6 +105,10 @@ export function Chat() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    localStorage.setItem('segua_sidebar_collapsed', JSON.stringify(isSidebarCollapsed));
+  }, [isSidebarCollapsed]);
 
   const handleNewConversation = () => {
     setCurrentConversationId('');
