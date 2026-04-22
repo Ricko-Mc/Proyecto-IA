@@ -27,7 +27,7 @@ export function MainLayout({
   });
 
   const handleNavbarToggle = () => {
-    setIsSidebarCollapsed((prev) => {
+    setIsSidebarCollapsed((prev: boolean) => {
       const newState = !prev;
       localStorage.setItem('segua_sidebar_collapsed', JSON.stringify(newState));
       return newState;

@@ -408,13 +408,11 @@ export function Chat() {
         
         <Navbar
           title="Chat"
-          onToggleSidebar={() => setIsSidebarCollapsed((prev) => !prev)}
+          onToggleSidebar={() => setIsSidebarCollapsed((prev: boolean) => !prev)}
           onClearConversation={handleClearConversation}
           onSearch={handleNavbarSearch}
           activePage="chat"
-        />
-
-          
+        />        
 
         
         <div
