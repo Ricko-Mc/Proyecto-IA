@@ -1,3 +1,3 @@
-from . import admin_usuarios, auth, chat, estadisticas, favoritos, reportes, salud, signos
+from . import chat, estadisticas, salud, signos
 
-__all__ = ["admin_usuarios", "auth", "chat", "estadisticas", "favoritos", "reportes", "salud", "signos"]
+__all__ = ["chat", "estadisticas", "salud", "signos"]

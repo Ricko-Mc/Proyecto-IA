@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { User, Settings, HelpCircle, Info } from 'lucide-react';
+import { User, Info } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import {
   DropdownMenu,
@@ -39,16 +39,16 @@ export function UserProfileDropdown({
             </Avatar>
           </button>
         ) : (
-          <button className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-sidebar-accent transition-all duration-200 ease-in-out w-full">
-            <Avatar className="w-9 h-9">
+          <button className="flex items-center gap-3 p-2.5 rounded-[12px] bg-white/30 dark:bg-white/5 backdrop-blur-sm border border-white/40 dark:border-white/10 hover:bg-white/40 dark:hover:bg-white/10 transition-all duration-200 ease-in-out w-full focus:outline-none focus:ring-0">
+            <Avatar className="w-9 h-9 flex-shrink-0">
               <AvatarImage src={avatarUrl ?? undefined} alt={userName} />
               <AvatarFallback className="bg-[#4997D0] text-white">
                 <User className="w-4 h-4" />
               </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0 text-left">
-              <p className="text-xs font-medium truncate" style={{ fontFamily: 'Poppins, sans-serif' }}>{userName}</p>
-              <p className="text-[10px] text-muted-foreground truncate" style={{ fontFamily: 'Poppins, sans-serif' }}>{userEmail}</p>
+              <p className="text-sm font-semibold truncate" style={{ fontFamily: 'Poppins, sans-serif', lineHeight: '1.2' }}>{userName}</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 truncate" style={{ fontFamily: 'Poppins, sans-serif', lineHeight: '1.2' }}>{userEmail}</p>
             </div>
           </button>
         )}
@@ -80,21 +80,6 @@ export function UserProfileDropdown({
         <DropdownMenuSeparator className="my-1.5" />
 
         
-        <DropdownMenuItem
-          onClick={() => navigate('/settings')}
-          className="px-3 py-2 cursor-pointer rounded-md transition-all duration-200 ease-in-out focus:bg-accent focus:text-accent-foreground"
-        >
-          <Settings className="w-4 h-4 mr-2 text-muted-foreground" />
-          <span className="text-xs" style={{ fontFamily: 'Poppins, sans-serif' }}>Ajustes</span>
-        </DropdownMenuItem>
-
-        <DropdownMenuItem
-          onClick={() => navigate('/help')}
-          className="px-3 py-2 cursor-pointer rounded-md transition-all duration-200 ease-in-out focus:bg-accent focus:text-accent-foreground"
-        >
-          <HelpCircle className="w-4 h-4 mr-2 text-muted-foreground" />
-          <span className="text-xs" style={{ fontFamily: 'Poppins, sans-serif' }}>Obtener ayuda</span>
-        </DropdownMenuItem>
 
         <DropdownMenuItem
           onClick={() => navigate('/about')}

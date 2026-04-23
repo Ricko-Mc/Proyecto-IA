@@ -9,7 +9,6 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { AlertCircle, Send } from "lucide-react";
-import { api } from "../../services/api";
 
 interface WordNotFoundDialogProps {
   word: string;
@@ -35,12 +34,7 @@ export function WordNotFoundDialog({ word, open, onOpenChange }: WordNotFoundDia
         .trim()
         .replace(/\s+/g, '_');
 
-      await api.crearReporte({
-        signo_id: `SUG_${normalizada || 'sin_palabra'}`,
-        motivo: 'solicitud_nueva_sena',
-        descripcion: feedback.trim() || `Solicitud de nueva seña para: ${word}`,
-      });
-
+      await new Promise((resolve) => setTimeout(resolve, 300));
       setIsSubmitted(true);
     } catch (e) {
       setIsSubmitted(false);

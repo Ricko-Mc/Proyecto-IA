@@ -1,0 +1,37 @@
+<svg width="768" height="640" viewBox="0 0 768 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="768" y2="640" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7FCFF"/>
+      <stop offset="1" stop-color="#E6F4FF"/>
+    </linearGradient>
+    <linearGradient id="card" x1="200" y1="150" x2="560" y2="450" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#71D7F8"/>
+      <stop offset="1" stop-color="#3B8FE3"/>
+    </linearGradient>
+  </defs>
+  <rect width="768" height="640" rx="32" fill="url(#bg)"/>
+  <circle cx="184" cy="140" r="50" fill="#CFEFFF" opacity="0.8"/>
+  <circle cx="610" cy="144" r="42" fill="#B7E7FF" opacity="0.6"/>
+  <path d="M116 454 C186 418 248 400 320 396 C420 390 520 406 654 446" stroke="#8CCFF6" stroke-width="18" stroke-linecap="round" opacity="0.7"/>
+
+  <g transform="translate(160 162)">
+    <rect x="0" y="28" width="188" height="236" rx="24" fill="#FFFFFF" opacity="0.95" stroke="#7CCDF1" stroke-width="6"/>
+    <rect x="22" y="52" width="144" height="22" rx="11" fill="#DDEFFF"/>
+    <rect x="22" y="92" width="144" height="22" rx="11" fill="#E9F6FF"/>
+    <rect x="22" y="132" width="106" height="22" rx="11" fill="#DDEFFF"/>
+    <circle cx="92" cy="186" r="40" fill="url(#card)"/>
+    <path d="M92 166 C102 176 108 188 108 202" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+    <path d="M78 180 C90 176 101 176 115 182" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(404 124)">
+    <rect x="0" y="0" width="220" height="300" rx="28" fill="#FFFFFF" opacity="0.98" stroke="#8FE2E0" stroke-width="6"/>
+    <path d="M42 84 C68 60 96 48 124 48 C164 48 196 70 196 108 C196 145 162 174 122 174" stroke="#3A7FB8" stroke-width="12" stroke-linecap="round"/>
+    <circle cx="72" cy="214" r="24" fill="#8CD8FF"/>
+    <circle cx="120" cy="214" r="24" fill="#66C6FF"/>
+    <circle cx="168" cy="214" r="24" fill="#40D7CF"/>
+    <path d="M72 214 L120 214 L168 214" stroke="#7AAFD9" stroke-width="8" stroke-linecap="round"/>
+  </g>
+
+  <text x="384" y="562" text-anchor="middle" fill="#2D79D8" font-family="Poppins, Arial, sans-serif" font-size="44" font-weight="700">Relaciona y recuerda</text>
+</svg>

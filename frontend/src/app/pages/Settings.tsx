@@ -94,9 +94,9 @@ export function Settings() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-background pb-20 md:pb-0">
+    <div className="min-h-screen bg-background dark:bg-[#0a0a0a] pb-20 md:pb-0">
       
-      <div className="border-b border-border bg-background sticky top-0 z-10">
+      <div className="border-b border-border dark:border-[#2a2a2a] bg-background dark:bg-[#101010] sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-3 sm:px-4 py-3 flex items-center gap-3">
           <Button
             variant="ghost"
@@ -107,7 +107,7 @@ export function Settings() {
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <GuatemalanFlag size={24} />
-          <h1 className="text-base font-semibold">Ajustes</h1>
+          <h1 className="text-base font-semibold dark:text-[#efefef]">Ajustes</h1>
         </div>
       </div>
 
@@ -225,34 +225,6 @@ export function Settings() {
           >
             Guardar cambios
           </Button>
-
-          {user.roles?.some((rol) => rol === 'admin' || rol === 'moderador') ? (
-            <div className="rounded-xl border border-border p-3 sm:p-4 space-y-2">
-              <h2 className="text-sm font-semibold flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#4997D0]" />
-                Modo administrador
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                Revisa y gestiona las solicitudes de señas enviadas por los usuarios.
-              </p>
-              <Button
-                onClick={() => navigate('/admin/reportes')}
-                variant="outline"
-                className="w-full"
-              >
-                Ir a gestión de solicitudes
-              </Button>
-              {user.roles?.includes('admin') ? (
-                <Button
-                  onClick={() => navigate('/admin/usuarios')}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Ir a gestión de usuarios
-                </Button>
-              ) : null}
-            </div>
-          ) : null}
         </div>
       </div>
 

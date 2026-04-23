@@ -7,6 +7,7 @@ class ServicioSignos:
         """Inicializa el servicio de signos con acceso a Prolog."""
         self.puente_prolog = puente_prolog
         self._cache_busqueda = CacheTTL[str, dict](ttl_seconds=600, max_items=1024)
+        self._cache_por_categoria: dict[str, dict] = {}
 
     def obtener_todos(self) -> list[dict]:
         """Obtiene todos los signos con sus URLs de video."""
@@ -22,11 +23,19 @@ class ServicioSignos:
 
     def obtener_por_categoria(self, categoria: str) -> dict:
         """Obtiene todos los signos de una categoría con URLs de video."""
+        cache_key = self.puente_prolog.normalizar(categoria)
+        cached = self._cache_por_categoria.get(cache_key)
+        if cached is not None:
+            return cached
+
         signos = self.puente_prolog.obtener_signos_por_categoria(categoria)
         for signo in signos:
             referencia = self.puente_prolog.obtener_youtube_referencia_por_signo(signo["signo_id"])
             signo["url_video"] = construir_url_embed_youtube(referencia)
-        return {"categoria": categoria, "total": len(signos), "signos": signos}
+
+        resultado = {"categoria": categoria, "total": len(signos), "signos": signos}
+        self._cache_por_categoria[cache_key] = resultado
+        return resultado
 
     def buscar(self, palabra: str) -> dict:
         """Busca un signo por palabra y retorna información con URL de video."""

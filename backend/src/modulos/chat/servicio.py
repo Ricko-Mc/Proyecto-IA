@@ -2,21 +2,12 @@ from src.utilidades.puente_prolog import PuenteProlog
 from src.utilidades.agente_ia import AgenteIA
 from src.utilidades.youtube import construir_url_embed_youtube
 from src.utilidades.cache_ttl import CacheTTL
-from src.utilidades.supabase_client import (
-    actualizar_estadisticas_signo,
-    actualizar_estadisticas_usuario,
-    crear_conversacion,
-    guardar_mensaje,
-    obtener_cliente_supabase,
-    registrar_bitacora,
-)
 
 class ServicioChat:
     def __init__(self, puente_prolog: PuenteProlog, agente_ia: AgenteIA):
         """Inicializa el servicio de chat con dependencias inyectadas."""
         self.puente_prolog = puente_prolog
         self.agente_ia = agente_ia
-        self.supabase = obtener_cliente_supabase()
         self._cache_respuestas = CacheTTL[str, dict](ttl_seconds=300, max_items=512)
 
     def _inferir_categoria_por_contexto(self, mensaje: str) -> str | None:
@@ -82,15 +73,16 @@ class ServicioChat:
         mensaje: str,
         conversacion_id: str | None = None,
         clave_desambiguacion: str | None = None,
-        usuario_id: str | None = None,
-        ip: str | None = None,
     ) -> dict:
         """Procesa un mensaje: extrae palabra clave, busca signo y genera respuesta contextual."""
         cache_key = f"{mensaje.strip().lower()}|{(clave_desambiguacion or '').strip().lower()}"
         cache_hit = self._cache_respuestas.get(cache_key)
 
         if cache_hit is not None:
-            tipo_respuesta = cache_hit.get("tipo_respuesta", "video" if cache_hit.get("signo_encontrado") else "texto")
+            tipo_respuesta = cache_hit.get(
+                "tipo_respuesta",
+                "video" if cache_hit.get("signo_encontrado") else "no_encontrado",
+            )
             palabra_clave = cache_hit["palabra_clave"]
             signo_info = {
                 "encontrado": cache_hit["signo_encontrado"],
@@ -105,8 +97,8 @@ class ServicioChat:
             opciones = cache_hit.get("opciones")
         else:
             extraccion = self.agente_ia.extraer_palabra_clave(mensaje)
-            palabra_clave = extraccion["palabra_normalizada"]
-            categoria_contexto = self._inferir_categoria_por_contexto(mensaje)
+            palabra_clave = self.puente_prolog.normalizar(extraccion["palabra_normalizada"])
+            categoria_contexto = extraccion.get("categoria_sugerida") or self._inferir_categoria_por_contexto(mensaje)
             opciones = None
 
             coincidencias = self.puente_prolog.buscar_signos_por_palabra(palabra_clave)
@@ -178,7 +170,7 @@ class ServicioChat:
             if signo_info["encontrado"]:
                 url_video = construir_url_embed_youtube(signo_info.get("youtube_referencia"))
             respuesta_ia = self.agente_ia.generar_respuesta_contextual(mensaje, signo_info)
-            tipo_respuesta = "video" if signo_info["encontrado"] else "texto"
+            tipo_respuesta = "video" if signo_info["encontrado"] else "no_encontrado"
             self._cache_respuestas.set(
                 cache_key,
                 {
@@ -194,36 +186,6 @@ class ServicioChat:
             )
 
         conversacion_resuelta = conversacion_id or ""
-        if self.supabase and usuario_id:
-            if not conversacion_resuelta:
-                conversacion = crear_conversacion(usuario_id, mensaje[:60])
-                conversacion_resuelta = conversacion.get("id") or ""
-            if conversacion_resuelta:
-                guardar_mensaje(
-                    conversacion_resuelta,
-                    "usuario",
-                    mensaje,
-                    palabra_clave,
-                    signo_info["signo_id"],
-                    url_video,
-                )
-                guardar_mensaje(
-                    conversacion_resuelta,
-                    "asistente",
-                    respuesta_ia,
-                    palabra_clave,
-                    signo_info["signo_id"],
-                    url_video,
-                )
-            if signo_info["encontrado"] and signo_info["signo_id"]:
-                actualizar_estadisticas_signo(
-                    signo_info["signo_id"],
-                    palabra_clave,
-                    categoria_info["categoria"] if categoria_info["encontrado"] else None,
-                )
-            actualizar_estadisticas_usuario(usuario_id)
-            registrar_bitacora(usuario_id, "chat", f"Consulta por {palabra_clave}", ip)
-
         return {
             "tipo_respuesta": tipo_respuesta,
             "mensaje_usuario": mensaje,

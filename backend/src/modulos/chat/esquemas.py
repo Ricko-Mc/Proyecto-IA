@@ -13,7 +13,7 @@ class OpcionDesambiguacion(BaseModel):
     clave: str
 
 class RespuestaChatResponse(BaseModel):
-    tipo_respuesta: Literal["video", "desambiguacion", "texto"] = "texto"
+    tipo_respuesta: Literal["video", "desambiguacion", "no_encontrado", "error_backend"] = "no_encontrado"
     mensaje_usuario: str
     conversacion_id: str
     palabra_clave: str

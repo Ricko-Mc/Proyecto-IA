@@ -6,19 +6,12 @@ import {
   RespuestaPorCategoria,
   BusquedaSigno,
   HealthCheck,
-  LoginRequest,
-  RegisterRequest,
-  AuthResponse,
-  Reporte,
-  CrearReporteRequest,
-  ActualizarReporteRequest,
-  RolSistema,
-  UsuarioAdmin,
-  CrearUsuarioAdminRequest,
-  AsignarRolUsuarioRequest,
 } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const rawApiUrl = import.meta.env.VITE_API_URL;
+const API_BASE_URL = rawApiUrl
+  ? `${rawApiUrl.replace(/\/+$|\/api$/g, '').replace(/\/api$/, '')}/api`
+  : '/api';
 
 const clienteApi = axios.create({
   baseURL: API_BASE_URL,
@@ -27,13 +20,9 @@ const clienteApi = axios.create({
   },
 });
 
-clienteApi.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+const cache: Record<string, any> = {};
+const categoryCache: Record<string, any> = {};
+const pendingRequests: Record<string, Promise<any> | undefined> = {};
 
 async function requestAPI<T>(
   method: 'get' | 'post' | 'delete' | 'patch',
@@ -73,18 +62,69 @@ export const api = {
   },
 
   obtenerTodosLosSignos: async (): Promise<RespuestaSignos> => {
-    return requestAPI<RespuestaSignos>('get', '/signos');
+    const cacheKey = '/signos';
+    if (cache[cacheKey]) {
+      return cache[cacheKey];
+    }
+    if (pendingRequests[cacheKey]) {
+      return pendingRequests[cacheKey];
+    }
+    pendingRequests[cacheKey] = requestAPI<RespuestaSignos>('get', cacheKey)
+      .then((resultado) => {
+        cache[cacheKey] = resultado;
+        delete pendingRequests[cacheKey];
+        return resultado;
+      })
+      .catch((error) => {
+        delete pendingRequests[cacheKey];
+        throw error;
+      });
+    return pendingRequests[cacheKey];
   },
 
   obtenerCategorias: async (): Promise<RespuestaCategorias> => {
-    return requestAPI<RespuestaCategorias>('get', '/categorias');
+    const cacheKey = '/categorias';
+    if (cache[cacheKey]) {
+      return cache[cacheKey];
+    }
+    if (pendingRequests[cacheKey]) {
+      return pendingRequests[cacheKey];
+    }
+    pendingRequests[cacheKey] = requestAPI<RespuestaCategorias>('get', cacheKey)
+      .then((resultado) => {
+        cache[cacheKey] = resultado;
+        delete pendingRequests[cacheKey];
+        return resultado;
+      })
+      .catch((error) => {
+        delete pendingRequests[cacheKey];
+        throw error;
+      });
+    return pendingRequests[cacheKey];
   },
 
   obtenerSignosPorCategoria: async (categoria: string): Promise<RespuestaPorCategoria> => {
-    return requestAPI<RespuestaPorCategoria>(
+    const cacheKey = categoria;
+    if (categoryCache[cacheKey]) {
+      return categoryCache[cacheKey];
+    }
+    if (pendingRequests[cacheKey]) {
+      return pendingRequests[cacheKey];
+    }
+    pendingRequests[cacheKey] = requestAPI<RespuestaPorCategoria>(
       'get',
       `/categorias/${encodeURIComponent(categoria)}`
-    );
+    )
+      .then((resultado) => {
+        categoryCache[cacheKey] = resultado;
+        delete pendingRequests[cacheKey];
+        return resultado;
+      })
+      .catch((error) => {
+        delete pendingRequests[cacheKey];
+        throw error;
+      });
+    return pendingRequests[cacheKey];
   },
 
   buscarSigno: async (palabra: string): Promise<BusquedaSigno> => {
@@ -96,51 +136,5 @@ export const api = {
 
   verificarSalud: async (): Promise<HealthCheck> => {
     return requestAPI<HealthCheck>('get', '/health');
-  },
-
-  login: async (data: LoginRequest): Promise<AuthResponse> => {
-    return requestAPI<AuthResponse>('post', '/auth/login', data);
-  },
-
-  register: async (data: RegisterRequest): Promise<AuthResponse> => {
-    return requestAPI<AuthResponse>('post', '/auth/register', data);
-  },
-
-  loginGoogle: async (): Promise<{ url: string }> => {
-    return requestAPI<{ url: string }>('get', '/auth/google');
-  },
-
-  perfil: async (): Promise<AuthResponse> => {
-    return requestAPI<AuthResponse>('get', '/auth/me');
-  },
-
-  crearReporte: async (data: CrearReporteRequest): Promise<Reporte> => {
-    return requestAPI<Reporte>('post', '/reportes', data);
-  },
-
-  listarReportes: async (estado?: string): Promise<Reporte[]> => {
-    const suffix = estado ? `?estado=${encodeURIComponent(estado)}` : '';
-    return requestAPI<Reporte[]>('get', `/reportes${suffix}`);
-  },
-
-  actualizarReporte: async (reporteId: string, data: ActualizarReporteRequest): Promise<Reporte> => {
-    return requestAPI<Reporte>('patch', `/reportes/${encodeURIComponent(reporteId)}`, data);
-  },
-
-  listarRolesSistema: async (): Promise<RolSistema[]> => {
-    return requestAPI<RolSistema[]>('get', '/admin/usuarios/roles');
-  },
-
-  listarUsuariosAdmin: async (email?: string): Promise<UsuarioAdmin[]> => {
-    const suffix = email ? `?email=${encodeURIComponent(email)}` : '';
-    return requestAPI<UsuarioAdmin[]>('get', `/admin/usuarios${suffix}`);
-  },
-
-  crearUsuarioAdmin: async (data: CrearUsuarioAdminRequest): Promise<UsuarioAdmin> => {
-    return requestAPI<UsuarioAdmin>('post', '/admin/usuarios', data);
-  },
-
-  asignarRolUsuario: async (data: AsignarRolUsuarioRequest): Promise<UsuarioAdmin> => {
-    return requestAPI<UsuarioAdmin>('patch', '/admin/usuarios/rol', data);
   },
 };
