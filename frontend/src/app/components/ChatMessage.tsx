@@ -210,7 +210,7 @@ export function ChatMessage({
             )}
           </div>
         ) : message.videoUrl && message.signLabel ? (
-          <div className="space-y-2">
+          <div className="space-y-2 max-w-md">
             {message.text ? (
               <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">
                 <p className="text-sm text-foreground">{message.text}</p>

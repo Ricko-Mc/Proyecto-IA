@@ -7,6 +7,7 @@ signo(blanco, colores, 'COL006').
 signo(rosado, colores, 'COL007').
 signo(morado, colores, 'COL008').
 signo(anaranjado, colores, 'COL009').
+signo(naranja, colores, 'COL009').
 signo(cafe, colores, 'COL010').
 signo(gris, colores, 'COL011').
 
