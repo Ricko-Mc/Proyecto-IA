@@ -65,7 +65,7 @@ export function Sidebar({
     },
     {
       path: '/games',
-      label: 'Juego',
+      label: 'Juegos',
       icon: Gamepad,
     },
   ];
