@@ -29,7 +29,7 @@ const GAME_CARDS: GameCard[] = [
     imageSrc: '/adivina%20la%20se%C3%B1a.png',
   },
   {
-    id: 'completa-frase',
+    id: 'ahorcado',
     title: 'Ahorcado',
     description: 'Adivina la palabra en señas antes de quedarte sin intentos.',
     cta: 'Jugar',
@@ -122,13 +122,13 @@ export function GameCarousel() {
             const activeGlow =
               card.id === 'adivina-sena'
                 ? '0 22px 58px rgba(0,0,0,0.22), 0 0 40px rgba(0,180,255,0.26)'
-                : card.id === 'completa-frase'
+                : card.id === 'ahorcado'
                 ? '0 22px 58px rgba(0,0,0,0.22), 0 0 40px rgba(123,97,255,0.3)'
                 : '0 22px 58px rgba(0,0,0,0.22), 0 0 40px rgba(64,214,168,0.28)';
             const overlayColor =
               card.id === 'adivina-sena'
                 ? 'rgba(124,58,237,0.92)'
-                : card.id === 'completa-frase'
+                : card.id === 'ahorcado'
                 ? 'rgba(73,126,255,0.92)'
                 : 'rgba(143,112,255,0.88)';
 

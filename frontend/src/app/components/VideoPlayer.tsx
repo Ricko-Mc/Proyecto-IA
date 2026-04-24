@@ -5,9 +5,10 @@ interface VideoPlayerProps {
   videoUrl: string;
   signLabel: string;
   active?: boolean;
+  showLabel?: boolean;
 }
 
-export function VideoPlayer({ videoUrl, signLabel, active = true }: VideoPlayerProps) {
+export function VideoPlayer({ videoUrl, signLabel, active = true, showLabel = true }: VideoPlayerProps) {
   const embedUrl = toYouTubeEmbedUrl(videoUrl);
   const thumbnailUrl = toYouTubeThumbnailUrl(videoUrl);
 
@@ -36,32 +37,34 @@ export function VideoPlayer({ videoUrl, signLabel, active = true }: VideoPlayerP
         />
 
         {/* Texto superpuesto, alineado a la izquierda y centrado verticalmente */}
-        <div
-          className="absolute left-4 top-1/2 -translate-y-1/2"
-          style={{ pointerEvents: 'none' }}
-        >
-          <span
-            className="text-white font-bold text-base md:text-lg text-left uppercase"
-            style={{
-              fontFamily: 'Poppins, Arial, sans-serif',
-              wordBreak: 'break-word',
-              overflowWrap: 'break-word',
-              whiteSpace: 'pre-line',
-              maxWidth: '4.5em',
-              display: 'inline-block',
-              textShadow: [
-                '0 2px 12px rgba(0,0,0,0.85)',
-                '0 4px 24px rgba(0,0,0,0.7)',
-                '0 1px 2px rgba(0,0,0,0.9)',
-                '2px 2px 8px rgba(0,0,0,0.5)',
-                '-2px 2px 8px rgba(0,0,0,0.5)'
-              ].join(','),
-              textTransform: 'uppercase',
-            }}
+        {showLabel ? (
+          <div
+            className="absolute left-4 top-1/2 -translate-y-1/2"
+            style={{ pointerEvents: 'none' }}
           >
-            {signLabel.toUpperCase()}
-          </span>
-        </div>
+            <span
+              className="text-white font-bold text-base md:text-lg text-left uppercase"
+              style={{
+                fontFamily: 'Poppins, Arial, sans-serif',
+                wordBreak: 'break-word',
+                overflowWrap: 'break-word',
+                whiteSpace: 'pre-line',
+                maxWidth: '4.5em',
+                display: 'inline-block',
+                textShadow: [
+                  '0 2px 12px rgba(0,0,0,0.85)',
+                  '0 4px 24px rgba(0,0,0,0.7)',
+                  '0 1px 2px rgba(0,0,0,0.9)',
+                  '2px 2px 8px rgba(0,0,0,0.5)',
+                  '-2px 2px 8px rgba(0,0,0,0.5)'
+                ].join(','),
+                textTransform: 'uppercase',
+              }}
+            >
+              {signLabel.toUpperCase()}
+            </span>
+          </div>
+        ) : null}
 
         {/* Logo superior izquierdo */}
         <div

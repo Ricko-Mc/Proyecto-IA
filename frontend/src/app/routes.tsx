@@ -7,6 +7,7 @@ const Dictionary = lazy(() => import('./pages/Dictionary').then((module) => ({ d
 const About = lazy(() => import('./pages/About').then((module) => ({ default: module.About })));
 const Games = lazy(() => import('./pages/Games').then((module) => ({ default: module.Games })));
 const AdivinaSena = lazy(() => import('./pages/AdivinaSena').then((module) => ({ default: module.AdivinaSena })));
+const Ahorcado = lazy(() => import('./pages/Ahorcado').then((module) => ({ default: module.Ahorcado })));
 
 const SuspenseWrapper = ({ children }: { children: ReactNode }) => (
   <Suspense
@@ -58,7 +59,14 @@ export const router = createBrowserRouter([
       </SuspenseWrapper>
     ),
   },
-
+  {
+    path: '/games/ahorcado',
+    element: (
+      <SuspenseWrapper>
+        <Ahorcado />
+      </SuspenseWrapper>
+    ),
+  },
   {
     path: '/about',
     element: (
