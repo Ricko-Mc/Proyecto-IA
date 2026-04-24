@@ -7,6 +7,7 @@ const Dictionary = lazy(() => import('./pages/Dictionary').then((module) => ({ d
 const About = lazy(() => import('./pages/About').then((module) => ({ default: module.About })));
 const Games = lazy(() => import('./pages/Games').then((module) => ({ default: module.Games })));
 const AdivinaSena = lazy(() => import('./pages/AdivinaSena').then((module) => ({ default: module.AdivinaSena })));
+const MemoriaVisual = lazy(()=> import('./pages/MemoriaVisual').then((module) => ({ default: module.MemoriaVisual})));
 
 const SuspenseWrapper = ({ children }: { children: ReactNode }) => (
   <Suspense
@@ -25,7 +26,7 @@ export const router = createBrowserRouter([
     path: '/',
     element: <Navigate to="/chat" replace />,
   },
-  {
+  { 
     path: '/chat',
     element: (
       <SuspenseWrapper>
@@ -55,6 +56,15 @@ export const router = createBrowserRouter([
     element: (
       <SuspenseWrapper>
         <AdivinaSena />
+      </SuspenseWrapper>
+    ),
+  },
+
+  {
+    path: '/games/memoria-visual',
+    element: (
+      <SuspenseWrapper>
+        <MemoriaVisual />
       </SuspenseWrapper>
     ),
   },
