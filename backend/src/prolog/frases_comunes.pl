@@ -22,6 +22,12 @@ signo(mi_nombre, frases_comunes, 'FRA019').
 signo(mi_apodo_es, frases_comunes, 'FRA020').
 signo(aplausos, frases_comunes, 'FRA021').
 signo(frases_cortesia, frases_comunes, 'FRA022').
+signo(tal_vez, frases_comunes, 'FRA023').
+signo(ok, frases_comunes, 'FRA024').
+signo(entendiste, frases_comunes, 'FRA025').
+signo(me_gusta, frases_comunes, 'FRA026').
+signo(me_equivoque, frases_comunes, 'FRA027').
+signo(mucho_gusto, frases_comunes, 'FRA028').
 
 
 video_youtube('FRA002', 'https://youtu.be/5FJG3GxAn9c').
@@ -47,3 +53,10 @@ video_youtube('FRA019', 'https://youtu.be/1k2oJwqZkkM?si=vL45gC58HJTxHv5X').
 video_youtube('FRA020', 'https://youtu.be/BQdGKv4mvDg?si=FhgE90v5fGA3KHs4').
 video_youtube('FRA021', 'https://youtu.be/ZsqZj7Y9rG0?si=DsW3bAxLlNUvlb2a').
 video_youtube('FRA022', 'https://youtu.be/xCz6Tvcl_sw?si=x0Lqm8i0Zm3Yjt1_').
+
+video_youtube('FRA023', 'https://youtu.be/LG6Nj6fWqzI?si=MWPNLK9RI_KfkKnj').
+video_youtube('FRA024', 'https://youtu.be/JPjVZoISjjI?si=qtPUmfiytGZnJIt8').
+video_youtube('FRA025', 'https://youtu.be/1UixnZTC4Cs?si=CY-6aMfQqTCTtg7X').
+video_youtube('FRA026', 'https://youtu.be/FM3uvW7w4w0?si=AdcRcytvNdFOw3ED').
+video_youtube('FRA027', 'https://youtu.be/Kx2m6ikcYb8?si=VseUOmPw-bjADb4F').
+video_youtube('FRA028', 'https://youtu.be/qYwMfWLCIJM?si=dyIqu91sZyMaU0PO').
