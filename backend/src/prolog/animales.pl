@@ -31,6 +31,18 @@ signo(tigre, animales, 'ANI030').
 signo(toro, animales, 'ANI031').
 signo(tortuga, animales, 'ANI032').
 signo(venado, animales, 'ANI033').
+signo(elefante, animales, 'ANI034').
+signo(gallo, animales, 'ANI035').
+signo(gorila, animales, 'ANI036').
+signo(gusano, animales, 'ANI037').
+signo(hormiga, animales, 'ANI038').
+signo(jirafa, animales, 'ANI039').
+signo(leon, animales, 'ANI040').
+signo(lobo, animales, 'ANI041').
+signo(mariposa, animales, 'ANI042').
+signo(mono, animales, 'ANI043').
+signo(mosca, animales, 'ANI044').
+signo(murcielago, animales, 'ANI045').
 
 
 video_youtube('ANI011', 'https://youtu.be/OLQ2EnvcjXM').
@@ -62,5 +74,18 @@ video_youtube('ANI030', 'https://youtu.be/x4Z1hFfu2Q4?si=4Z8vxg330LxYY_W2').
 video_youtube('ANI031', 'https://youtu.be/SOjduKUuPkM?si=zH3R6CD3zUu3XR3Z').
 video_youtube('ANI032', 'https://youtu.be/SE2YBHb0Z7g?si=A77g5odM4w6V6Uvh').
 video_youtube('ANI033', 'https://youtu.be/VqW4DLMOaug?si=jAirKFL39fmc0BGA').
+
+video_youtube('ANI034', 'https://youtu.be/8cDlPEQW-TE?si=wcAhHS9ZAm3NoMbg').
+video_youtube('ANI035', 'https://youtu.be/QeBcNnAz2kg?si=VBxKz57V9s_IZUBa').
+video_youtube('ANI036', 'https://youtu.be/n76cmFSvah0?si=rIz1Az3QYkKlSlfq').
+video_youtube('ANI037', 'https://youtu.be/6UsLToNWN7M?si=cTA-LgL05gpjUBv-').
+video_youtube('ANI038', 'https://youtu.be/09mSXdOns0Y?si=oOg16MsKplzNOX24').
+video_youtube('ANI039', 'https://youtu.be/bT9XHeUgVbM?si=Oe0lGhnro2PyDiM-').
+video_youtube('ANI040', 'https://youtu.be/RVdMlP9sEzg?si=lpLpOBQMyMf8r4o2').
+video_youtube('ANI041', 'https://youtu.be/WByhyoJ_3TE?si=Tg8F9hPiZV7-QDwv').
+video_youtube('ANI042', 'https://youtu.be/oPPvQDa-1hE?si=sxSBB3qSainqPEAH').
+video_youtube('ANI043', 'https://youtu.be/-lrbcTqJYRc?si=m4jNL6mJpg7tc4RD').
+video_youtube('ANI044', 'https://youtu.be/5fsnBjhxsI8?si=3MXDdTUoFQJet96c').
+video_youtube('ANI045', 'https://youtu.be/9EHzxDTT6sk?si=ernEWYjy28xqza57').
 
 
