@@ -137,4 +137,12 @@ export const api = {
   verificarSalud: async (): Promise<HealthCheck> => {
     return requestAPI<HealthCheck>('get', '/health');
   },
+  // juego de memoria
+
+  obtenerParesMemoria: async (categoria: string): Promise<any[]> => {
+    return requestAPI<any[]>(
+      'get',
+      `/memoria-pares?categoria=${encodeURIComponent(categoria)}`
+    );
+  },
 };
