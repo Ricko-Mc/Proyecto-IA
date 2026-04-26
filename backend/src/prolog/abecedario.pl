@@ -36,7 +36,7 @@ video_youtube('ABC005', 'https://youtu.be/fvfcUf2U9eM').
 video_youtube('ABC006', 'https://youtu.be/DDQf67vAIGg').
 video_youtube('ABC007', 'https://youtu.be/3m6nCX451p0').
 video_youtube('ABC008', 'https://youtu.be/X-ffs6vS_18').
-video_youtube('ABC009', 'https://youtu.be/9n7s8mXo2j0').
+video_youtube('ABC009', 'https://youtu.be/eMTWkR2yufw').
 video_youtube('ABC010', 'https://youtu.be/_pColg3omjI').
 video_youtube('ABC011', 'https://youtu.be/-s39Oo7gVY0').
 video_youtube('ABC012', 'https://youtu.be/le3UJFtnNA4').
@@ -44,6 +44,11 @@ video_youtube('ABC013', 'https://youtu.be/eYO1wA2llRo').
 video_youtube('ABC014', 'https://youtu.be/oEyD2xGWwTc').
 video_youtube('ABC015', 'https://youtu.be/UqDmc9KSaEs').
 video_youtube('ABC016', 'https://youtu.be/9n7s8mXo2j0').
+video_youtube('ABC017', 'https://youtu.be/zJwkSaw655E').
+video_youtube('ABC018', 'https://youtu.be/bQ5oXA5eRhA').
+video_youtube('ABC019', 'https://youtu.be/sqQLLzr_b9I').
+video_youtube('ABC020', 'https://youtu.be/9IC4HDOsmp0').
+video_youtube('ABC021', 'https://youtu.be/o1bfn0v27bI').
 video_youtube('ABC022', 'https://youtu.be/Z6slb2uIS4k').
 video_youtube('ABC023', 'https://youtu.be/Skt_jFyRw4c').
 video_youtube('ABC024', 'https://youtu.be/fLobNsTfKJM').
