@@ -20,7 +20,7 @@ signo(sopa, alimentos, 'ALI019').
 signo(shuco, alimentos, 'ALI020').
 signo(tamal, alimentos, 'ALI021').
 signo(tomate, alimentos, 'ALI022').
-signo(torreja, alimentos, 'ALI023').
+signo(torreja, alimentos, 'ALI023'). 
 signo(tortilla, alimentos, 'ALI024').
 
 video_youtube('ALI001', 'UruEbwWgZfE'). % aceite
