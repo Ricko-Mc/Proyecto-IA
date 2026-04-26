@@ -61,60 +61,60 @@ const CATEGORIAS: CategoriaItem[] = [
     label: 'Mixta',
     descripcion: 'Preguntas variadas para practicar de forma general.',
     Icono: Dice5,
-    fondo: 'from-[#c9b4e8] via-[#bda5e3] to-[#b395dd]',
-    borde: 'border-[#b395dd]',
-    acento: 'from-[#8b6fb5] to-[#7a5fa5]',
-    iconBoxFondo: 'from-[#dfd0f2] to-[#d2c2ed]',
+    fondo: 'from-[#C8F7F5] via-[#B2EEE9] to-[#A0E5DE]',
+    borde: 'border-[#A0E5DE]',
+    acento: 'from-[#7DD8D0] to-[#60C9C0]',
+    iconBoxFondo: 'from-[#E6FEFB] to-[#D0FAF7]',
   },
   {
     id: 'colores',
     label: 'Colores',
     descripcion: 'Reconoce tonos y vocabulario visual básico.',
     Icono: Palette,
-    fondo: 'from-[#f0b4a5] via-[#eaa599] to-[#e4968d]',
-    borde: 'border-[#e4968d]',
-    acento: 'from-[#d97965] to-[#c45a4a]',
-    iconBoxFondo: 'from-[#f5d0c5] to-[#f0c1b5]',
+    fondo: 'from-[#FFF1B8] via-[#FFE58F] to-[#FFEA5D]',
+    borde: 'border-[#FFEA5D]',
+    acento: 'from-[#F6D860] to-[#F0C948]',
+    iconBoxFondo: 'from-[#FEF9C3] to-[#FDE68A]',
   },
   {
     id: 'animales',
     label: 'Animales',
     descripcion: 'Relaciona señas con nombres de animales.',
     Icono: PawPrint,
-    fondo: 'from-[#a6e2bd] via-[#99dab3] to-[#8cd2a9]',
-    borde: 'border-[#8cd2a9]',
-    acento: 'from-[#62b89a] to-[#509d80]',
-    iconBoxFondo: 'from-[#c5ead6] to-[#b5e3ce]',
+    fondo: 'from-[#D3F9D8] via-[#B9F2BF] to-[#9EEBA6]',
+    borde: 'border-[#9EEBA6]',
+    acento: 'from-[#6EE7B7] to-[#34D399]',
+    iconBoxFondo: 'from-[#E6F9EA] to-[#CEF3D9]',
   },
   {
     id: 'alimentos',
     label: 'Alimentos',
     descripcion: 'Practica vocabulario de comida y bebida.',
     Icono: Apple,
-    fondo: 'from-[#e8d68f] via-[#e2cf82] to-[#dcc875]',
-    borde: 'border-[#dcc875]',
-    acento: 'from-[#c9b856] to-[#b5a245]',
-    iconBoxFondo: 'from-[#f0e5b8] to-[#ead9a8]',
+    fondo: 'from-[#FFF7D6] via-[#FFE59E] to-[#FFDB6F]',
+    borde: 'border-[#FFDB6F]',
+    acento: 'from-[#F5C359] to-[#E7A800]',
+    iconBoxFondo: 'from-[#FFF6D6] to-[#FDE4A3]',
   },
   {
     id: 'saludos',
     label: 'Saludos',
     descripcion: 'Expresiones comunes para iniciar conversaciones.',
     Icono: Hand,
-    fondo: 'from-[#90bee5] via-[#82b0dd] to-[#74a2d5]',
-    borde: 'border-[#74a2d5]',
-    acento: 'from-[#5885b8] to-[#456a95]',
-    iconBoxFondo: 'from-[#b9d8f1] to-[#a7ceea]',
+    fondo: 'from-[#D9EEFF] via-[#B8DDFF] to-[#92CCFF]',
+    borde: 'border-[#92CCFF]',
+    acento: 'from-[#6DB4F7] to-[#4092EF]',
+    iconBoxFondo: 'from-[#EAF4FF] to-[#D2E8FF]',
   },
   {
     id: 'abecedario',
     label: 'Abecedario',
     descripcion: 'Refuerza letras y base del lenguaje de señas.',
     Icono: BookOpen,
-    fondo: 'from-[#88ddd2] via-[#77d5c8] to-[#66cdbe]',
-    borde: 'border-[#66cdbe]',
-    acento: 'from-[#4ab8a6] to-[#399d8e]',
-    iconBoxFondo: 'from-[#b5ebde] to-[#a3e3d6]',
+    fondo: 'from-[#D7FBE5] via-[#B6F4D3] to-[#95EDC1]',
+    borde: 'border-[#95EDC1]',
+    acento: 'from-[#6DD6A4] to-[#42C288]',
+    iconBoxFondo: 'from-[#E5FBEF] to-[#CCF6E3]',
   },
 ];
 
@@ -310,31 +310,31 @@ export function AdivinaSena() {
   const getButtonStyle = (option: string) => {
     if (gameState === 'playing') {
       return `
-        bg-[#5DADE2]
-        hover:bg-[#6BB6D6]
-        text-white
-        shadow-[0_10px_25px_rgba(93,173,226,0.35)]
+        bg-[#90CDF4]
+        hover:bg-[#BEE3F8]
+        text-slate-900
+        shadow-[0_10px_25px_rgba(96,165,250,0.22)]
       `;
     }
 
     if (option === currentSign?.palabra) {
       return `
-        bg-gradient-to-r from-[#22c55e] to-[#16a34a]
-        text-white
-        shadow-[0_10px_25px_rgba(34,197,94,0.4)]
+        bg-gradient-to-r from-[#86efac] to-[#4ade80]
+        text-slate-900
+        shadow-[0_10px_25px_rgba(34,197,94,0.25)]
       `;
     }
 
     if (option === selectedAnswer && gameState === 'wrong') {
       return `
-        bg-gradient-to-r from-[#ef4444] to-[#dc2626]
-        text-white
-        shadow-[0_10px_25px_rgba(239,68,68,0.4)]
+        bg-gradient-to-r from-[#fed7d7] to-[#fca5a5]
+        text-slate-900
+        shadow-[0_10px_25px_rgba(248,113,113,0.25)]
       `;
     }
 
     return `
-      bg-[#5DADE2]/40 text-white/70
+      bg-[#90CDF4]/40 text-slate-700
     `;
   };
 
@@ -472,40 +472,40 @@ export function AdivinaSena() {
           </p>
         </div>
 
-        <div className="w-full rounded-[32px] border border-white/50 bg-[linear-gradient(180deg,rgba(255,255,255,0.92)_0%,rgba(248,249,253,0.88)_100%)] shadow-[0_20px_50px_rgba(15,23,42,0.10)] backdrop-blur-md p-8 md:p-10">
+        <div className="w-full rounded-[32px] border border-white/70 bg-[linear-gradient(180deg,rgba(245,251,255,0.96)_0%,rgba(234,249,240,0.94)_100%)] shadow-[0_20px_50px_rgba(15,23,42,0.08)] backdrop-blur-md p-8 md:p-10">
           <div className="flex flex-col items-center">
-            <div className="flex items-center gap-3 text-[#6D8FBC]">
+            <div className="flex items-center gap-3 text-[#22C55E]">
               <Trophy className="h-8 w-8" />
-              <span className="text-6xl md:text-7xl font-extrabold leading-none">
+              <span className="text-6xl md:text-7xl font-extrabold leading-none text-slate-900">
                 {score}/{TOTAL_PREGUNTAS}
               </span>
             </div>
 
-            <p className="mt-3 text-slate-500 text-base">respuestas correctas</p>
+            <p className="mt-3 text-slate-600 text-base">respuestas correctas</p>
           </div>
 
           <div className="mt-6 w-full max-w-[430px] mx-auto">
             <div className="h-4 rounded-full bg-slate-200/80 overflow-hidden shadow-inner">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[#7BA7D1] via-[#6E8DE0] to-[#6D5CFF] transition-all duration-700"
+                className="h-full rounded-full bg-gradient-to-r from-[#86efac] via-[#4ade80] to-[#22c55e] transition-all duration-700"
                 style={{ width: `${porcentaje}%` }}
               />
             </div>
-            <p className="mt-3 text-sm text-slate-500 text-center">{porcentaje}% de aciertos</p>
+            <p className="mt-3 text-sm text-slate-600 text-center">{porcentaje}% de aciertos</p>
           </div>
         </div>
 
         <div className="w-full flex flex-col gap-3">
           <button
             onClick={() => categoriaSeleccionada && iniciarJuego(categoriaSeleccionada)}
-            className="w-full py-4 rounded-[20px] bg-gradient-to-r from-[#7BA7D1] to-[#5B8EFF] text-white font-semibold shadow-[0_12px_28px_rgba(91,142,255,0.22)] hover:scale-[1.01] transition-all"
+            className="w-full py-4 rounded-[20px] bg-gradient-to-r from-[#86efac] to-[#34d399] text-slate-900 font-semibold shadow-[0_12px_28px_rgba(52,211,153,0.20)] hover:scale-[1.01] transition-all"
           >
             Jugar de nuevo
           </button>
 
           <button
             onClick={() => setScreen('select')}
-            className="w-full py-4 rounded-[20px] border border-[#7BA7D1]/60 bg-white/60 text-[#4E87C2] font-semibold hover:bg-white/75 transition-all"
+            className="w-full py-4 rounded-[20px] border border-[#34d399]/60 bg-white/70 text-[#15803d] font-semibold hover:bg-white/90 transition-all"
           >
             Cambiar categoría
           </button>
@@ -543,9 +543,9 @@ export function AdivinaSena() {
           </button>
         </div>
 
-        <div className="w-full h-2 bg-white/30 rounded-full overflow-hidden shadow-inner">
+        <div className="w-full h-2 bg-white/40 rounded-full overflow-hidden shadow-inner">
           <div
-            className="h-full bg-gradient-to-r from-[#82AEE3] via-[#8A8CE4] to-[#6E7ED9] transition-all duration-500"
+            className="h-full bg-gradient-to-r from-[#7DD3FC] via-[#67E8F9] to-[#22D3EE] transition-all duration-500"
             style={{ width: `${((preguntaNum - 1) / TOTAL_PREGUNTAS) * 100}%` }}
           />
         </div>
@@ -555,9 +555,9 @@ export function AdivinaSena() {
             <VideoPlayer videoUrl={currentSign.url_video} signLabel="???" active={true} />
           </div>
 
-          <div className="rounded-[28px] p-4 bg-gradient-to-br from-[#5B21B6] via-[#6D28D9] to-[#7C3AED] shadow-[0_25px_60px_rgba(0,0,0,0.22)] text-white relative overflow-hidden flex flex-col items-center justify-center min-h-full gap-5">
-            <div className="absolute bottom-0 right-0 w-28 h-28 rounded-full bg-white/5 blur-3xl" />
-            <div className="absolute top-0 left-0 w-24 h-24 rounded-full bg-white/3 blur-2xl" />
+          <div className="rounded-[28px] p-4 bg-gradient-to-br from-[#E0F7FF] via-[#D2F2E7] to-[#D7FBD5] shadow-[0_25px_60px_rgba(15,23,42,0.12)] text-slate-900 relative overflow-hidden flex flex-col items-center justify-center min-h-full gap-5">
+            <div className="absolute bottom-0 right-0 w-28 h-28 rounded-full bg-white/50 blur-3xl" />
+            <div className="absolute top-0 left-0 w-24 h-24 rounded-full bg-white/40 blur-2xl" />
 
             <div className="relative z-10 flex flex-col gap-3 w-full">
               <div>
@@ -593,13 +593,13 @@ export function AdivinaSena() {
             </div>
 
             <div className="relative z-10 text-center">
-              <p className="text-[10px] tracking-widest text-white/70 font-semibold uppercase">
+              <p className="text-[10px] tracking-widest text-slate-600 font-semibold uppercase">
                 Puntuación
               </p>
-              <p className={`text-4xl font-extrabold mt-2 transition-all duration-300 text-white ${scoreAdded ? 'scale-110' : ''}`}>
+              <p className={`text-4xl font-extrabold mt-2 transition-all duration-300 text-slate-900 ${scoreAdded ? 'scale-110' : ''}`}>
                 {score}
               </p>
-              <p className="text-xs text-white/60 mt-0.5">de {TOTAL_PREGUNTAS}</p>
+              <p className="text-xs text-slate-600 mt-0.5">de {TOTAL_PREGUNTAS}</p>
 
               {scoreAdded && (
                 <span className="inline-block mt-2 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white">
