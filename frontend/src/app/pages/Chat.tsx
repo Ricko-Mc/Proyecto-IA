@@ -361,7 +361,7 @@ export function Chat() {
 
   return (
     <div className="flex h-screen w-screen rounded-none overflow-hidden bg-[#f7f8fa] dark:bg-[rgba(10,10,10,0.82)]">
-      <div className={`h-full ${isSidebarCollapsed ? 'w-16' : 'w-80'} transition-all duration-200 ease-in-out`}>
+      <div className={`hidden md:block h-full ${isSidebarCollapsed ? 'w-16' : 'w-80'} transition-all duration-200 ease-in-out`}>
         <Sidebar
           conversations={conversations}
           currentConversationId={currentConversationId}
@@ -443,13 +443,13 @@ export function Chat() {
                     <p className="text-xs md:text-sm font-medium text-muted-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>
                       Prueba con estas frases:
                     </p>
-                    <div className="grid grid-cols-2 md:flex md:flex-wrap gap-1.5 md:gap-2 justify-center px-1">
+                    <div className="flex gap-2 overflow-x-auto md:flex-wrap md:justify-center px-1 scrollbar-none py-1">
                       {WELCOME_PHRASES.map((phrase, index) => (
                         <Button
                           key={index}
                           variant="outline"
                           onClick={() => handleTryPhrase(phrase)}
-                          className="border-[#4997D0]/70 dark:border-[#3f3f3f] bg-white/70 dark:bg-white/5 text-[#4997D0] dark:text-[#dcdcdc] backdrop-blur-sm hover:bg-[#4997D0] dark:hover:bg-[#2a2a2a] hover:text-white text-[11px] md:text-xs h-7 md:h-8 py-1 px-2 md:px-3"
+                          className="border-[#4997D0]/70 dark:border-[#3f3f3f] bg-white/70 dark:bg-white/5 text-[#4997D0] dark:text-[#dcdcdc] backdrop-blur-sm hover:bg-[#4997D0] dark:hover:bg-[#2a2a2a] hover:text-white text-[11px] md:text-xs h-7 md:h-8 py-1 px-2 md:px-3 whitespace-nowrap"
                         >
                           {phrase}
                         </Button>

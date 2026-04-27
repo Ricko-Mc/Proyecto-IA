@@ -1,5 +1,4 @@
-from fastapi import APIRouter, HTTPException
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 from .servicio import obtener_pares_juego
 
 router = APIRouter(prefix="/api", tags=["signos"])

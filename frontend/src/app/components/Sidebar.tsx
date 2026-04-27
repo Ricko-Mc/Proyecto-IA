@@ -74,7 +74,7 @@ export function Sidebar({
   const hoverClasses = 'hover:bg-[#dbeeff] dark:hover:bg-[#0f1830] transition-colors duration-200';
 
   return (
-    <div className={`flex flex-col h-full ${isCollapsed ? 'w-16' : 'w-full'} bg-[rgba(244,249,255,0.55)] dark:bg-[rgba(18,18,18,0.42)] backdrop-blur-xl border border-[rgba(164,194,224,0.35)] dark:border-white/10 overflow-hidden shadow-[0_10px_28px_rgba(13,43,76,0.06)] dark:shadow-[0_10px_28px_rgba(0,0,0,0.25)] transition-all duration-200 ease-in-out`}>
+    <div className={`hidden md:flex flex-col h-full ${isCollapsed ? 'w-16' : 'w-full'} bg-[rgba(244,249,255,0.55)] dark:bg-[rgba(18,18,18,0.42)] backdrop-blur-xl border border-[rgba(164,194,224,0.35)] dark:border-white/10 overflow-hidden shadow-[0_10px_28px_rgba(13,43,76,0.06)] dark:shadow-[0_10px_28px_rgba(0,0,0,0.25)] transition-all duration-200 ease-in-out`}>
       <div className={`px-3 ${isCollapsed ? 'py-3' : 'py-4'} ${isCollapsed ? 'space-y-3' : 'space-y-4'}`}>
         <div className="flex items-center justify-center">
           {!isCollapsed && (

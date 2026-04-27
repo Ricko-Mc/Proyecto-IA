@@ -44,7 +44,7 @@ export function MainLayout({
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#f7f8fa] dark:bg-[rgba(10,10,10,0.82)]">
-      <div className={`h-full ${sidebarCollapsed ? 'w-16' : 'w-80'} transition-all duration-200 ease-in-out`}>
+      <div className={`hidden md:block h-full ${sidebarCollapsed ? 'w-16' : 'w-80'} transition-all duration-200 ease-in-out`}>
         <Sidebar
           conversations={[]}
           currentConversationId=""
@@ -69,7 +69,7 @@ export function MainLayout({
             activePage={activePage}
           />
         )}
-        <div className={`content-area relative flex-1 overflow-y-auto ${isGamesPage ? 'pb-20 md:pb-0' : 'pb-16 md:pb-0'}`}>
+        <div className={`content-area relative flex-1 overflow-y-auto pb-20 md:pb-0 ${isGamesPage ? '' : ''}`}>
           {isGamesPage && (
             <button
               type="button"

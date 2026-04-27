@@ -226,6 +226,7 @@ export function Ahorcado() {
       >
         <div className="w-full flex flex-col items-center justify-start gap-8 px-4 md:px-8 py-8 md:py-10 min-h-[620px] max-w-6xl mx-auto">
           <div className="w-full flex items-center justify-between">
+            <div />
             <button
               onClick={() => navigate('/games')}
               className="flex items-center gap-2 px-4 py-2 rounded-[16px] bg-slate-200/60 hover:bg-slate-300/60 text-slate-700 font-semibold transition-colors duration-200"
@@ -233,7 +234,6 @@ export function Ahorcado() {
               <ArrowLeft className="w-4 h-4" />
               Atrás
             </button>
-            <div />
           </div>
 
           <div className="text-center">
@@ -264,6 +264,7 @@ export function Ahorcado() {
                     bg-gradient-to-br ${cat.accent}
                     shadow-[0_14px_35px_rgba(15,23,42,0.10)]
                     hover:-translate-y-1.5 hover:shadow-[0_22px_50px_rgba(15,23,42,0.16)]
+                    ${cat.id === 'mixta' ? 'md:col-span-2' : ''}
                     ${activa ? 'ring-2 ring-[#3b82f6]/40 scale-[1.01]' : ''}
                   `}
                 >
@@ -323,11 +324,11 @@ export function Ahorcado() {
           <div className="flex items-center">
             <button
               type="button"
-              onClick={() => setShowExitConfirm(true)}
-              className="inline-flex items-center gap-2 px-3 py-2 ml-2 md:ml-4 text-sm font-semibold text-slate-900 transition hover:text-slate-700"
+              onClick={() => setScreen('select')}
+              className="inline-flex items-center gap-2 px-3 py-2 ml-8 md:ml-10 text-sm font-semibold text-slate-900 transition hover:text-slate-700"
             >
               <ArrowLeft className="h-4 w-4" />
-              Regresar la categoría
+              Regresar a categorías
             </button>
           </div>
           <div className="flex flex-1 flex-wrap items-center justify-end gap-3">
@@ -349,7 +350,7 @@ export function Ahorcado() {
         </div>
 
         <div className="flex h-full w-full flex-1 flex-col justify-center gap-4 xl:grid xl:grid-cols-[60%_40%] xl:items-center xl:gap-8 xl:max-w-[1180px] xl:mx-auto">
-          <div className="order-1 xl:order-0 flex min-h-0 flex-1 flex-col items-center justify-between gap-6 pt-4 xl:max-w-[60%] xl:mx-auto">
+          <div className="order-0 xl:order-1 flex min-h-0 flex-1 flex-col items-center justify-between gap-6 pt-4 xl:max-w-[60%] xl:mx-auto">
             <div className="w-full border-b border-slate-200 pb-6 flex-1">
               <div className="rounded-[28px] pt-0 pb-4 px-4 min-h-[250px] max-h-[250px] w-full max-w-[520px] mx-auto bg-transparent flex-1">
                 <div className="h-full w-full flex items-center justify-center">
@@ -359,7 +360,7 @@ export function Ahorcado() {
             </div>
 
             <div className="mt-auto w-full">
-              <div className={`relative mt-8 mb-2 flex flex-row flex-wrap justify-center gap-2 overflow-hidden rounded-3xl ${won ? 'animate-celebrate' : ''}`}>
+              <div className={`relative mt-8 mb-2 flex flex-wrap justify-center gap-2 overflow-hidden rounded-3xl max-w-[860px] w-full mx-auto ${won ? 'animate-celebrate' : ''}`}>
                 {won && (
                   <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-0 overflow-visible">
                     <span className="confetti confetti-1" />
@@ -373,7 +374,7 @@ export function Ahorcado() {
                 {wordData.split('').map((letter, index) => (
                   <div
                     key={`${letter}-${index}`}
-                    className="relative flex h-9 w-9 min-w-[34px] items-center justify-center rounded-2xl border border-slate-200 bg-transparent text-sm font-bold text-slate-900"
+                    className="relative flex h-10 min-w-[28px] items-center justify-center rounded-2xl border border-slate-200 bg-transparent text-sm font-bold text-slate-900 px-2"
                   >
                     {revealedLetters.has(letter) ? letter : '—'}
                   </div>
@@ -397,7 +398,7 @@ export function Ahorcado() {
                         type="button"
                         disabled={isUsed || gameOver}
                         onClick={() => handleGuess(letter)}
-                        className={`h-9 min-h-[36px] min-w-[36px] rounded-2xl border px-1 text-sm font-semibold transition ${
+                        className={`h-8 min-h-[32px] min-w-[32px] rounded-2xl border px-1 text-sm font-semibold transition ${
                           isCorrect
                             ? 'border-emerald-400 bg-emerald-500/15 text-emerald-700'
                             : isWrong
@@ -414,10 +415,10 @@ export function Ahorcado() {
             </div>
           </div>
 
-          <aside className="order-0 xl:order-1 flex min-h-0 flex-1 flex-col justify-center items-center gap-4 xl:pl-0">
+          <aside className="order-1 xl:order-0 flex min-h-0 flex-1 flex-col justify-center items-center gap-4 xl:pl-0">
             {embedVideoUrl ? (
               <>
-                <div className="ahorcado-video-crop overflow-hidden rounded-[16px] w-[520px] h-[360px] flex items-center justify-center">
+                <div className="ahorcado-video-crop overflow-hidden rounded-[16px] w-full max-w-[520px] h-[220px] sm:h-[260px] md:h-[360px] flex items-center justify-center mx-auto">
                   <VideoPlayer videoUrl={embedVideoUrl} signLabel={wordData} active={!gameOver} showLabel={false} />
                 </div>
                 {loadingVideo && (
@@ -551,7 +552,7 @@ export function Ahorcado() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => navigate('/games')}
+                  onClick={() => navigate('/games/ahorcado')}
                   className="inline-flex min-w-[180px] items-center justify-center rounded-2xl bg-white px-6 py-3 text-sm font-semibold text-green-600 transition hover:bg-slate-100 gap-2"
                 >
                   <Gamepad2 className="h-4.5 w-4.5" />
@@ -580,7 +581,7 @@ export function Ahorcado() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => navigate('/games')}
+                  onClick={() => navigate('/games/ahorcado')}
                   className="inline-flex min-w-[180px] items-center justify-center rounded-2xl bg-white px-6 py-3 text-sm font-semibold text-red-600 transition hover:bg-slate-100 gap-2"
                 >
                   <Gamepad2 className="h-4.5 w-4.5" />

@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { Play, Sparkles } from 'lucide-react';
+import { Play, Sparkles, Gamepad } from 'lucide-react';
 import { Button } from './ui/button';
 import { useNavigate } from 'react-router';
 
@@ -103,8 +103,54 @@ export function GameCarousel() {
         Practica lo aprendido con dinamicas interactivas en Lengua de Señas de Guatemala.
       </p>
 
+      <div className="hidden md:flex relative z-10 dots mt-1.5 md:mt-2 justify-center gap-2">
+        {GAME_CARDS.map((card, i) => (
+          <button
+            key={card.id}
+            type="button"
+            onClick={() => setIndex(i)}
+            aria-label={`Ir a ${card.title}`}
+            className={`h-2.5 rounded-full transition-all duration-300 ${
+              i === index
+                ? 'w-[26px] bg-[linear-gradient(90deg,#6b8fbf,#8eaecf)]'
+                : 'w-2.5 bg-[#4997D0]/35 hover:bg-[#4997D0]/60 dark:bg-[#5ea8ff]/35 dark:hover:bg-[#5ea8ff]/60'
+            }`}
+          />
+        ))}
+      </div>
+
+      <div className="md:hidden mt-4 space-y-3">
+        {GAME_CARDS.map((card) => (
+          <div
+            key={card.id}
+            className="relative h-40 w-full overflow-hidden rounded-[24px] bg-white shadow-[0_10px_24px_rgba(15,23,42,0.08)] border border-slate-200/70"
+          >
+            <img
+              src={card.imageSrc}
+              alt={`Vista previa de ${card.title}`}
+              className="absolute inset-0 h-full w-full object-cover opacity-80"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/60 to-white/95" />
+            <div className="relative z-10 flex h-full flex-col justify-between p-4">
+              <div>
+                <h3 className="text-base font-semibold text-slate-950">{card.title}</h3>
+                <p className="mt-1 text-[13px] text-slate-600 line-clamp-2">{card.description}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate(`/games/${card.id}`)}
+                className="inline-flex items-center justify-center w-full rounded-full bg-white px-3 py-2 text-sm font-semibold text-slate-950 shadow-sm transition hover:bg-slate-100"
+              >
+                <Gamepad className="mr-2 h-4 w-4 text-slate-950" />
+                {card.cta}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <div
-        className="relative mx-auto w-full h-full overflow-x-hidden overflow-y-visible pt-10 pb-8 md:pt-12 md:pb-10 select-none cursor-grab"
+        className="hidden md:block relative mx-auto w-full h-full overflow-x-hidden overflow-y-visible pt-16 pb-8 md:pt-20 md:pb-10 select-none cursor-grab"
         onMouseDown={(event) => handleDragStart(event.clientX)}
         onMouseMove={(event) => handleDragMove(event.clientX)}
         onMouseUp={handleDragEnd}
@@ -214,7 +260,7 @@ export function GameCarousel() {
         </div>
       </div>
 
-      <div className="relative z-10 dots mt-1.5 md:mt-2 flex justify-center gap-2">
+      <div className="hidden md:flex relative z-10 dots mt-1.5 md:mt-2 justify-center gap-2">
         {GAME_CARDS.map((card, i) => (
           <button
             key={card.id}

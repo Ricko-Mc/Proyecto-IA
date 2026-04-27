@@ -465,6 +465,7 @@ export function Dictionary() {
           )}
         </SheetContent>
       </Sheet>
+      <BottomNav />
       </div>
     </MainLayout>
   );

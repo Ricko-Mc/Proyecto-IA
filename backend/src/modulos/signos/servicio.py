@@ -3,7 +3,6 @@ from src.utilidades.youtube import construir_url_embed_youtube
 from src.utilidades.cache_ttl import CacheTTL
 import os
 import random
-from src.utilidades.puente_prolog import PuenteProlog
 
 class ServicioSignos:
     def __init__(self, puente_prolog: PuenteProlog):

@@ -131,6 +131,10 @@ function obtener4Opciones(signos: Signo[], correcta: Signo): string[] {
   return [...otras, correcta.palabra].sort(() => Math.random() - 0.5);
 }
 
+function formatearOpcionTexto(texto: string) {
+  return texto.replace(/_/g, ' ');
+}
+
 async function cargarSignos(categoria: Categoria): Promise<Signo[]> {
   if (categoria === 'mixta') {
     const todas = await Promise.all(
@@ -344,6 +348,7 @@ export function AdivinaSena() {
     return renderShell(
       <div className={`w-full flex flex-col items-center justify-start gap-8 px-4 md:px-8 py-8 md:py-10 ${panelHeightClass} max-w-6xl mx-auto`}>
         <div className="w-full flex items-center justify-between">
+          <div />
           <button
             onClick={() => navigate('/games')}
             className="flex items-center gap-2 px-4 py-2 rounded-[16px] bg-slate-200/60 hover:bg-slate-300/60 text-slate-700 font-semibold transition-colors duration-200"
@@ -351,7 +356,6 @@ export function AdivinaSena() {
             <ArrowLeft className="w-4 h-4" />
             Atrás
           </button>
-          <div />
         </div>
 
         <div className="text-center">
@@ -384,10 +388,10 @@ export function AdivinaSena() {
                 disabled={loading}
                 className={`
                   group relative overflow-hidden rounded-[28px] border p-0 text-left
-                  transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed
+                  transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
                   bg-gradient-to-br ${cat.fondo} ${cat.borde}
                   shadow-[0_14px_35px_rgba(15,23,42,0.10)]
-                  hover:-translate-y-1.5 hover:shadow-[0_22px_50px_rgba(15,23,42,0.16)]
+                  hover:brightness-95 hover:scale-[1.02] hover:shadow-[0_22px_50px_rgba(15,23,42,0.16)]
                   ${activa ? 'ring-2 ring-[#3b82f6]/40 scale-[1.01]' : ''}
                 `}
               >
@@ -397,23 +401,22 @@ export function AdivinaSena() {
                 <div className="relative flex items-center gap-3 p-3 md:p-4">
                   <div
                     className={`
-                      shrink-0 h-16 w-16 rounded-[20px] bg-gradient-to-br ${cat.iconBoxFondo}
+                      shrink-0 h-10 w-10 md:h-12 md:w-12 rounded-[18px] bg-gradient-to-br ${cat.iconBoxFondo}
                       ring-1 ring-white/40 shadow-[0_12px_26px_rgba(15,23,42,0.18)]
                       flex items-center justify-center transition-transform duration-300
                       group-hover:scale-105
                     `}
                   >
-                    <div className="flex h-[56px] w-[56px] items-center justify-center rounded-[16px] bg-white/20 backdrop-blur-sm">
+                    <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-[16px] bg-white/20 backdrop-blur-sm">
                       <Icono
-                        className="h-7 w-7 text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.25)]"
-                        strokeWidth={2.2}
+                        className="h-4 w-4 md:h-5 md:w-5 text-slate-900"
                       />
                     </div>
                   </div>
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-[18px] font-bold text-slate-800 tracking-[-0.02em] dark:text-white">
+                      <h3 className="text-sm md:text-[18px] font-bold text-slate-800 tracking-[-0.02em] dark:text-white">
                         {cat.label}
                       </h3>
 
@@ -424,7 +427,7 @@ export function AdivinaSena() {
                       )}
                     </div>
 
-                    <p className="mt-1 max-w-[28ch] text-xs leading-5 text-slate-700/80 dark:text-slate-200/85">
+                    <p className="mt-1 max-w-[28ch] text-[0.82rem] md:text-xs leading-5 text-slate-700/80 dark:text-slate-200/85">
                       {cat.descripcion}
                     </p>
                   </div>
@@ -525,22 +528,22 @@ export function AdivinaSena() {
   return renderShell(
     <>
     <div className="w-full flex justify-center px-3 py-6">
-      <div className="w-full max-w-[950px] flex flex-col gap-4">
-        <div className="relative z-10 w-full rounded-[28px] bg-white/18 backdrop-blur-md border border-white/30 shadow-[0_20px_50px_rgba(15,23,42,0.10)] p-4 md:p-6 flex flex-col gap-4">
-        <div className="flex items-center justify-between">
+      <div className="w-full max-w-[1024px] flex flex-col gap-4">
+        <div className="relative z-10 w-full rounded-[28px] bg-transparent p-3 md:p-4 flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <button
+            onClick={() => setShowExitDialog(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-[14px] text-slate-900 hover:bg-slate-100 transition-colors duration-200"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Salir
+          </button>
           <div>
             <p className="text-xs text-slate-700 font-semibold">Ronda actual</p>
             <h2 className="text-lg md:text-xl font-bold tracking-[-0.03em] text-slate-800">
               Pregunta {preguntaNum} de {TOTAL_PREGUNTAS}
             </h2>
           </div>
-          <button
-            onClick={() => setShowExitDialog(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-[14px] bg-red-500/90 hover:bg-red-600 text-white font-semibold text-sm transition-colors duration-200"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            Salir
-          </button>
         </div>
 
         <div className="w-full h-2 bg-white/40 rounded-full overflow-hidden shadow-inner">
@@ -555,21 +558,21 @@ export function AdivinaSena() {
             <VideoPlayer videoUrl={currentSign.url_video} signLabel="???" active={true} />
           </div>
 
-          <div className="rounded-[28px] p-4 bg-gradient-to-br from-[#E0F7FF] via-[#D2F2E7] to-[#D7FBD5] shadow-[0_25px_60px_rgba(15,23,42,0.12)] text-slate-900 relative overflow-hidden flex flex-col items-center justify-center min-h-full gap-5">
+          <div className="rounded-[28px] p-4 bg-gradient-to-br from-[#DBEAFE] via-[#BFDBFE] to-[#BFDBFE] shadow-[0_25px_60px_rgba(15,23,42,0.12)] text-slate-900 relative overflow-hidden flex flex-col items-center justify-center min-h-full gap-5">
             <div className="absolute bottom-0 right-0 w-28 h-28 rounded-full bg-white/50 blur-3xl" />
             <div className="absolute top-0 left-0 w-24 h-24 rounded-full bg-white/40 blur-2xl" />
 
-            <div className="relative z-10 flex flex-col gap-3 w-full">
+            <div className="hidden md:flex relative z-10 flex-col gap-3 w-full">
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-white/70 font-semibold">
+                <p className="text-[10px] uppercase tracking-widest text-slate-700 font-semibold">
                   Ronda actual
                 </p>
 
-                <h3 className="mt-2 text-base font-bold leading-tight text-white">
+                <h3 className="mt-2 text-base font-bold leading-tight text-slate-900">
                   Elige la opción correcta
                 </h3>
 
-                <p className="mt-1 text-xs text-white/80 leading-relaxed">
+                <p className="mt-1 text-xs text-slate-700 leading-relaxed">
                   Observa la seña del video y responde correctamente.
                 </p>
               </div>
@@ -586,8 +589,8 @@ export function AdivinaSena() {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-white/80">Compañero</p>
-                  <p className="font-semibold text-sm text-white">¡Sigue así!</p>
+                  <p className="text-xs text-slate-700">Compañero</p>
+                  <p className="font-semibold text-sm text-slate-900">¡Sigue así!</p>
                 </div>
               </div>
             </div>
@@ -602,7 +605,7 @@ export function AdivinaSena() {
               <p className="text-xs text-slate-600 mt-0.5">de {TOTAL_PREGUNTAS}</p>
 
               {scoreAdded && (
-                <span className="inline-block mt-2 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white">
+                <span className="inline-block mt-2 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-slate-900">
                   +1 punto
                 </span>
               )}
@@ -610,7 +613,7 @@ export function AdivinaSena() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
+        <div className="grid grid-cols-2 gap-3 w-full">
           {opciones.map(option => (
             <button
               key={option}
@@ -623,7 +626,7 @@ export function AdivinaSena() {
                 ${getButtonStyle(option)}
               `}
             >
-              {option}
+              {formatearOpcionTexto(option)}
             </button>
           ))}
         </div>
@@ -646,7 +649,7 @@ export function AdivinaSena() {
               <p className="text-base font-bold text-slate-800">
                 {gameState === 'correct'
                   ? '¡Correcto! +1 punto'
-                  : `La respuesta correcta era ${currentSign.palabra.toUpperCase()}`}
+                  : `La respuesta correcta era ${formatearOpcionTexto(currentSign.palabra).toUpperCase()}`}
               </p>
 
               <p className="mt-1 text-xs text-slate-600">
