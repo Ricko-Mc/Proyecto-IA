@@ -62,6 +62,7 @@ function cargarYoutubeApi(): Promise<YoutubeApi> {
 export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [playerReady, setPlayerReady] = useState(false);
+  const [useFallback, setUseFallback] = useState(false);
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YoutubePlayer | null>(null);
   const ids = useMemo(
@@ -91,7 +92,9 @@ export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
     }
 
     setPlayerReady(false);
+    setUseFallback(false);
     let disposed = false;
+    let readyTimer: number | undefined;
 
     void cargarYoutubeApi().then((YT) => {
       if (disposed || !playerContainerRef.current || playerRef.current) {
@@ -99,6 +102,7 @@ export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
       }
 
       playerRef.current = new YT.Player(playerContainerRef.current, {
+        host: 'https://www.youtube-nocookie.com',
         videoId: ids[0],
         playerVars: {
           autoplay: active ? 1 : 0,
@@ -113,14 +117,24 @@ export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
           iv_load_policy: 3,
           loop: 1,
           playlist: ids.join(','),
+          origin: window.location.origin,
+          enablejsapi: 1,
         },
         events: {
           onReady: (event: { target: YoutubePlayer }) => {
             setPlayerReady(true);
+            setUseFallback(false);
+            if (readyTimer) {
+              window.clearTimeout(readyTimer);
+              readyTimer = undefined;
+            }
             event.target.mute();
             if (active) {
               event.target.playVideo();
             }
+          },
+          onError: () => {
+            setUseFallback(true);
           },
           onStateChange: (event: { data: number }) => {
             if (event.data === YT.PlayerState.ENDED) {
@@ -129,16 +143,25 @@ export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
           },
         },
       });
+
+      readyTimer = window.setTimeout(() => {
+        if (!disposed && !playerReady) {
+          setUseFallback(true);
+        }
+      }, 3000);
     });
 
     return () => {
       disposed = true;
+      if (readyTimer) {
+        window.clearTimeout(readyTimer);
+      }
       if (playerRef.current) {
         playerRef.current.destroy();
         playerRef.current = null;
       }
     };
-  }, [ids, items.length]);
+  }, [active, ids, items.length]);
 
   useEffect(() => {
     if (!playerRef.current || items.length <= 1 || ids.length === 0) {
@@ -193,16 +216,28 @@ export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
       <div className="relative">
         <div className="w-full max-w-sm md:max-w-lg mx-auto">
           <div className="relative bg-gray-900 rounded-[12px] overflow-hidden aspect-video shadow-sm">
-            <div
-              ref={playerContainerRef}
-              className="w-full h-full"
-              style={{
-                opacity: playerReady ? 1 : 0,
-                transition: 'opacity 150ms ease-in-out',
-              }}
-            />
-            {!playerReady && (
-              <div className="absolute inset-0 bg-black z-10" />
+            {useFallback ? (
+              <LazyYouTubeFrame
+                src={playlistUrl}
+                title={`Video de seña: ${items[currentIndex]?.word || ''}`}
+                className="w-full h-full"
+                thumbnailUrl={toYouTubeThumbnailUrl(items[currentIndex]?.videoUrl)}
+                active={active}
+              />
+            ) : (
+              <>
+                <div
+                  ref={playerContainerRef}
+                  className="w-full h-full"
+                  style={{
+                    opacity: playerReady ? 1 : 0,
+                    transition: 'opacity 150ms ease-in-out',
+                  }}
+                />
+                {!playerReady && (
+                  <div className="absolute inset-0 bg-black z-10" />
+                )}
+              </>
             )}
             {!active && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">

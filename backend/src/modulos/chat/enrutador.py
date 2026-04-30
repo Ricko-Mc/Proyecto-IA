@@ -26,7 +26,9 @@ async def procesar_chat(
         )
     except HTTPException:
         raise
-    except Exception:
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
         return {
             "tipo_respuesta": "error_backend",
             "mensaje_usuario": datos.mensaje,
@@ -36,6 +38,7 @@ async def procesar_chat(
             "signo_id": None,
             "url_video": None,
             "categoria": None,
-            "respuesta_ia": "Ocurrio un error interno procesando tu consulta. Intenta nuevamente.",
+            "respuesta_ia": f"Ocurrio un error interno procesando tu consulta. Intenta nuevamente. Error: {str(e)}",
             "opciones": None,
+            "videos_compilacion": None,
         }

@@ -10,6 +10,33 @@ class ServicioChat:
         self.agente_ia = agente_ia
         self._cache_respuestas = CacheTTL[str, dict](ttl_seconds=300, max_items=512)
 
+    def _es_solicitud_compilacion_completa(self, mensaje: str) -> str | None:
+        """Detecta si el usuario pide una compilación completa (ej: 'abecedario completo', 'todos los colores')."""
+        mensaje_norm = self.puente_prolog.normalizar(mensaje)
+        palabras = set(mensaje_norm.split("_"))
+
+        # Palabras indicadoras de compilación completa
+        indicadores = {"completo", "completa", "todos", "todas", "compilacion", "compilación"}
+        
+        if not indicadores.intersection(palabras):
+            return None
+
+        # Mapeo de categorías
+        categorias_map = {
+            ("abecedario", "letras", "letra"): "abecedario",
+            ("color", "colores"): "colores",
+            ("alimento", "alimentos", "comida", "comidas", "bebida"): "alimentos",
+            ("animal", "animales"): "animales",
+            ("saludo", "saludos"): "saludos",
+            ("frase", "frases"): "frases_comunes",
+        }
+
+        for palabras_clave, categoria in categorias_map.items():
+            if any(palabra in palabras for palabra in palabras_clave):
+                return categoria
+        
+        return None
+
     def _inferir_categoria_por_contexto(self, mensaje: str) -> str | None:
         mensaje_norm = self.puente_prolog.normalizar(mensaje)
         palabras = set(mensaje_norm.split("_"))
@@ -75,8 +102,103 @@ class ServicioChat:
         clave_desambiguacion: str | None = None,
     ) -> dict:
         """Procesa un mensaje: extrae palabra clave, busca signo y genera respuesta contextual."""
-        cache_key = f"{mensaje.strip().lower()}|{(clave_desambiguacion or '').strip().lower()}"
+        # Agregar versión al cache_key para evitar conflictos durante debugging
+        cache_key = f"{mensaje.strip().lower()}|{(clave_desambiguacion or '').strip().lower()}|v2"
         cache_hit = self._cache_respuestas.get(cache_key)
+
+        # Detectar si es una solicitud de compilación completa
+        categoria_compilacion = self._es_solicitud_compilacion_completa(mensaje)
+        
+        if categoria_compilacion:
+            # Procesar solicitud de compilación completa
+            signos = self.puente_prolog.obtener_todos_signos_categoria_con_youtube(categoria_compilacion)
+            
+            if signos:
+                videos_compilacion = []
+                for signo in signos:
+                    # Intentar obtener youtube_referencia con fallbacks a otras claves posibles
+                    youtube_ref = (
+                        signo.get("youtube_referencia")
+                        or signo.get("youtube_ref")
+                        or signo.get("youtubeReferencia")
+                        or signo.get("youtube_id")
+                    )
+                    
+                    print(f"🔍 SIGNO: {signo.get('palabra')} | ID: {signo.get('signo_id')} | YT_REF: {youtube_ref}")
+                    
+                    url_embed = construir_url_embed_youtube(youtube_ref)
+                    print(f"   URL_EMBED: {url_embed}")
+                    
+                    videos_compilacion.append({
+                        "palabra": signo["palabra"],
+                        "signo_id": signo["signo_id"],
+                        "url_video": url_embed,
+                    })
+                
+                respuesta_ia = "Selecciona la letra que quieres aprender y Practica!"
+                
+                self._cache_respuestas.set(
+                    cache_key,
+                    {
+                        "tipo_respuesta": "compilacion",
+                        "palabra_clave": categoria_compilacion,
+                        "signo_encontrado": True,
+                        "signo_id": None,
+                        "url_video": None,
+                        "categoria": categoria_compilacion,
+                        "respuesta_ia": respuesta_ia,
+                        "opciones": None,
+                        "videos_compilacion": videos_compilacion,
+                    },
+                )
+                
+                conversacion_resuelta = conversacion_id or ""
+                return {
+                    "tipo_respuesta": "compilacion",
+                    "mensaje_usuario": mensaje,
+                    "conversacion_id": conversacion_resuelta,
+                    "palabra_clave": categoria_compilacion,
+                    "signo_encontrado": True,
+                    "signo_id": None,
+                    "url_video": None,
+                    "categoria": categoria_compilacion,
+                    "respuesta_ia": respuesta_ia,
+                    "opciones": None,
+                    "videos_compilacion": videos_compilacion,
+                }
+            else:
+                # Si no se encuentran signos pero se detectó compilación, aún retornar compilación vacía
+                respuesta_ia = "Selecciona la letra que quieres aprender y Practica!"
+                
+                self._cache_respuestas.set(
+                    cache_key,
+                    {
+                        "tipo_respuesta": "compilacion",
+                        "palabra_clave": categoria_compilacion,
+                        "signo_encontrado": False,
+                        "signo_id": None,
+                        "url_video": None,
+                        "categoria": categoria_compilacion,
+                        "respuesta_ia": respuesta_ia,
+                        "opciones": None,
+                        "videos_compilacion": [],
+                    },
+                )
+                
+                conversacion_resuelta = conversacion_id or ""
+                return {
+                    "tipo_respuesta": "compilacion",
+                    "mensaje_usuario": mensaje,
+                    "conversacion_id": conversacion_resuelta,
+                    "palabra_clave": categoria_compilacion,
+                    "signo_encontrado": False,
+                    "signo_id": None,
+                    "url_video": None,
+                    "categoria": categoria_compilacion,
+                    "respuesta_ia": respuesta_ia,
+                    "opciones": None,
+                    "videos_compilacion": [],
+                }
 
         if cache_hit is not None:
             tipo_respuesta = cache_hit.get(
@@ -95,11 +217,13 @@ class ServicioChat:
             url_video = cache_hit["url_video"]
             respuesta_ia = cache_hit["respuesta_ia"]
             opciones = cache_hit.get("opciones")
+            videos_compilacion = cache_hit.get("videos_compilacion")
         else:
             extraccion = self.agente_ia.extraer_palabra_clave(mensaje)
             palabra_clave = self.puente_prolog.normalizar(extraccion["palabra_normalizada"])
             categoria_contexto = extraccion.get("categoria_sugerida") or self._inferir_categoria_por_contexto(mensaje)
             opciones = None
+            videos_compilacion = None
 
             coincidencias = self.puente_prolog.buscar_signos_por_palabra(palabra_clave)
             categoria_por_clave = self._categoria_desde_clave(clave_desambiguacion or "")
@@ -197,4 +321,5 @@ class ServicioChat:
             "categoria": categoria_info["categoria"] if categoria_info["encontrado"] else None,
             "respuesta_ia": respuesta_ia,
             "opciones": opciones,
+            "videos_compilacion": videos_compilacion,
         }

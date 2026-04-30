@@ -217,3 +217,19 @@ class PuenteProlog:
         )
         salida = self._ejecutar(goal)
         return salida or None
+
+    def obtener_todos_signos_categoria_con_youtube(self, categoria: str) -> list[dict]:
+        """Obtiene todos los signos de una categoría con sus referencias de YouTube."""
+        # Usar el método existente que funciona
+        signos = self.obtener_signos_por_categoria(categoria)
+        
+        # Obtener YouTube ref para cada signo
+        for signo in signos:
+            signo_id = signo.get("signo_id")
+            if signo_id:
+                youtube_ref = self.obtener_youtube_referencia_por_signo(signo_id)
+                signo["youtube_referencia"] = youtube_ref
+            else:
+                signo["youtube_referencia"] = None
+        
+        return signos

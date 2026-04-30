@@ -3,8 +3,14 @@ export interface OpcionDesambiguacion {
   clave: string;
 }
 
+export interface VideoCompilacion {
+  palabra: string;
+  signo_id: string;
+  url_video: string | null;
+}
+
 export interface RespuestaChat {
-  tipo_respuesta: 'video' | 'desambiguacion' | 'no_encontrado' | 'error_backend';
+  tipo_respuesta: 'video' | 'desambiguacion' | 'no_encontrado' | 'error_backend' | 'compilacion';
   mensaje_usuario: string;
   conversacion_id: string;
   palabra_clave: string;
@@ -14,6 +20,7 @@ export interface RespuestaChat {
   categoria: string | null;
   respuesta_ia: string;
   opciones?: OpcionDesambiguacion[] | null;
+  videos_compilacion?: VideoCompilacion[] | null;
   error?: string;
 }
 

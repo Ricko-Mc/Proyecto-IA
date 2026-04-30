@@ -236,7 +236,14 @@ export function Chat() {
         const filtered = prev.filter((m) => !m.isLoading);
 
         let systemMessage: Message;
-        if (respuesta.tipo_respuesta === 'desambiguacion') {
+        if (respuesta.tipo_respuesta === 'compilacion') {
+          systemMessage = {
+            id: `msg-${Date.now()}-response`,
+            type: 'system',
+            text: respuesta.respuesta_ia,
+            videosCompilacion: respuesta.videos_compilacion || [],
+          };
+        } else if (respuesta.tipo_respuesta === 'desambiguacion') {
           systemMessage = {
             id: `msg-${Date.now()}-response`,
             type: 'system',
@@ -357,7 +364,7 @@ export function Chat() {
   const maxChars = 500;
   const activeVideoMessageId = [...messages]
     .reverse()
-    .find((message) => message.type === 'system' && (Boolean(message.videoUrl) || Boolean(message.videos?.length)))?.id;
+    .find((message) => message.type === 'system' && (Boolean(message.videoUrl) || Boolean(message.videos?.length) || Boolean(message.videosCompilacion?.length)))?.id;
 
   return (
     <div className="flex h-screen w-screen rounded-none overflow-hidden bg-[#f7f8fa] dark:bg-[rgba(10,10,10,0.82)]">
