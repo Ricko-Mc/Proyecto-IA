@@ -210,13 +210,27 @@ class PuenteProlog:
 
     def obtener_youtube_referencia_por_signo(self, signo_id: str) -> str | None:
         """Obtiene referencia de YouTube (ID o URL) asociada a un signo."""
-        signo_atom = self._atomizar_literal(signo_id)
+        if not signo_id or not signo_id.strip():
+            return None
+        
+        signo_id_limpio = signo_id.strip()
+        
+        # Remover comillas si las tiene
+        if signo_id_limpio.startswith("'") and signo_id_limpio.endswith("'"):
+            signo_id_limpio = signo_id_limpio[1:-1]
+        
+        # Envolver en comillas para la consulta Prolog
+        signo_id_atom = f"'{signo_id_limpio}'"
+        
         goal = (
-            f"(buscar_youtube_video_por_signo({signo_atom}, YoutubeRef) "
+            f"(video_youtube({signo_id_atom}, YoutubeRef) "
             f"-> format('~w', [YoutubeRef]) ; true)"
         )
-        salida = self._ejecutar(goal)
-        return salida or None
+        try:
+            salida = self._ejecutar(goal)
+            return salida.strip() if salida and salida.strip() else None
+        except Exception:
+            return None
 
     def obtener_todos_signos_categoria_con_youtube(self, categoria: str) -> list[dict]:
         """Obtiene todos los signos de una categoría con sus referencias de YouTube."""

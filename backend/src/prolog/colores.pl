@@ -7,7 +7,7 @@ signo(blanco, colores, 'COL006').
 signo(rosado, colores, 'COL007').
 signo(morado, colores, 'COL008').
 signo(anaranjado, colores, 'COL009').
-signo(naranja, colores, 'COL009').
+signo(naranja, colores, 'COL022').
 signo(cafe, colores, 'COL010').
 signo(gris, colores, 'COL011').
 signo(violeta, colores, 'COL012').
@@ -31,6 +31,7 @@ video_youtube('COL006', 'https://youtu.be/48hUtiFC0ZM').
 video_youtube('COL007', 'https://youtu.be/3kdl3UOBCko').
 video_youtube('COL008', 'https://youtu.be/O8ZLxiwceYQ').
 video_youtube('COL009', 'https://youtu.be/3UhefSTZB-E').
+video_youtube('COL022', 'https://youtu.be/3UhefSTZB-E').
 video_youtube('COL010', 'https://youtu.be/bfbp-IekUsU').
 video_youtube('COL011', 'https://youtu.be/eZMIh11rRho').
 video_youtube('COL012', 'https://youtu.be/N2hyVNY0NSs').

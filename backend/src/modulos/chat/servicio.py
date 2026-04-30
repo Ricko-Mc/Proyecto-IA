@@ -116,24 +116,21 @@ class ServicioChat:
             if signos:
                 videos_compilacion = []
                 for signo in signos:
-                    # Intentar obtener youtube_referencia con fallbacks a otras claves posibles
-                    youtube_ref = (
-                        signo.get("youtube_referencia")
-                        or signo.get("youtube_ref")
-                        or signo.get("youtubeReferencia")
-                        or signo.get("youtube_id")
-                    )
+                    # Obtener youtube_referencia desde Prolog de forma segura
+                    signo_id = signo.get("signo_id")
+                    youtube_ref = None
                     
-                    print(f"🔍 SIGNO: {signo.get('palabra')} | ID: {signo.get('signo_id')} | YT_REF: {youtube_ref}")
+                    if signo_id:
+                        youtube_ref = self.puente_prolog.obtener_youtube_referencia_por_signo(signo_id)
                     
-                    url_embed = construir_url_embed_youtube(youtube_ref)
-                    print(f"   URL_EMBED: {url_embed}")
+                    url_embed = construir_url_embed_youtube(youtube_ref) if youtube_ref else None
                     
-                    videos_compilacion.append({
-                        "palabra": signo["palabra"],
-                        "signo_id": signo["signo_id"],
-                        "url_video": url_embed,
-                    })
+                    if url_embed:  # Solo agregar si hay URL válida
+                        videos_compilacion.append({
+                            "palabra": signo["palabra"],
+                            "signo_id": signo["signo_id"],
+                            "url_video": url_embed,
+                        })
                 
                 respuesta_ia = "Selecciona la letra que quieres aprender y Practica!"
                 
@@ -292,7 +289,8 @@ class ServicioChat:
 
             url_video = None
             if signo_info["encontrado"]:
-                url_video = construir_url_embed_youtube(signo_info.get("youtube_referencia"))
+                youtube_ref = signo_info.get("youtube_referencia")
+                url_video = construir_url_embed_youtube(youtube_ref) if youtube_ref else None
             respuesta_ia = self.agente_ia.generar_respuesta_contextual(mensaje, signo_info)
             tipo_respuesta = "video" if signo_info["encontrado"] else "no_encontrado"
             self._cache_respuestas.set(

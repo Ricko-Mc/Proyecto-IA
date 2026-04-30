@@ -15,8 +15,12 @@ class ServicioSignos:
         """Obtiene todos los signos con sus URLs de video."""
         signos = self.puente_prolog.obtener_todos_los_signos()
         for signo in signos:
-            referencia = self.puente_prolog.obtener_youtube_referencia_por_signo(signo["signo_id"])
-            signo["url_video"] = construir_url_embed_youtube(referencia)
+            signo_id = signo.get("signo_id")
+            if signo_id:
+                referencia = self.puente_prolog.obtener_youtube_referencia_por_signo(signo_id)
+                signo["url_video"] = construir_url_embed_youtube(referencia) if referencia else None
+            else:
+                signo["url_video"] = None
         return signos
 
     def obtener_categorias(self) -> list[str]:
@@ -32,8 +36,12 @@ class ServicioSignos:
 
         signos = self.puente_prolog.obtener_signos_por_categoria(categoria)
         for signo in signos:
-            referencia = self.puente_prolog.obtener_youtube_referencia_por_signo(signo["signo_id"])
-            signo["url_video"] = construir_url_embed_youtube(referencia)
+            signo_id = signo.get("signo_id")
+            if signo_id:
+                referencia = self.puente_prolog.obtener_youtube_referencia_por_signo(signo_id)
+                signo["url_video"] = construir_url_embed_youtube(referencia) if referencia else None
+            else:
+                signo["url_video"] = None
 
         resultado = {"categoria": categoria, "total": len(signos), "signos": signos}
         self._cache_por_categoria[cache_key] = resultado
@@ -49,14 +57,14 @@ class ServicioSignos:
         signo = self.puente_prolog.buscar_signo(palabra)
         categoria = self.puente_prolog.buscar_categoria(palabra)
         url_video = None
-        if signo["encontrado"] and signo["signo_id"]:
+        if signo["encontrado"] and signo.get("signo_id"):
             referencia = self.puente_prolog.obtener_youtube_referencia_por_signo(signo["signo_id"])
-            url_video = construir_url_embed_youtube(referencia)
+            url_video = construir_url_embed_youtube(referencia) if referencia else None
         resultado = {
             "palabra": palabra,
             "encontrado": signo["encontrado"],
-            "signo_id": signo["signo_id"],
-            "categoria": categoria["categoria"] if categoria["encontrado"] else None,
+            "signo_id": signo.get("signo_id"),
+            "categoria": categoria["categoria"] if categoria.get("encontrado") else None,
             "url_video": url_video,
         }
         self._cache_busqueda.set(cache_key, resultado)
@@ -71,7 +79,7 @@ puente = PuenteProlog(ruta_reglas)
 
 def obtener_pares_juego(categoria: str) -> list[dict]:
     """
-    Obtiene 10 pares aleatorios de señas y sus IDs de YouTube desde Prolog.
+    Obtiene 10 pares aleatorios de señas y sus URLs de videos desde Prolog.
     Optimizado para no devolver redundancias.
     """
     categorias_validas = ["abecedario", "alimentos", "animales", "colores", "frases_comunes", "saludos"]
@@ -91,20 +99,22 @@ def obtener_pares_juego(categoria: str) -> list[dict]:
     pares = []
     for signo in seleccion:
         palabra = signo["palabra"]
+        signo_id = signo.get("signo_id")
         
-        # 5. Usamos tu método buscar_signo para extraer la referencia de YouTube
-        info_signo = puente.buscar_signo(palabra)
-        
-        # Obtenemos la referencia de YouTube o usamos el ID de la seña como respaldo
-        video_id = info_signo.get("youtube_referencia") or signo.get("signo_id") or "placeholder_id"
+        # 5. Obtener la referencia de YouTube y construir la URL
+        url_video = None
+        if signo_id:
+            referencia = puente.obtener_youtube_referencia_por_signo(signo_id)
+            url_video = construir_url_embed_youtube(referencia) if referencia else None
         
         # Formateamos la palabra para que se vea bien en el frontend (ej. "buenos_dias" -> "Buenos Dias")
         palabra_formateada = palabra.replace("_", " ").title()
         
         pares.append({
-            "id": palabra.lower().replace(" ", "-"),
+            "signo_id": signo_id,
             "palabra": palabra_formateada,
-            "video_id": video_id  # Solo el ID, el frontend se encarga del iframe optimizado
+            "url_video": url_video,
+            "categoria": signo.get("categoria")
         })
     
     return pares
