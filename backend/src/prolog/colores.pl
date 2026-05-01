@@ -10,15 +10,15 @@ signo(anaranjado, colores, 'COL009').
 signo(naranja, colores, 'COL022').
 signo(cafe, colores, 'COL010').
 signo(gris, colores, 'COL011').
-signo(violeta, colores, 'COL012').
-signo(celeste, colores, 'COL013').
-signo(beige, colores, 'COL014').
-signo(dorado, colores, 'COL015').
-signo(corinto, colores, 'COL016').
-signo(plateado, colores, 'COL017').
-signo(bronce, colores, 'COL018').
-signo(fucsia, colores, 'COL019').
-signo(colores, colores, 'COL020').
+signo(violeta/Lila, colores, 'COL012').
+signo(celeste, colores, 'COL014').
+signo(beige, colores, 'COL015').
+signo(dorado, colores, 'COL016').
+signo(corinto, colores, 'COL017').
+signo(plateado, colores, 'COL018').
+signo(bronce, colores, 'COL019').
+signo(fucsia, colores, 'COL020').
+signo(colores, colores, 'COL021').
 
 
 video_youtube('COL001', 'https://youtu.be/FqjmTmlw6co').
@@ -34,7 +34,6 @@ video_youtube('COL022', 'https://youtu.be/3UhefSTZB-E').
 video_youtube('COL010', 'https://youtu.be/bfbp-IekUsU').
 video_youtube('COL011', 'https://youtu.be/eZMIh11rRho').
 video_youtube('COL012', 'https://youtu.be/N2hyVNY0NSs').
-video_youtube('COL013', 'https://youtu.be/DmGAeprD9Jg').
 video_youtube('COL014', 'https://youtu.be/gICBFKAJZlE').
 video_youtube('COL015', 'https://youtu.be/uilxA2mkdZI').
 video_youtube('COL016', 'https://youtu.be/x2AGnloMMyY').
