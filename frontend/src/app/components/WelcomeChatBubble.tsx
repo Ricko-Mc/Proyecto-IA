@@ -47,7 +47,7 @@ export function WelcomeChatBubble({ onDismiss }: WelcomeChatBubbleProps) {
               Puedo ayudarte a practicar abecedario, saludos, colores, animales, alimentos o frases comunes.
               <br />
               <br />
-              <span className="font-medium">Prueba escribiendo una palabra (ej: "rojo"), preguntar cómo se dice (ej: "¿Cómo se dice gato?"), di "Quiero aprender la palabra..." o pide "abecedario completo" para ver todas las letras.</span>
+              <span className="font-medium">Prueba escribiendo una palabra (ej: "rojo"), preguntar cómo se dice (ej: "¿Cómo se dice gato?") o di "Quiero aprender la palabra..."</span>
             </p>
           </div>
         </div>
