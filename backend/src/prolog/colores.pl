@@ -11,15 +11,14 @@ signo(naranja, colores, 'COL022').
 signo(cafe, colores, 'COL010').
 signo(gris, colores, 'COL011').
 signo(violeta, colores, 'COL012').
-signo(lila, colores, 'COL013').
-signo(celeste, colores, 'COL014').
-signo(beige, colores, 'COL015').
-signo(dorado, colores, 'COL016').
-signo(corinto, colores, 'COL017').
-signo(plateado, colores, 'COL018').
-signo(bronce, colores, 'COL019').
-signo(fucsia, colores, 'COL020').
-signo(colores, colores, 'COL021').
+signo(celeste, colores, 'COL013').
+signo(beige, colores, 'COL014').
+signo(dorado, colores, 'COL015').
+signo(corinto, colores, 'COL016').
+signo(plateado, colores, 'COL017').
+signo(bronce, colores, 'COL018').
+signo(fucsia, colores, 'COL019').
+signo(colores, colores, 'COL020').
 
 
 video_youtube('COL001', 'https://youtu.be/FqjmTmlw6co').

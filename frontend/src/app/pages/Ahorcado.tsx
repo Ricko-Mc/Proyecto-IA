@@ -407,7 +407,7 @@ export function Ahorcado() {
       onNewConversation={() => navigate('/chat')}
       onRequestExit={handleRequestExit}
     >
-      <div className="w-full h-full flex flex-col justify-center xl:justify-start items-center gap-4 px-4 pt-0 pb-4 md:px-6 md:pt-0 md:pb-6">
+      <div className="w-full h-full flex flex-col justify-start items-center gap-4 px-4 pt-0 pb-4 md:px-6 md:pt-0 md:pb-6">
         <div className="flex w-full flex-wrap items-center justify-between gap-2 mt-4 md:mt-0">
           <div className="flex items-center">
             <button
@@ -439,37 +439,16 @@ export function Ahorcado() {
           </div>
         </div>
 
-        <div className="grid h-full w-full flex-1 grid-cols-2 gap-3 items-start xl:grid-cols-[60%_40%] xl:gap-8 xl:-mt-16 xl:max-w-[1180px] xl:mx-auto">
-          <div className="order-0 flex min-h-0 flex-1 flex-col items-center justify-start gap-4 pt-2 xl:pt-4 xl:max-w-[60%] xl:mx-auto">
-            <div className="w-full border-b border-slate-200 pb-6 flex-1">
-              <div className="rounded-[28px] pt-0 pb-4 px-3 min-h-[220px] md:min-h-[280px] xl:min-h-[420px] max-h-[320px] xl:max-h-[540px] w-full max-w-full bg-transparent flex-1">
-                <div className="h-full w-full flex items-center justify-center">
-                  <Hangman errors={errors} />
-                </div>
+        <div className="w-full flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8 items-center lg:items-start justify-center lg:justify-start max-w-[1200px] mx-auto">
+          {/* Ahorcado y letras - centrado en móvil, izquierda en desktop */}
+          <div className="w-full lg:w-[45%] flex flex-col gap-4 items-center">
+            <div className="rounded-[28px] p-3 sm:p-4 w-full bg-transparent flex items-center justify-center min-h-[200px] sm:min-h-[260px] md:min-h-[300px] lg:min-h-[360px]">
+              <div className="h-full w-full flex items-center justify-center">
+                <Hangman errors={errors} />
               </div>
             </div>
-          </div>
 
-          <aside className="flex min-h-0 flex-1 flex-col justify-start items-center gap-4 xl:pl-0">
-            {embedVideoUrl ? (
-              <>
-                <div className="ahorcado-video-crop overflow-hidden rounded-[16px] w-full max-w-full h-[220px] sm:h-[260px] md:h-[360px] flex items-center justify-center mx-auto">
-                  <VideoPlayer videoUrl={embedVideoUrl} signLabel={wordData} active={!gameOver} showLabel={false} />
-                </div>
-                {loadingVideo && (
-                  <p className="text-sm text-slate-500">Cargando video...</p>
-                )}
-              </>
-            ) : (
-              <div className="flex min-h-[180px] w-full flex-col items-center justify-center gap-3 rounded-[24px] bg-slate-100/70 p-4 text-center text-sm text-slate-500">
-                <VideoOff className="h-8 w-8 text-slate-400" />
-                Sin video disponible
-              </div>
-            )}
-          </aside>
-
-          <div className="col-span-2 order-2 flex flex-col items-center justify-center gap-4 mt-2 xl:mt-4">
-            <div className={`relative mt-3 mb-2 flex flex-wrap justify-center gap-3 overflow-hidden rounded-3xl max-w-[760px] w-full mx-auto ${won ? 'animate-celebrate' : ''}`}>
+            <div className={`relative flex flex-wrap justify-center gap-2 sm:gap-3 max-w-full w-full px-2 ${won ? 'animate-celebrate' : ''}`}>
               {won && (
                 <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-0 overflow-visible">
                   <span className="confetti confetti-1" />
@@ -483,18 +462,18 @@ export function Ahorcado() {
               {wordData.split('').map((letter, index) => (
                 <div
                   key={`${letter}-${index}`}
-                  className="relative flex h-14 min-w-[40px] items-center justify-center rounded-2xl border border-slate-200 bg-transparent text-base font-bold text-slate-900 px-3"
+                  className="relative flex h-11 sm:h-13 md:h-14 min-w-[36px] sm:min-w-[40px] items-center justify-center rounded-2xl border border-slate-200 bg-transparent text-sm sm:text-base font-bold text-slate-900 px-2 sm:px-3"
                 >
                   {revealedLetters.has(letter) ? letter : '—'}
                 </div>
               ))}
             </div>
 
-            <div className="grid gap-3 w-full max-w-[780px]">
+            <div className="grid gap-2 sm:gap-3 w-full px-2">
               {KEY_ROWS.map((row, rowIndex) => (
                 <div
                   key={rowIndex}
-                  className={`grid w-full gap-2 ${row.length === 7 ? 'grid-cols-7' : 'grid-cols-10'}`}
+                  className={`grid w-full gap-1.5 sm:gap-2 justify-center ${row.length === 7 ? 'grid-cols-7' : 'grid-cols-10'}`}
                 >
                   {row.map((letter) => {
                     const isUsed = guessed.has(letter);
@@ -506,7 +485,7 @@ export function Ahorcado() {
                         type="button"
                         disabled={isUsed || gameOver}
                         onClick={() => handleGuess(letter)}
-                        className={`h-12 min-h-[40px] min-w-[40px] rounded-2xl border px-2 text-base font-semibold transition ${
+                        className={`h-10 sm:h-11 md:h-12 min-w-[34px] sm:min-w-[38px] md:min-w-[40px] rounded-2xl border px-1.5 sm:px-2 text-xs sm:text-sm md:text-base font-semibold transition ${
                           isCorrect
                             ? 'border-emerald-400 bg-emerald-500/15 text-emerald-700'
                             : isWrong
@@ -521,6 +500,25 @@ export function Ahorcado() {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Video - centrado arriba en móvil, derecha en desktop */}
+          <div className="w-full lg:w-[45%] flex flex-col gap-3 items-center lg:items-end">
+            {embedVideoUrl ? (
+              <>
+                <div className="ahorcado-video-crop overflow-hidden rounded-[16px] w-full max-w-[400px] lg:max-w-none h-[200px] sm:h-[260px] md:h-[300px] lg:h-[360px] flex items-center justify-center">
+                  <VideoPlayer videoUrl={embedVideoUrl} signLabel={wordData} active={!gameOver} showLabel={false} />
+                </div>
+                {loadingVideo && (
+                  <p className="text-sm text-slate-500">Cargando video...</p>
+                )}
+              </>
+            ) : (
+              <div className="flex min-h-[200px] sm:min-h-[260px] md:min-h-[300px] lg:min-h-[360px] w-full max-w-[400px] lg:max-w-none flex-col items-center justify-center gap-3 rounded-[24px] bg-slate-100/70 p-4 text-center text-sm text-slate-500">
+                <VideoOff className="h-8 w-8 text-slate-400" />
+                Sin video disponible
+              </div>
+            )}
           </div>
         </div>
       <BottomNav />

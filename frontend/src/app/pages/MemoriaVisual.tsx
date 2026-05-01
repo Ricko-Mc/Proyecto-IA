@@ -210,8 +210,8 @@ export const MemoriaVisual = () => {
 
       let mazo: CartaTablero[] = [];
       paresLimitados.forEach((par: any) => {
-        mazo.push({ uniqueId: `${par.id}-T`, parId: par.id, tipo: 'texto', contenido: par.palabra, volteada: false, emparejada: false, error: false });
-        mazo.push({ uniqueId: `${par.id}-V`, parId: par.id, tipo: 'video', contenido: par.video_id, volteada: false, emparejada: false, error: false });
+        mazo.push({ uniqueId: `${par.signo_id}-T`, parId: par.signo_id, tipo: 'texto', contenido: par.palabra, volteada: false, emparejada: false, error: false });
+        mazo.push({ uniqueId: `${par.signo_id}-V`, parId: par.signo_id, tipo: 'video', contenido: par.url_video, volteada: false, emparejada: false, error: false });
       });
 
       setCartas(mazo.sort(() => Math.random() - 0.5));

@@ -260,6 +260,17 @@ export function AdivinaSena() {
     return () => clearTimeout(timer);
   }, [scoreAdded]);
 
+  useEffect(() => {
+    if (gameState === 'playing' || !currentSign) return;
+    
+    // Auto-advance después de mostrar el resultado por 1.5 segundos
+    const timer = setTimeout(() => {
+      handleNext();
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, [gameState]);
+
   const seleccionarPregunta = (lista: Signo[], yaUsados: Set<string>) => {
     const disponibles = lista.filter(s => !yaUsados.has(s.signo_id));
     const pool = disponibles.length >= 1 ? disponibles : lista;
@@ -325,8 +336,17 @@ export function AdivinaSena() {
   };
 
   const handleAnswer = (answer: string) => {
-    // Cuando se hace clic en una palabra, enviarla al chat
-    handleEnviarPalabraAlChat(answer);
+    if (gameState !== 'playing' || !currentSign) return;
+    
+    setSelectedAnswer(answer);
+    
+    if (answer === currentSign.palabra) {
+      setGameState('correct');
+      setScore(prev => prev + 1);
+      setScoreAdded(true);
+    } else {
+      setGameState('wrong');
+    }
   };
 
   const handleNext = () => {
@@ -739,11 +759,11 @@ export function AdivinaSena() {
                 </p>
 
                 <h3 className="mt-2 text-base font-bold leading-tight text-slate-900">
-                  Selecciona la palabra correcta
+                  {gameState === 'playing' ? 'Selecciona la palabra correcta' : gameState === 'correct' ? '¡Correcto!' : '¡Incorrecto!'}
                 </h3>
 
                 <p className="mt-1 text-xs text-slate-700 leading-relaxed">
-                  Elige una de las opciones para enviar al chat.
+                  {gameState === 'playing' ? 'Elige una de las opciones que crees que es la correcta.' : gameState === 'correct' ? `La palabra era: ${currentSign.palabra}` : `Respuesta: ${currentSign.palabra}`}
                 </p>
               </div>
 
@@ -760,7 +780,9 @@ export function AdivinaSena() {
 
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-slate-700">Compañero</p>
-                  <p className="font-semibold text-sm text-slate-900">¡Elige una palabra!</p>
+                  <p className="font-semibold text-sm text-slate-900">
+                    {gameState === 'playing' ? '¡Elige una palabra!' : gameState === 'correct' ? '¡Muy bien!' : 'Intenta de nuevo'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -782,14 +804,12 @@ export function AdivinaSena() {
             <button
               key={option}
               onClick={() => handleAnswer(option)}
+              disabled={gameState !== 'playing'}
               className={`
                 py-4 rounded-[18px] px-3 text-center font-semibold text-sm uppercase
                 transition-all duration-200
-                bg-[#90CDF4]
-                hover:bg-[#BEE3F8]
-                text-slate-900
-                shadow-[0_10px_25px_rgba(96,165,250,0.22)]
-                hover:scale-[1.03] active:scale-[0.97]
+                ${getButtonStyle(option)}
+                disabled:cursor-not-allowed
               `}
             >
               {formatearOpcionTexto(option)}
@@ -797,14 +817,16 @@ export function AdivinaSena() {
           ))}
         </div>
 
-        <div className="flex justify-center">
-          <button
-            onClick={handleNext}
-            className="bg-gradient-to-r from-[#8B7CFF] to-[#6D5CFF] hover:from-[#988BFF] hover:to-[#7868FF] text-white px-6 py-2.5 rounded-[18px] font-semibold text-sm shadow-[0_10px_25px_rgba(0,0,0,0.18)] hover:scale-[1.03] transition-all active:scale-[0.98]"
-          >
-            {preguntaNum >= TOTAL_PREGUNTAS ? 'Finalizar' : 'Siguiente palabra'}
-          </button>
-        </div>
+        {gameState !== 'playing' && (
+          <div className="flex justify-center">
+            <button
+              onClick={handleNext}
+              className="bg-gradient-to-r from-[#8B7CFF] to-[#6D5CFF] hover:from-[#988BFF] hover:to-[#7868FF] text-white px-6 py-2.5 rounded-[18px] font-semibold text-sm shadow-[0_10px_25px_rgba(0,0,0,0.18)] hover:scale-[1.03] transition-all active:scale-[0.98]"
+            >
+              {preguntaNum >= TOTAL_PREGUNTAS ? 'Finalizar' : 'Siguiente palabra'}
+            </button>
+          </div>
+        )}
         </div>
       </div>
     </div>

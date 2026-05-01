@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, Query
-from .servicio import obtener_pares_juego
 
 router = APIRouter(prefix="/api", tags=["signos"])
 _estado_servicio_signos = {"servicio": None}
@@ -47,4 +46,7 @@ def get_memoria_pares(categoria: str = Query(...)):
     Retorna 10 pares (palabra + video) para el juego de memoria.
     Si es 'mixta', selecciona de todas las categorías disponibles.
     """
-    return obtener_pares_juego(categoria)
+    servicio_signos = _estado_servicio_signos["servicio"]
+    if servicio_signos is None:
+        raise HTTPException(status_code=503, detail="Servicio no disponible")
+    return servicio_signos.obtener_pares_juego(categoria)
