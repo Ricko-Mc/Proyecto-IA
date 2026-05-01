@@ -10,7 +10,8 @@ signo(anaranjado, colores, 'COL009').
 signo(naranja, colores, 'COL022').
 signo(cafe, colores, 'COL010').
 signo(gris, colores, 'COL011').
-signo(violeta/Lila, colores, 'COL012').
+signo(violeta, colores, 'COL012').
+signo(lila, colores, 'COL012').
 signo(celeste, colores, 'COL014').
 signo(beige, colores, 'COL015').
 signo(dorado, colores, 'COL016').

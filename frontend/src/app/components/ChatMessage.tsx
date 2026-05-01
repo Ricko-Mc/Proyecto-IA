@@ -1,6 +1,7 @@
 import { VideoPlayer } from './VideoPlayer';
 import { VideoCarousel } from './VideoCarousel';
 import { GameCarousel } from './GameCarousel';
+import { AbecedarioCompleto } from './AbecedarioCompleto';
 import { Button } from './ui/button';
 import {
   Loader2,
@@ -197,6 +198,19 @@ export function ChatMessage({
                 </Button>
               ))}
             </div>
+          </div>
+        ) : message.videosCompilacion && message.videosCompilacion.length > 0 ? (
+          <div className="space-y-2">
+            {message.text ? (
+              <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">
+                <p className="text-sm text-foreground">{message.text}</p>
+              </div>
+            ) : null}
+            {isActiveVideo ? (
+              <AbecedarioCompleto videos={message.videosCompilacion} active={isActiveVideo} />
+            ) : (
+              <InactiveVideoPlaceholder />
+            )}
           </div>
         ) : message.videos && message.videos.length > 0 ? (
           <div className="space-y-2">

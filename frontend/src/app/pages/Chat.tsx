@@ -4,9 +4,10 @@ import { Sidebar, Conversation } from '../components/Sidebar';
 import { Navbar } from '../components/Navbar';
 import { ChatMessage, Message } from '../components/ChatMessage';
 import { WordNotFoundDialog } from '../components/WordNotFoundDialog';
+import { WelcomeChatBubble } from '../components/WelcomeChatBubble';
+import { InputWithSuggestions } from '../components/InputWithSuggestions';
 import { BottomNav } from '../components/BottomNav';
 import { Button } from '../components/ui/button';
-import { Textarea } from '../components/ui/textarea';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +22,7 @@ import { Send, BookOpen } from 'lucide-react';
 import { api } from '../../services/api';
 
 const WELCOME_CATEGORIES = [
+  { id: 'abecedario', label: 'Abecedario' },
   { id: 'saludos', label: 'Saludos' },
   { id: 'colores', label: 'Colores' },
   { id: 'animales', label: 'Animales' },
@@ -57,6 +59,7 @@ export function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [conversationToDelete, setConversationToDelete] = useState('');
   const [autoSendWord, setAutoSendWord] = useState<string>('');
+  const [showWelcomeBubble, setShowWelcomeBubble] = useState(true);
 
   useEffect(() => {
     const conversationsKey = getConversationStorageKey();
@@ -113,6 +116,13 @@ export function Chat() {
     localStorage.setItem('segua_sidebar_collapsed', JSON.stringify(isSidebarCollapsed));
   }, [isSidebarCollapsed]);
 
+  // Ocultar la nube de bienvenida cuando hay mensajes
+  useEffect(() => {
+    if (messages.length > 0) {
+      setShowWelcomeBubble(false);
+    }
+  }, [messages]);
+
   // Manejar palabra del juego AdivinaSena que viene en los parámetros de URL
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -125,7 +135,7 @@ export function Chat() {
   }, [location.search]);
 
   // Auto-enviar palabra cuando esté lista
-  const enviarMensajeRef = useRef<typeof enviarMensaje>();
+  const enviarMensajeRef = useRef<((mensaje: string) => Promise<void>) | null>(null);
 
   useEffect(() => {
     if (autoSendWord && enviarMensajeRef.current) {
@@ -138,12 +148,14 @@ export function Chat() {
     setCurrentConversationId('');
     setMessages([]);
     setInsertedGamePrompt(false);
+    setShowWelcomeBubble(true);
   };
 
   const handleSelectConversation = (id: string) => {
     setCurrentConversationId(id);
     setMessages([]);
     setInsertedGamePrompt(false);
+    setShowWelcomeBubble(false);
   };
 
   const handleDeleteConversation = () => {
@@ -165,6 +177,7 @@ export function Chat() {
   const handleClearConversation = () => {
     setMessages([]);
     setInsertedGamePrompt(false);
+    setShowWelcomeBubble(true);
     if (currentConversationId) {
       setConversations(prev =>
         prev.map(conv =>
@@ -198,12 +211,39 @@ export function Chat() {
     // Asignar la referencia a la función para que pueda ser usada por el autoSend
     enviarMensajeRef.current = enviarMensaje;
 
-    const mensajeActual = mensaje;
+    // Detectar si el mensaje es "quiero aprender la palabra ..." o "como se dice ..." y extraer la palabra
+    const patronAprender = /quiero\s+aprender\s+(?:la\s+)?palabra[\s:]+(.*)/i;
+    const patronComoDice = /(?:como|cómo)\s+se\s+dice\s+(?:la\s+)?palabra[\s:]*(.*)/i;
+    const patronComoDiceSimple = /(?:como|cómo)\s+se\s+dice[\s:]+(.*)/i;
+    
+    const matchAprender = mensaje.match(patronAprender);
+    const matchComoDice = mensaje.match(patronComoDice);
+    const matchComoDiceSimple = mensaje.match(patronComoDiceSimple);
+    
+    let mensajeActual = mensaje;
+    let mostrarTextoUsuario = textoUsuarioVisible || mensajeActual;
+    
+    if (matchAprender && matchAprender[1]) {
+      // Extraer la palabra del patrón "quiero aprender"
+      const palabraAprender = matchAprender[1].trim();
+      mensajeActual = palabraAprender;
+      mostrarTextoUsuario = `Quiero aprender la palabra: ${palabraAprender}`;
+    } else if (matchComoDice && matchComoDice[1]) {
+      // Extraer la palabra del patrón "como se dice la palabra"
+      const palabraComoDice = matchComoDice[1].trim();
+      mensajeActual = palabraComoDice;
+      mostrarTextoUsuario = `¿Cómo se dice: ${palabraComoDice}?`;
+    } else if (matchComoDiceSimple && matchComoDiceSimple[1]) {
+      // Extraer la palabra del patrón "como se dice" simple
+      const palabraComoDice = matchComoDiceSimple[1].trim();
+      mensajeActual = palabraComoDice;
+      mostrarTextoUsuario = `¿Cómo se dice: ${palabraComoDice}?`;
+    }
 
     const userMessage: Message = {
       id: `msg-${Date.now()}`,
       type: 'user',
-      text: textoUsuarioVisible || mensajeActual,
+      text: mostrarTextoUsuario,
     };
 
     const loadingMessage: Message = {
@@ -580,9 +620,9 @@ export function Chat() {
               className="chat-input flex items-end gap-3 rounded-[16px] p-3 bg-white/72 dark:bg-[rgba(18,18,18,0.78)] border border-black/5 dark:border-white/10 backdrop-blur-md"
             >
               <div className="flex-1 relative">
-                <Textarea
+                <InputWithSuggestions
                   value={inputText}
-                  onChange={(e) => setInputText(e.target.value.slice(0, maxChars))}
+                  onChange={setInputText}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -590,7 +630,10 @@ export function Chat() {
                     }
                   }}
                   placeholder="Escribe una palabra o frase..."
-                  className="min-h-[34px] md:min-h-[38px] max-h-[96px] resize-none pr-9 md:pr-10 py-2 text-xs md:text-sm leading-[1.35] border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-0 dark:text-[#efefef] dark:placeholder:text-[#8c8c8c]"
+                  maxChars={maxChars}
+                  onSelectSuggestion={() => {
+                    // Opcional: hacer algo cuando se selecciona una sugerencia
+                  }}
                 />
                 <div className="absolute bottom-0.5 right-1 text-[9px] md:text-xs text-muted-foreground">
                   {charCount}/{maxChars}
@@ -608,7 +651,12 @@ export function Chat() {
         </div>
       </div>
 
-      
+      {/* Nube de chat de bienvenida */}
+      {showWelcome && showWelcomeBubble && (
+        <WelcomeChatBubble onDismiss={() => setShowWelcomeBubble(false)} />
+      )}
+
+      {/* Navegación inferior */}
       <BottomNav />
     </div>
   );
