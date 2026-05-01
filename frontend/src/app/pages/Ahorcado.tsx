@@ -1,11 +1,22 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft, RefreshCcw, VideoOff, Trophy, XCircle, RotateCcw, Gamepad2, Apple, Palette, PawPrint, Hand, Sparkles } from 'lucide-react';
+import { ArrowLeft, RefreshCcw, VideoOff, Trophy, XCircle, RotateCcw, Gamepad2, Apple, Palette, PawPrint, Hand, Sparkles, Dice5, BookOpen, MessageSquare } from 'lucide-react';
 import { MainLayout } from '../layouts/MainLayout';
 import { VideoPlayer } from '../components/VideoPlayer';
+import { BottomNav } from '../components/BottomNav';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../components/ui/alert-dialog';
 import { api } from '../../services/api';
 
-type CategoryId = 'mixta' | 'colores' | 'animales' | 'alimentos' | 'saludos';
+type CategoryId = 'mixta' | 'colores' | 'animales' | 'alimentos' | 'saludos' | 'frases_comunes';
 
 type AhorcadoScreen = 'select' | 'playing';
 
@@ -14,7 +25,7 @@ type WordEntry = {
   category: CategoryId;
 };
 
-const BACKEND_CATEGORIES: Array<Exclude<CategoryId, 'mixta'>> = ['colores', 'animales', 'alimentos', 'saludos'];
+const BACKEND_CATEGORIES: Array<Exclude<CategoryId, 'mixta'>> = ['colores', 'animales', 'alimentos', 'saludos', 'frases_comunes'];
 
 const WORDS: WordEntry[] = [
   { word: 'COCODRILO', category: 'animales' },
@@ -47,12 +58,78 @@ async function obtenerPalabraDesdeBackend(categoria: CategoryId): Promise<string
   }
 }
 
-const CATEGORIES: { id: CategoryId; label: string; accent: string; Icon: typeof Sparkles }[] = [
-  { id: 'mixta', label: 'Mixta', accent: 'from-[#D8FCFF] to-[#B8E8F2]', Icon: Sparkles },
-  { id: 'colores', label: 'Colores', accent: 'from-[#E5F8FF] to-[#A7DDFF]', Icon: Palette },
-  { id: 'animales', label: 'Animales', accent: 'from-[#E6FCEB] to-[#9EEABD]', Icon: PawPrint },
-  { id: 'alimentos', label: 'Alimentos', accent: 'from-[#FEF7CD] to-[#FDE68A]', Icon: Apple },
-  { id: 'saludos', label: 'Saludos', accent: 'from-[#FFE4ED] to-[#F5B7D5]', Icon: Hand },
+interface CategoriaItem {
+  id: CategoryId;
+  label: string;
+  descripcion: string;
+  Icon: typeof Sparkles;
+  fondo: string;
+  borde: string;
+  acento: string;
+  iconBoxFondo: string;
+}
+
+const CATEGORIES: CategoriaItem[] = [
+  {
+    id: 'mixta',
+    label: 'Mixta',
+    descripcion: 'Palabras aleatorias de todas las categorías.',
+    Icon: Dice5,
+    fondo: 'from-[#DBEAFE] via-[#BFDBFE] to-[#A5C8F5]',
+    borde: 'border-[#BFDBFE]',
+    acento: 'from-[#2563EB] to-[#1D4ED8]',
+    iconBoxFondo: 'from-[#EFF6FF] to-[#DBEAFE]',
+  },
+  {
+    id: 'colores',
+    label: 'Colores',
+    descripcion: 'Práctica sobre colores.',
+    Icon: Palette,
+    fondo: 'from-[#E0F2FE] via-[#BAE6FD] to-[#7DD3FC]',
+    borde: 'border-[#BAE6FD]',
+    acento: 'from-[#0284C7] to-[#0369A1]',
+    iconBoxFondo: 'from-[#F0F9FF] to-[#E0F2FE]',
+  },
+  {
+    id: 'animales',
+    label: 'Animales',
+    descripcion: 'Práctica sobre animales.',
+    Icon: PawPrint,
+    fondo: 'from-[#CFFAFE] via-[#A5F3FC] to-[#67E8F9]',
+    borde: 'border-[#A5F3FC]',
+    acento: 'from-[#0891B2] to-[#0E7490]',
+    iconBoxFondo: 'from-[#ECFEFF] to-[#CFFAFE]',
+  },
+  {
+    id: 'alimentos',
+    label: 'Alimentos',
+    descripcion: 'Práctica sobre alimentos.',
+    Icon: Apple,
+    fondo: 'from-[#C7D7F5] via-[#A8BFEF] to-[#8FAAE8]',
+    borde: 'border-[#A8BFEF]',
+    acento: 'from-[#3B5EC6] to-[#2D4DB5]',
+    iconBoxFondo: 'from-[#E8EEFB] to-[#C7D7F5]',
+  },
+  {
+    id: 'saludos',
+    label: 'Saludos',
+    descripcion: 'Práctica sobre saludos.',
+    Icon: Hand,
+    fondo: 'from-[#D1E8FF] via-[#B3D4FF] to-[#8FBFFF]',
+    borde: 'border-[#B3D4FF]',
+    acento: 'from-[#1A6FD4] to-[#1558B0]',
+    iconBoxFondo: 'from-[#EBF4FF] to-[#D1E8FF]',
+  },
+  {
+    id: 'frases_comunes',
+    label: 'Frases Comunes',
+    descripcion: 'Expresiones del día a día.',
+    Icon: MessageSquare,
+    fondo: 'from-[#B2EBF9] via-[#81D8F5] to-[#4FC3EF]',
+    borde: 'border-[#81D8F5]',
+    acento: 'from-[#0277BD] to-[#01579B]',
+    iconBoxFondo: 'from-[#E1F5FE] to-[#B2EBF9]',
+  },
 ];
 
 const KEY_ROWS = [
@@ -91,6 +168,8 @@ export function Ahorcado() {
   const [category, setCategory] = useState<CategoryId>('mixta');
   const [wordData, setWordData] = useState('');
   const [loadingWord, setLoadingWord] = useState(false);
+  const [showExitDialog, setShowExitDialog] = useState(false);
+  const [pendingExitCallback, setPendingExitCallback] = useState<(() => void) | null>(null);
 
   const activeCategoryLabel = CATEGORIES.find((cat) => cat.id === category)?.label ?? 'Mixta';
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -165,6 +244,15 @@ export function Ahorcado() {
     void newGame(selectedCategory);
   };
 
+  const handleRequestExit = (callback: () => void) => {
+    if (screen === 'playing') {
+      setPendingExitCallback(() => callback);
+      setShowExitDialog(true);
+    } else {
+      callback();
+    }
+  };
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const key = event.key.toUpperCase();
@@ -223,9 +311,10 @@ export function Ahorcado() {
         activePage="games"
         showClearButton={false}
         onNewConversation={() => navigate('/chat')}
+        onRequestExit={handleRequestExit}
       >
         <div className="w-full flex flex-col items-center justify-start gap-8 px-4 md:px-8 py-8 md:py-10 min-h-[620px] max-w-6xl mx-auto">
-          <div className="w-full flex items-center justify-between">
+          <div className="w-full flex items-center justify-between mt-3">
             <div />
             <button
               onClick={() => navigate('/games')}
@@ -250,7 +339,7 @@ export function Ahorcado() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-4xl mx-auto">
+          <div className="grid grid-cols-2 gap-4 w-full max-w-4xl mx-auto mt-2 px-4">
             {CATEGORIES.map((cat) => {
               const activa = category === cat.id;
               return (
@@ -261,10 +350,9 @@ export function Ahorcado() {
                   className={`
                     group relative overflow-hidden rounded-[28px] border p-0 text-left
                     transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed
-                    bg-gradient-to-br ${cat.accent}
+                    bg-gradient-to-br ${cat.fondo} ${cat.borde}
                     shadow-[0_14px_35px_rgba(15,23,42,0.10)]
                     hover:-translate-y-1.5 hover:shadow-[0_22px_50px_rgba(15,23,42,0.16)]
-                    ${cat.id === 'mixta' ? 'md:col-span-2' : ''}
                     ${activa ? 'ring-2 ring-[#3b82f6]/40 scale-[1.01]' : ''}
                   `}
                 >
@@ -273,7 +361,7 @@ export function Ahorcado() {
 
                   <div className="relative flex items-center gap-3 p-3 md:p-4">
                     <div
-                      className="shrink-0 h-16 w-16 rounded-[20px] bg-white/80 ring-1 ring-white/80 shadow-[0_12px_26px_rgba(15,23,42,0.08)] flex items-center justify-center transition-transform duration-300 group-hover:scale-105"
+                      className={`shrink-0 h-16 w-16 rounded-[20px] bg-gradient-to-br ${cat.iconBoxFondo} ring-1 ring-white/80 shadow-[0_12px_26px_rgba(15,23,42,0.08)] flex items-center justify-center transition-transform duration-300 group-hover:scale-105`}
                     >
                       <cat.Icon className="h-7 w-7 text-slate-900" />
                     </div>
@@ -285,14 +373,12 @@ export function Ahorcado() {
                         </h3>
                       </div>
                       <p className="mt-1 max-w-[28ch] text-xs leading-5 text-slate-700/80 dark:text-slate-200/85">
-                        {cat.id === 'mixta'
-                          ? 'Palabras aleatorias de todas las categorías.'
-                          : `Práctica sobre ${cat.label.toLowerCase()}.`}
+                        {cat.descripcion}
                       </p>
                     </div>
 
                     <div className="hidden md:flex shrink-0 items-center">
-                      <div className={`rounded-2xl bg-white/80 px-4 py-2 text-sm font-semibold text-slate-900 shadow-[0_10px_24px_rgba(15,23,42,0.08)]`}>
+                      <div className={`rounded-2xl bg-gradient-to-r ${cat.acento} px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(0,0,0,0.14)]`}>
                         Jugar
                       </div>
                     </div>
@@ -307,6 +393,7 @@ export function Ahorcado() {
           {loadingWord && (
             <div className="h-8 w-8 rounded-full border-4 border-[#4997D0]/30 border-t-[#4997D0] animate-spin mx-auto" />
           )}
+          <BottomNav />
         </div>
       </MainLayout>
     );
@@ -318,75 +405,96 @@ export function Ahorcado() {
       activePage="games"
       showClearButton={false}
       onNewConversation={() => navigate('/chat')}
+      onRequestExit={handleRequestExit}
     >
-      <div className="w-full h-full flex flex-col justify-center items-center gap-4 px-4 pt-6 pb-4 md:px-6 md:py-6">
-        <div className="flex w-full flex-wrap items-center justify-between gap-3">
+      <div className="w-full h-full flex flex-col justify-center xl:justify-start items-center gap-4 px-4 pt-0 pb-4 md:px-6 md:pt-0 md:pb-6">
+        <div className="flex w-full flex-wrap items-center justify-between gap-2 mt-4 md:mt-0">
           <div className="flex items-center">
             <button
               type="button"
               onClick={() => setScreen('select')}
-              className="inline-flex items-center gap-2 px-3 py-2 ml-8 md:ml-10 text-sm font-semibold text-slate-900 transition hover:text-slate-700"
+              className="inline-flex items-center gap-1.5 px-2 py-1 ml-2 md:ml-10 text-xs md:text-sm font-semibold text-slate-900 transition hover:text-slate-700"
             >
-              <ArrowLeft className="h-4 w-4" />
-              Regresar a categorías
+              <ArrowLeft className="h-3 w-3 md:h-4 md:w-4" />
+              <span className="hidden sm:inline">Regresar a categorías</span>
+              <span className="sm:hidden">Atrás</span>
             </button>
           </div>
-          <div className="flex flex-1 flex-wrap items-center justify-end gap-3">
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-700 dark:bg-slate-900 dark:text-slate-200">
+          <div className="flex flex-1 flex-wrap items-center justify-end gap-1.5 md:gap-3">
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-semibold uppercase tracking-[0.16em] text-slate-700 dark:bg-slate-900 dark:text-slate-200">
               Categoría: {activeCategoryLabel}
             </span>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-700 dark:bg-slate-900 dark:text-slate-200">
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-semibold uppercase tracking-[0.16em] text-slate-700 dark:bg-slate-900 dark:text-slate-200">
               {Math.max(0, 6 - errors)}/6 intentos
             </span>
             <button
               type="button"
               onClick={() => newGame(category)}
-              className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+              className="inline-flex items-center gap-1 md:gap-2 rounded-full border border-slate-300 bg-white px-2 py-1 md:px-3 md:py-2 text-xs md:text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
             >
-              <RefreshCcw className="h-4 w-4" />
-              Nueva palabra
+              <RefreshCcw className="h-3 w-3 md:h-4 md:w-4" />
+              <span className="hidden sm:inline">Nueva palabra</span>
+              <span className="sm:hidden">Nueva</span>
             </button>
           </div>
         </div>
 
-        <div className="flex h-full w-full flex-1 flex-col justify-center gap-4 xl:grid xl:grid-cols-[60%_40%] xl:items-center xl:gap-8 xl:max-w-[1180px] xl:mx-auto">
-          <div className="order-0 xl:order-1 flex min-h-0 flex-1 flex-col items-center justify-between gap-6 pt-4 xl:max-w-[60%] xl:mx-auto">
+        <div className="grid h-full w-full flex-1 grid-cols-2 gap-3 items-start xl:grid-cols-[60%_40%] xl:gap-8 xl:-mt-16 xl:max-w-[1180px] xl:mx-auto">
+          <div className="order-0 flex min-h-0 flex-1 flex-col items-center justify-start gap-4 pt-2 xl:pt-4 xl:max-w-[60%] xl:mx-auto">
             <div className="w-full border-b border-slate-200 pb-6 flex-1">
-              <div className="rounded-[28px] pt-0 pb-4 px-4 min-h-[250px] max-h-[250px] w-full max-w-[520px] mx-auto bg-transparent flex-1">
+              <div className="rounded-[28px] pt-0 pb-4 px-3 min-h-[220px] md:min-h-[280px] xl:min-h-[420px] max-h-[320px] xl:max-h-[540px] w-full max-w-full bg-transparent flex-1">
                 <div className="h-full w-full flex items-center justify-center">
                   <Hangman errors={errors} />
                 </div>
               </div>
             </div>
+          </div>
 
-            <div className="mt-auto w-full">
-              <div className={`relative mt-8 mb-2 flex flex-wrap justify-center gap-2 overflow-hidden rounded-3xl max-w-[860px] w-full mx-auto ${won ? 'animate-celebrate' : ''}`}>
-                {won && (
-                  <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-0 overflow-visible">
-                    <span className="confetti confetti-1" />
-                    <span className="confetti confetti-2" />
-                    <span className="confetti confetti-3" />
-                    <span className="confetti confetti-4" />
-                    <span className="confetti confetti-5" />
-                    <span className="confetti confetti-6" />
-                  </div>
+          <aside className="flex min-h-0 flex-1 flex-col justify-start items-center gap-4 xl:pl-0">
+            {embedVideoUrl ? (
+              <>
+                <div className="ahorcado-video-crop overflow-hidden rounded-[16px] w-full max-w-full h-[220px] sm:h-[260px] md:h-[360px] flex items-center justify-center mx-auto">
+                  <VideoPlayer videoUrl={embedVideoUrl} signLabel={wordData} active={!gameOver} showLabel={false} />
+                </div>
+                {loadingVideo && (
+                  <p className="text-sm text-slate-500">Cargando video...</p>
                 )}
-                {wordData.split('').map((letter, index) => (
-                  <div
-                    key={`${letter}-${index}`}
-                    className="relative flex h-10 min-w-[28px] items-center justify-center rounded-2xl border border-slate-200 bg-transparent text-sm font-bold text-slate-900 px-2"
-                  >
-                    {revealedLetters.has(letter) ? letter : '—'}
-                  </div>
-                ))}
+              </>
+            ) : (
+              <div className="flex min-h-[180px] w-full flex-col items-center justify-center gap-3 rounded-[24px] bg-slate-100/70 p-4 text-center text-sm text-slate-500">
+                <VideoOff className="h-8 w-8 text-slate-400" />
+                Sin video disponible
               </div>
+            )}
+          </aside>
+
+          <div className="col-span-2 order-2 flex flex-col items-center justify-center gap-4 mt-2 xl:mt-4">
+            <div className={`relative mt-3 mb-2 flex flex-wrap justify-center gap-3 overflow-hidden rounded-3xl max-w-[760px] w-full mx-auto ${won ? 'animate-celebrate' : ''}`}>
+              {won && (
+                <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-0 overflow-visible">
+                  <span className="confetti confetti-1" />
+                  <span className="confetti confetti-2" />
+                  <span className="confetti confetti-3" />
+                  <span className="confetti confetti-4" />
+                  <span className="confetti confetti-5" />
+                  <span className="confetti confetti-6" />
+                </div>
+              )}
+              {wordData.split('').map((letter, index) => (
+                <div
+                  key={`${letter}-${index}`}
+                  className="relative flex h-14 min-w-[40px] items-center justify-center rounded-2xl border border-slate-200 bg-transparent text-base font-bold text-slate-900 px-3"
+                >
+                  {revealedLetters.has(letter) ? letter : '—'}
+                </div>
+              ))}
             </div>
 
-            <div className="grid gap-2 w-full -mt-2">
+            <div className="grid gap-3 w-full max-w-[780px]">
               {KEY_ROWS.map((row, rowIndex) => (
                 <div
                   key={rowIndex}
-                  className={`grid w-full gap-1 ${row.length === 7 ? 'grid-cols-7' : 'grid-cols-10'}`}
+                  className={`grid w-full gap-2 ${row.length === 7 ? 'grid-cols-7' : 'grid-cols-10'}`}
                 >
                   {row.map((letter) => {
                     const isUsed = guessed.has(letter);
@@ -398,7 +506,7 @@ export function Ahorcado() {
                         type="button"
                         disabled={isUsed || gameOver}
                         onClick={() => handleGuess(letter)}
-                        className={`h-8 min-h-[32px] min-w-[32px] rounded-2xl border px-1 text-sm font-semibold transition ${
+                        className={`h-12 min-h-[40px] min-w-[40px] rounded-2xl border px-2 text-base font-semibold transition ${
                           isCorrect
                             ? 'border-emerald-400 bg-emerald-500/15 text-emerald-700'
                             : isWrong
@@ -414,25 +522,8 @@ export function Ahorcado() {
               ))}
             </div>
           </div>
-
-          <aside className="order-1 xl:order-0 flex min-h-0 flex-1 flex-col justify-center items-center gap-4 xl:pl-0">
-            {embedVideoUrl ? (
-              <>
-                <div className="ahorcado-video-crop overflow-hidden rounded-[16px] w-full max-w-[520px] h-[220px] sm:h-[260px] md:h-[360px] flex items-center justify-center mx-auto">
-                  <VideoPlayer videoUrl={embedVideoUrl} signLabel={wordData} active={!gameOver} showLabel={false} />
-                </div>
-                {loadingVideo && (
-                  <p className="text-sm text-slate-500">Cargando video...</p>
-                )}
-              </>
-            ) : (
-              <div className="flex min-h-[280px] flex-1 flex-col items-center justify-center gap-3 rounded-[24px] bg-slate-100/70 p-4 text-center text-sm text-slate-500">
-                <VideoOff className="h-8 w-8 text-slate-400" />
-                Sin video disponible
-              </div>
-            )}
-          </aside>
         </div>
+      <BottomNav />
       </div>
       <style>{`.ahorcado-video-crop iframe { width: 100%; height: 100%; display: block; }
 
@@ -592,6 +683,39 @@ export function Ahorcado() {
           </div>
         )
       )}
+
+      <AlertDialog open={showExitDialog} onOpenChange={setShowExitDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Si sales ahora, perderás todo tu progreso en esta partida.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Seguir jugando</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setShowExitDialog(false);
+                setScreen('select');
+                setWordData('');
+                setGuessed(new Set());
+                setGameOver(false);
+                setWon(false);
+                
+                // Si hay un callback pendiente de navegación, ejecutarlo
+                if (pendingExitCallback) {
+                  pendingExitCallback();
+                  setPendingExitCallback(null);
+                }
+              }}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Salir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </MainLayout>
   );
 }

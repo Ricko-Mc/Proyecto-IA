@@ -29,6 +29,7 @@ export interface Message {
   gamePrompt?: boolean;
   categoryPrompt?: boolean;
   categories?: string[];
+  wordsList?: string[];
 }
 
 interface ChatMessageProps {
@@ -197,47 +198,23 @@ export function ChatMessage({
               ))}
             </div>
           </div>
-        ) : message.videosCompilacion && message.videosCompilacion.length > 0 ? (() => {
-          const videosValidos = message.videosCompilacion
-            .filter((video) => !!video.url_video)
-            .map((video) => ({
-              word: video.palabra,
-              videoUrl: video.url_video!,
-            }));
-          
-          return (
-            <div className="space-y-2">
-              {message.text ? (
-                <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">
-                  <p className="text-sm text-foreground">{message.text}</p>
-                </div>
-              ) : null}
-              {isActiveVideo ? (
-                videosValidos.length > 0 ? (
-                  <VideoCarousel items={videosValidos} active={isActiveVideo} />
-                ) : (
-                  <div className="rounded-[16px] p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
-                    <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                      No hay videos disponibles para mostrar
-                    </p>
-                  </div>
-                )
-              ) : (
-                <InactiveVideoPlaceholder />
-              )}
-            </div>
-          );
-        })() : message.videos && message.videos.length > 0 ? (
+        ) : message.videos && message.videos.length > 0 ? (
           <div className="space-y-2">
             {message.text ? (
               <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">
                 <p className="text-sm text-foreground">{message.text}</p>
               </div>
             ) : null}
-            {isActiveVideo ? (
-              <VideoCarousel items={message.videos} active={isActiveVideo} />
+            {message.videos.length > 0 ? (
+              isActiveVideo ? (
+                <VideoCarousel items={message.videos} active={isActiveVideo} />
+              ) : (
+                <InactiveVideoPlaceholder />
+              )
             ) : (
-              <InactiveVideoPlaceholder />
+              <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">
+                <p className="text-sm text-foreground">No hay videos disponibles en esta categoría.</p>
+              </div>
             )}
           </div>
         ) : message.videoUrl && message.signLabel ? (

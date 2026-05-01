@@ -1,8 +1,8 @@
+import os
+import random
 from src.utilidades.puente_prolog import PuenteProlog
 from src.utilidades.youtube import construir_url_embed_youtube
 from src.utilidades.cache_ttl import CacheTTL
-import os
-import random
 
 class ServicioSignos:
     def __init__(self, puente_prolog: PuenteProlog):
@@ -70,51 +70,44 @@ class ServicioSignos:
         self._cache_busqueda.set(cache_key, resultado)
         return resultado
 
-# 1. Configurar la ruta absoluta hacia tu archivo reglas.pl
-ruta_actual = os.path.dirname(os.path.abspath(__file__))
-ruta_reglas = os.path.normpath(os.path.join(ruta_actual, "../../prolog/reglas.pl"))
-
-# 2. Instanciar el puente (Si ya tienes una instancia global en otro archivo, puedes importarla en su lugar)
-puente = PuenteProlog(ruta_reglas)    
-
-def obtener_pares_juego(categoria: str) -> list[dict]:
-    """
-    Obtiene 10 pares aleatorios de señas y sus URLs de videos desde Prolog.
-    Optimizado para no devolver redundancias.
-    """
-    categorias_validas = ["abecedario", "alimentos", "animales", "colores", "frases_comunes", "saludos"]
-    
-    # 3. Obtener el listado de signos según la categoría
-    if categoria == "mixta":
-        todos_los_signos = puente.obtener_todos_los_signos()
-        # Filtramos para asegurarnos de usar solo las categorías del juego
-        signos_disponibles = [s for s in todos_los_signos if s.get("categoria") in categorias_validas]
-    else:
-        signos_disponibles = puente.obtener_signos_por_categoria(categoria)
-
-    # 4. Seleccionar 10 elementos aleatorios sin repetición
-    cantidad_a_seleccionar = min(10, len(signos_disponibles))
-    seleccion = random.sample(signos_disponibles, cantidad_a_seleccionar)
-
-    pares = []
-    for signo in seleccion:
-        palabra = signo["palabra"]
-        signo_id = signo.get("signo_id")
+    def obtener_pares_juego(self, categoria: str) -> list[dict]:
+        """
+        Obtiene 10 pares aleatorios de señas y sus URLs de videos desde Prolog.
+        Optimizado para no devolver redundancias.
+        """
+        categorias_validas = ["abecedario", "alimentos", "animales", "colores", "frases_comunes", "saludos"]
         
-        # 5. Obtener la referencia de YouTube y construir la URL
-        url_video = None
-        if signo_id:
-            referencia = puente.obtener_youtube_referencia_por_signo(signo_id)
-            url_video = construir_url_embed_youtube(referencia) if referencia else None
-        
-        # Formateamos la palabra para que se vea bien en el frontend (ej. "buenos_dias" -> "Buenos Dias")
-        palabra_formateada = palabra.replace("_", " ").title()
-        
-        pares.append({
-            "signo_id": signo_id,
-            "palabra": palabra_formateada,
-            "url_video": url_video,
-            "categoria": signo.get("categoria")
-        })
-    
-    return pares
+        # Obtener el listado de signos según la categoría
+        if categoria == "mixta":
+            todos_los_signos = self.puente_prolog.obtener_todos_los_signos()
+            # Filtramos para asegurarnos de usar solo las categorías del juego
+            signos_disponibles = [s for s in todos_los_signos if s.get("categoria") in categorias_validas]
+        else:
+            signos_disponibles = self.puente_prolog.obtener_signos_por_categoria(categoria)
+
+        # Seleccionar 10 elementos aleatorios sin repetición
+        cantidad_a_seleccionar = min(10, len(signos_disponibles))
+        seleccion = random.sample(signos_disponibles, cantidad_a_seleccionar)
+
+        pares = []
+        for signo in seleccion:
+            palabra = signo["palabra"]
+            signo_id = signo.get("signo_id")
+            
+            # Usamos buscar para obtener la referencia de YouTube
+            info_signo = self.buscar(palabra)
+            
+            # Obtenemos la URL del video
+            url_video = info_signo.get("url_video")
+            
+            # Formateamos la palabra para que se vea bien en el frontend
+            palabra_formateada = palabra.replace("_", " ").title()
+
+            pares.append({
+                "signo_id": signo_id,
+                "palabra": palabra_formateada,
+                "url_video": url_video,
+                "categoria": signo.get("categoria")
+            })
+
+        return pares

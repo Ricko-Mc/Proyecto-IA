@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { Sidebar, Conversation } from '../components/Sidebar';
 import { Navbar } from '../components/Navbar';
 import { ChatMessage, Message } from '../components/ChatMessage';
@@ -20,12 +20,13 @@ import {
 import { Send, BookOpen } from 'lucide-react';
 import { api } from '../../services/api';
 
-const WELCOME_PHRASES = [
-  "Hola, ¿cómo estás?",
-  "Buenos días",
-  "Gracias",
-  "Por favor",
-  "Te quiero"
+const WELCOME_CATEGORIES = [
+  { id: 'saludos', label: 'Saludos' },
+  { id: 'colores', label: 'Colores' },
+  { id: 'animales', label: 'Animales' },
+  { id: 'alimentos', label: 'Alimentos' },
+  { id: 'frases_comunes', label: 'Frases Comunes' },
+  { id: 'mixta', label: 'Mixta' },
 ];
 
 const getConversationStorageKey = () => `segua_conversations_public`;
@@ -38,6 +39,7 @@ const PUBLIC_USER = {
 
 export function Chat() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState<typeof PUBLIC_USER>(PUBLIC_USER);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string>('');
@@ -54,6 +56,7 @@ export function Chat() {
   const [correctResponseCount, setCorrectResponseCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [conversationToDelete, setConversationToDelete] = useState('');
+  const [autoSendWord, setAutoSendWord] = useState<string>('');
 
   useEffect(() => {
     const conversationsKey = getConversationStorageKey();
@@ -109,6 +112,27 @@ export function Chat() {
   useEffect(() => {
     localStorage.setItem('segua_sidebar_collapsed', JSON.stringify(isSidebarCollapsed));
   }, [isSidebarCollapsed]);
+
+  // Manejar palabra del juego AdivinaSena que viene en los parámetros de URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const palabra = params.get('palabra');
+    if (palabra) {
+      setAutoSendWord(palabra);
+      // Limpiar el parámetro de la URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [location.search]);
+
+  // Auto-enviar palabra cuando esté lista
+  const enviarMensajeRef = useRef<typeof enviarMensaje>();
+
+  useEffect(() => {
+    if (autoSendWord && enviarMensajeRef.current) {
+      enviarMensajeRef.current(autoSendWord);
+      setAutoSendWord('');
+    }
+  }, [autoSendWord]);
 
   const handleNewConversation = () => {
     setCurrentConversationId('');
@@ -170,6 +194,9 @@ export function Chat() {
     textoUsuarioVisible?: string
   ) => {
     if (!mensaje.trim()) return;
+
+    // Asignar la referencia a la función para que pueda ser usada por el autoSend
+    enviarMensajeRef.current = enviarMensaje;
 
     const mensajeActual = mensaje;
 
@@ -347,16 +374,69 @@ export function Chat() {
     await enviarMensaje(word, clave, label);
   };
 
-  const handleTryPhrase = (phrase: string) => {
-    setInputText(phrase);
-  };
-
   const handleOpenDictionary = () => {
     navigate('/dictionary');
   };
 
   const handleSelectCategory = (category: string) => {
     navigate(`/dictionary?category=${encodeURIComponent(category)}`);
+  };
+
+  const handleExploreCategory = async (categoryId: string, categoryLabel: string) => {
+    console.log('Explorando categoría:', categoryId, categoryLabel);
+    
+    try {
+      setMessages((prev) => [...prev, {
+        id: `msg-${Date.now()}-loading`,
+        type: 'system',
+        text: '',
+        isLoading: true,
+      }]);
+
+      const resultado = await api.obtenerSignosPorCategoria(categoryId);
+      console.log('Resultado de categoría:', resultado);
+      
+      if (!resultado || !resultado.signos) {
+        throw new Error('Respuesta inválida de la API');
+      }
+
+      const signosArray = Array.isArray(resultado.signos) ? resultado.signos : [];
+      console.log('Signos recibidos:', signosArray);
+      
+      const palabras = signosArray
+        .filter(signo => signo && signo.palabra && signo.url_video)
+        .map(signo => signo.palabra);
+
+      console.log('Palabras procesadas:', palabras, 'Total:', palabras.length);
+
+      const categoryMessage: Message = {
+        id: `msg-${Date.now()}-category`,
+        type: 'system',
+        text: palabras.length > 0 
+          ? `Aquí están las palabras de ${categoryLabel}:` 
+          : `Se encontraron ${signosArray.length} palabras en ${categoryLabel}, pero ninguna tiene video disponible.`,
+        wordsList: palabras.length > 0 ? palabras : [],
+      };
+
+      console.log('Mensaje a agregar:', categoryMessage);
+
+      setMessages((prev) => {
+        const filtered = prev.filter((m) => !m.isLoading);
+        const updated = [...filtered, categoryMessage];
+        console.log('Mensajes actualizados:', updated);
+        return updated;
+      });
+    } catch (error) {
+      console.error('Error al obtener categoría:', error);
+      setMessages((prev) => {
+        const filtered = prev.filter((m) => !m.isLoading);
+        return [...filtered, {
+          id: `msg-${Date.now()}-error`,
+          type: 'system',
+          text: `Error al cargar las palabras de ${categoryLabel}. Por favor, intenta de nuevo.`,
+        }];
+      });
+    }
   };
 
   const showWelcome = messages.length === 0;
@@ -448,17 +528,17 @@ export function Chat() {
                   </p>
                   <div className="space-y-1.5 md:space-y-2">
                     <p className="text-xs md:text-sm font-medium text-muted-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                      Prueba con estas frases:
+                      Explora estas categorías:
                     </p>
-                    <div className="flex gap-2 overflow-x-auto md:flex-wrap md:justify-center px-1 scrollbar-none py-1">
-                      {WELCOME_PHRASES.map((phrase, index) => (
+                    <div className="flex flex-wrap gap-2 justify-center px-2 py-1">
+                      {WELCOME_CATEGORIES.map((category, index) => (
                         <Button
                           key={index}
                           variant="outline"
-                          onClick={() => handleTryPhrase(phrase)}
+                          onClick={() => handleExploreCategory(category.id, category.label)}
                           className="border-[#4997D0]/70 dark:border-[#3f3f3f] bg-white/70 dark:bg-white/5 text-[#4997D0] dark:text-[#dcdcdc] backdrop-blur-sm hover:bg-[#4997D0] dark:hover:bg-[#2a2a2a] hover:text-white text-[11px] md:text-xs h-7 md:h-8 py-1 px-2 md:px-3 whitespace-nowrap"
                         >
-                          {phrase}
+                          {category.label}
                         </Button>
                       ))}
                     </div>

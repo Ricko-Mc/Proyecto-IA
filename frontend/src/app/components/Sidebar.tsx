@@ -21,6 +21,7 @@ interface SidebarProps {
   isMobile?: boolean;
   isCollapsed?: boolean;
   onClose?: () => void;
+  onRequestExit?: (callback: () => void) => void;
 }
 
 export function Sidebar({
@@ -28,6 +29,7 @@ export function Sidebar({
   isMobile = false,
   isCollapsed = false,
   onClose,
+  onRequestExit,
 }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -41,9 +43,21 @@ export function Sidebar({
   };
 
   const handleNavigate = (path: string) => {
-    navigate(path);
-    if (isMobile && onClose) {
-      onClose();
+    // Si estamos en una página de juego y existe onRequestExit, interceptar la navegación
+    const isInGame = activePath.includes('/games/') || activePath.includes('adivinasena') || activePath.includes('ahorcado') || activePath.includes('memoria');
+    
+    if (isInGame && onRequestExit && path !== activePath) {
+      onRequestExit(() => {
+        navigate(path);
+        if (isMobile && onClose) {
+          onClose();
+        }
+      });
+    } else {
+      navigate(path);
+      if (isMobile && onClose) {
+        onClose();
+      }
     }
   };
 

@@ -1,7 +1,11 @@
 import { useNavigate, useLocation } from 'react-router';
 import { MessageSquare, BookOpen, Info, Gamepad } from 'lucide-react';
 
-export function BottomNav() {
+interface BottomNavProps {
+  onRequestExit?: (callback: () => void) => void;
+}
+
+export function BottomNav({ onRequestExit }: BottomNavProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -11,6 +15,17 @@ export function BottomNav() {
     { id: 'games', label: 'Juegos', icon: Gamepad, path: '/games' },
     { id: 'about', label: 'Acerca', icon: Info, path: '/about' },
   ];
+
+  const handleNavigate = (path: string) => {
+    // Si estamos en una página de juego y existe onRequestExit, interceptar la navegación
+    const isInGame = location.pathname.includes('/games/') || location.pathname.includes('adivinasena') || location.pathname.includes('ahorcado') || location.pathname.includes('memoria');
+    
+    if (isInGame && onRequestExit && path !== location.pathname) {
+      onRequestExit(() => navigate(path));
+    } else {
+      navigate(path);
+    }
+  };
 
   return (
     <div
@@ -29,7 +44,7 @@ export function BottomNav() {
           return (
             <button
               key={tab.id}
-              onClick={() => navigate(tab.path)}
+              onClick={() => handleNavigate(tab.path)}
               className={`flex flex-col items-center justify-center flex-1 h-full transition-all duration-200 ease-in-out py-1 rounded-xl ${
                 isActive ? 'bg-[#4997D0]/10' : 'bg-transparent'
               }`}
