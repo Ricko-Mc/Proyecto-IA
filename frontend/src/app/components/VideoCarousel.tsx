@@ -12,6 +12,7 @@ interface VideoCarouselItem {
 interface VideoCarouselProps {
   items: VideoCarouselItem[];
   active?: boolean;
+  compact?: boolean; // ← nueva prop para modo chat
 }
 
 type YoutubeApi = {
@@ -41,11 +42,9 @@ function cargarYoutubeApi(): Promise<YoutubeApi> {
   if (window.YT?.Player) {
     return Promise.resolve(window.YT);
   }
-
   if (window.__youtubeApiReadyPromise) {
     return window.__youtubeApiReadyPromise;
   }
-
   window.__youtubeApiReadyPromise = new Promise<YoutubeApi>((resolve) => {
     const script = document.createElement('script');
     script.src = 'https://www.youtube.com/iframe_api';
@@ -55,16 +54,16 @@ function cargarYoutubeApi(): Promise<YoutubeApi> {
     };
     document.head.appendChild(script);
   });
-
   return window.__youtubeApiReadyPromise;
 }
 
-export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
+export function VideoCarousel({ items, active = true, compact = false }: VideoCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [playerReady, setPlayerReady] = useState(false);
   const [useFallback, setUseFallback] = useState(false);
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YoutubePlayer | null>(null);
+
   const ids = useMemo(
     () => items.map((item) => extractYouTubeId(item.videoUrl)).filter((id): id is string => Boolean(id)),
     [items]
@@ -74,22 +73,12 @@ export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
     [items, currentIndex]
   );
 
-  const goToNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % items.length);
-  };
-
-  const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
-  };
-
-  const goToSlide = (index: number) => {
-    setCurrentIndex(index);
-  };
+  const goToNext = () => setCurrentIndex((prev) => (prev + 1) % items.length);
+  const goToPrevious = () => setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
+  const goToSlide = (index: number) => setCurrentIndex(index);
 
   useEffect(() => {
-    if (items.length <= 1 || ids.length === 0 || !playerContainerRef.current) {
-      return;
-    }
+    if (items.length <= 1 || ids.length === 0 || !playerContainerRef.current) return;
 
     setPlayerReady(false);
     setUseFallback(false);
@@ -97,9 +86,7 @@ export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
     let readyTimer: number | undefined;
 
     void cargarYoutubeApi().then((YT) => {
-      if (disposed || !playerContainerRef.current || playerRef.current) {
-        return;
-      }
+      if (disposed || !playerContainerRef.current || playerRef.current) return;
 
       playerRef.current = new YT.Player(playerContainerRef.current, {
         host: 'https://www.youtube-nocookie.com',
@@ -124,18 +111,11 @@ export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
           onReady: (event: { target: YoutubePlayer }) => {
             setPlayerReady(true);
             setUseFallback(false);
-            if (readyTimer) {
-              window.clearTimeout(readyTimer);
-              readyTimer = undefined;
-            }
+            if (readyTimer) { window.clearTimeout(readyTimer); readyTimer = undefined; }
             event.target.mute();
-            if (active) {
-              event.target.playVideo();
-            }
+            if (active) event.target.playVideo();
           },
-          onError: () => {
-            setUseFallback(true);
-          },
+          onError: () => { setUseFallback(true); },
           onStateChange: (event: { data: number }) => {
             if (event.data === YT.PlayerState.ENDED) {
               setCurrentIndex((prev) => (prev + 1) % ids.length);
@@ -145,44 +125,31 @@ export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
       });
 
       readyTimer = window.setTimeout(() => {
-        if (!disposed && !playerReady) {
-          setUseFallback(true);
-        }
+        if (!disposed && !playerReady) setUseFallback(true);
       }, 3000);
     });
 
     return () => {
       disposed = true;
-      if (readyTimer) {
-        window.clearTimeout(readyTimer);
-      }
-      if (playerRef.current) {
-        playerRef.current.destroy();
-        playerRef.current = null;
-      }
+      if (readyTimer) window.clearTimeout(readyTimer);
+      if (playerRef.current) { playerRef.current.destroy(); playerRef.current = null; }
     };
   }, [active, ids, items.length]);
 
   useEffect(() => {
-    if (!playerRef.current || items.length <= 1 || ids.length === 0) {
-      return;
-    }
-
+    if (!playerRef.current || items.length <= 1 || ids.length === 0) return;
     const videoId = ids[currentIndex];
     playerRef.current.loadVideoById(videoId);
     playerRef.current.mute();
-    if (active) {
-      playerRef.current.playVideo();
-    } else {
-      playerRef.current.pauseVideo();
-    }
+    if (active) playerRef.current.playVideo();
+    else playerRef.current.pauseVideo();
   }, [active, currentIndex, ids, items.length]);
 
   if (items.length === 0) return null;
 
   if (!playlistUrl) {
     return (
-      <div className="w-full max-w-sm md:max-w-lg">
+      <div className={compact ? 'w-full max-w-[340px]' : 'w-full max-w-sm md:max-w-lg'}>
         <div className="relative bg-gray-900 rounded-[12px] overflow-hidden aspect-video shadow-sm flex items-center justify-center p-4">
           <p className="text-white/80 text-sm text-center">No se pudieron cargar los videos de YouTube.</p>
         </div>
@@ -190,6 +157,109 @@ export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
     );
   }
 
+  // ─── Modo compacto (dentro del chat) ───────────────────────────────────────
+  if (compact) {
+    return (
+      <div className="w-full max-w-[340px] space-y-2">
+        {/* Video */}
+        <div className="relative">
+          <div className="relative bg-gray-900 rounded-[12px] overflow-hidden aspect-video shadow-sm">
+            {items.length === 1 || useFallback ? (
+              <LazyYouTubeFrame
+                src={playlistUrl}
+                title={`Video de seña: ${items[currentIndex]?.word || ''}`}
+                className="w-full h-full"
+                thumbnailUrl={toYouTubeThumbnailUrl(items[currentIndex]?.videoUrl)}
+                active={active}
+              />
+            ) : (
+              <>
+                <div
+                  ref={playerContainerRef}
+                  className="w-full h-full"
+                  style={{ opacity: playerReady ? 1 : 0, transition: 'opacity 150ms ease-in-out' }}
+                />
+                {!playerReady && <div className="absolute inset-0 bg-black z-10" />}
+              </>
+            )}
+            {!active && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-20">
+                <p className="text-white/85 text-xs">Video en pausa</p>
+              </div>
+            )}
+          </div>
+
+          {items.length > 1 && (
+            <>
+              <button
+                onClick={goToPrevious}
+                className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-0.5 transition-colors"
+                aria-label="Anterior"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={goToNext}
+                className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/30 hover:bg-black/50 text-white rounded-full p-0.5 transition-colors"
+                aria-label="Siguiente"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Etiqueta de la palabra actual */}
+        <p className="text-center text-xs font-semibold text-[#4997D0] dark:text-[#5ea8ff] tracking-wide uppercase">
+          {items[currentIndex]?.word}
+          {items.length > 1 && (
+            <span className="text-[10px] font-normal text-gray-400 ml-1 normal-case">
+              ({currentIndex + 1}/{items.length})
+            </span>
+          )}
+        </p>
+
+        {/* Pills de palabras (compactas) */}
+        {items.length > 1 && (
+          <div className="flex flex-wrap gap-1 justify-center">
+            {items.map((item, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`px-2 py-0.5 rounded-full text-[11px] transition-all ${
+                  index === currentIndex
+                    ? 'bg-[#4997D0] text-white font-medium'
+                    : 'bg-muted text-muted-foreground hover:bg-accent'
+                }`}
+              >
+                {item.word}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Dots */}
+        {items.length > 1 && (
+          <div className="flex justify-center gap-1">
+            {items.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`transition-all rounded-full ${
+                  index === currentIndex
+                    ? 'w-4 h-1.5 bg-[#4997D0]'
+                    : 'w-1.5 h-1.5 bg-muted-foreground/30 hover:bg-muted-foreground/50'
+                }`}
+                aria-label={`Ir a ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ─── Modo normal (sin compact) ─────────────────────────────────────────────
   if (items.length === 1) {
     return (
       <div className="w-full max-w-sm md:max-w-lg">
@@ -202,9 +272,7 @@ export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
             active={active}
           />
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2 md:p-3">
-            <p className="text-white text-xs md:text-sm font-medium text-center">
-              {items[0].word}
-            </p>
+            <p className="text-white text-xs md:text-sm font-medium text-center">{items[0].word}</p>
           </div>
         </div>
       </div>
@@ -229,14 +297,9 @@ export function VideoCarousel({ items, active = true }: VideoCarouselProps) {
                 <div
                   ref={playerContainerRef}
                   className="w-full h-full"
-                  style={{
-                    opacity: playerReady ? 1 : 0,
-                    transition: 'opacity 150ms ease-in-out',
-                  }}
+                  style={{ opacity: playerReady ? 1 : 0, transition: 'opacity 150ms ease-in-out' }}
                 />
-                {!playerReady && (
-                  <div className="absolute inset-0 bg-black z-10" />
-                )}
+                {!playerReady && <div className="absolute inset-0 bg-black z-10" />}
               </>
             )}
             {!active && (

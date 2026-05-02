@@ -78,6 +78,7 @@ export function ChatMessage({
       </div>
     );
   }
+
   return (
     <div className="flex justify-start mb-6">
       <div className="w-full">
@@ -108,9 +109,7 @@ export function ChatMessage({
           </div>
         ) : message.notFound ? (
           <div className={botBubbleClass}>
-            <p className="text-sm text-destructive font-medium">
-              Palabra no encontrada
-            </p>
+            <p className="text-sm text-destructive font-medium">Palabra no encontrada</p>
             <p className="text-sm text-muted-foreground">
               Lo sentimos, "{message.notFoundWord || 'esta palabra'}" aún no tiene seña disponible en nuestro sistema.
             </p>
@@ -212,6 +211,7 @@ export function ChatMessage({
             </div>
           </div>
         ) : message.videosCompilacion && message.videosCompilacion.length > 0 ? (
+          // Abecedario u otras compilaciones → siempre compact en el chat
           <div className="space-y-2">
             {message.text ? (
               <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">
@@ -219,12 +219,17 @@ export function ChatMessage({
               </div>
             ) : null}
             {isActiveVideo ? (
-              <AbecedarioCompleto videos={message.videosCompilacion} active={isActiveVideo} />
+              <AbecedarioCompleto
+                videos={message.videosCompilacion}
+                active={isActiveVideo}
+                compact // ← compacto en el chat
+              />
             ) : (
               <InactiveVideoPlaceholder />
             )}
           </div>
         ) : message.videos && message.videos.length > 0 ? (
+          // Categorías con VideoCarousel → también compact en el chat
           <div className="space-y-2">
             {message.text ? (
               <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">
@@ -233,7 +238,11 @@ export function ChatMessage({
             ) : null}
             {message.videos.length > 0 ? (
               isActiveVideo ? (
-                <VideoCarousel items={message.videos} active={isActiveVideo} />
+                <VideoCarousel
+                  items={message.videos}
+                  active={isActiveVideo}
+                  compact // ← compacto en el chat
+                />
               ) : (
                 <InactiveVideoPlaceholder />
               )
