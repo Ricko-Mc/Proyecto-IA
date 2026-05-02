@@ -9,6 +9,7 @@ import {
   Clapperboard,
   BookOpen,
   ArrowRight,
+  Gamepad2,
 } from 'lucide-react';
 
 export interface Message {
@@ -31,6 +32,7 @@ export interface Message {
   categoryPrompt?: boolean;
   categories?: string[];
   wordsList?: string[];
+  games?: Array<{ id: string; label: string; desc: string }>;
 }
 
 interface ChatMessageProps {
@@ -39,6 +41,8 @@ interface ChatMessageProps {
   onSelectDisambiguation?: (word: string, clave: string, label: string) => void;
   onSelectCategory?: (category: string) => void;
   onOpenDictionary?: () => void;
+  onSendMessage?: (message: string) => void;
+  onNavigateToGames?: () => void;
   isActiveVideo?: boolean;
 }
 
@@ -58,6 +62,8 @@ export function ChatMessage({
   onSelectDisambiguation,
   onSelectCategory,
   onOpenDictionary,
+  onSendMessage,
+  onNavigateToGames,
   isActiveVideo = false,
 }: ChatMessageProps) {
   const botBubbleClass =
@@ -85,7 +91,13 @@ export function ChatMessage({
             <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
               {message.text}
             </p>
-            <GameCarousel />
+            <button
+              onClick={onNavigateToGames}
+              className="inline-flex items-center gap-2 rounded-[16px] bg-[#4997D0] hover:bg-[#3A7FB8] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(73,151,208,0.30)] transition-colors"
+            >
+              <Gamepad2 className="h-4 w-4" />
+              Ir a Juegos
+            </button>
           </div>
         ) : message.backendError ? (
           <div className={botBubbleClass}>
@@ -243,6 +255,25 @@ export function ChatMessage({
             ) : (
               <InactiveVideoPlaceholder />
             )}
+          </div>
+        ) : message.wordsList && message.wordsList.length > 0 ? (
+          <div className="space-y-2">
+            {message.text ? (
+              <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">
+                <p className="text-sm text-foreground">{message.text}</p>
+              </div>
+            ) : null}
+            <div className="flex flex-wrap gap-2">
+              {message.wordsList.map((word, index) => (
+                <button
+                  key={index}
+                  onClick={() => onSendMessage?.(word)}
+                  className="inline-flex m-0.5 px-3 py-1.5 rounded-full bg-[#DBEAFE] hover:bg-[#BFDBFE] text-slate-700 text-sm font-medium border border-[#BFDBFE] transition-colors cursor-pointer"
+                >
+                  {word}
+                </button>
+              ))}
+            </div>
           </div>
         ) : message.text ? (
           <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">

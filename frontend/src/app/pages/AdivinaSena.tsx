@@ -260,16 +260,24 @@ export function AdivinaSena() {
     return () => clearTimeout(timer);
   }, [scoreAdded]);
 
-  useEffect(() => {
-    if (gameState === 'playing' || !currentSign) return;
-    
-    // Auto-advance después de mostrar el resultado por 1.5 segundos
-    const timer = setTimeout(() => {
-      handleNext();
-    }, 1500);
-    
-    return () => clearTimeout(timer);
-  }, [gameState]);
+const [countdown, setCountdown] = useState<number | null>(null);
+ useEffect(() => {
+  if (gameState === 'playing') {
+    setCountdown(null);
+    return;
+  }
+  setCountdown(15);
+}, [gameState]);
+
+useEffect(() => {
+  if (countdown === null) return;
+  if (countdown <= 0) {
+    handleNext();
+    return;
+  }
+  const timer = setTimeout(() => setCountdown(c => (c ?? 1) - 1), 1000);
+  return () => clearTimeout(timer);
+}, [countdown]);
 
   const seleccionarPregunta = (lista: Signo[], yaUsados: Set<string>) => {
     const disponibles = lista.filter(s => !yaUsados.has(s.signo_id));
@@ -822,8 +830,9 @@ export function AdivinaSena() {
             <button
               onClick={handleNext}
               className="bg-gradient-to-r from-[#8B7CFF] to-[#6D5CFF] hover:from-[#988BFF] hover:to-[#7868FF] text-white px-6 py-2.5 rounded-[18px] font-semibold text-sm shadow-[0_10px_25px_rgba(0,0,0,0.18)] hover:scale-[1.03] transition-all active:scale-[0.98]"
-            >
-              {preguntaNum >= TOTAL_PREGUNTAS ? 'Finalizar' : 'Siguiente palabra'}
+                >
+                    {preguntaNum >= TOTAL_PREGUNTAS ? 'Finalizar' : `Siguiente ${countdown !== null ? `(${countdown}s)` : ''}`}
+
             </button>
           </div>
         )}

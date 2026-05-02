@@ -31,7 +31,6 @@ export function InputWithSuggestions({
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Cargar sugerencias basadas en el input
   useEffect(() => {
     const fetchSuggestions = async () => {
       const trimmed = value.trim();
@@ -44,7 +43,6 @@ export function InputWithSuggestions({
 
       setIsLoading(true);
       try {
-        // Buscar en múltiples categorías
         const categoriesToSearch = ['abecedario', 'frases_comunes', 'saludos', 'alimentos', 'animales', 'colores'];
         const allSuggestions: Suggestion[] = [];
 
@@ -54,13 +52,13 @@ export function InputWithSuggestions({
             if (resultado.signos && Array.isArray(resultado.signos)) {
               resultado.signos.forEach((signo: any) => {
                 if (signo.palabra) {
-                  const palabra = signo.palabra.toLowerCase();
+                  // Normalizar para comparación: quitar guiones bajos y minúsculas
+                  const palabraNormalizada = signo.palabra.replace(/_/g, ' ').toLowerCase();
                   const query = trimmed.toLowerCase();
                   
-                  // Mostrar sugerencias que contengan o comiencen con el query
-                  if (palabra.includes(query) || palabra.startsWith(query)) {
+                  if (palabraNormalizada.includes(query) || palabraNormalizada.startsWith(query)) {
                     allSuggestions.push({
-                      palabra: signo.palabra,
+                      palabra: signo.palabra,   // guardamos el original para la API
                       categoria: categoria,
                     });
                   }
@@ -72,12 +70,11 @@ export function InputWithSuggestions({
           }
         }
 
-        // Eliminar duplicados y ordenar
         const uniqueSuggestions = Array.from(
           new Map(allSuggestions.map(s => [s.palabra.toLowerCase(), s])).values()
         ).sort((a, b) => a.palabra.localeCompare(b.palabra));
 
-        setSuggestions(uniqueSuggestions.slice(0, 6)); // Máximo 6 sugerencias
+        setSuggestions(uniqueSuggestions.slice(0, 6));
         setShowSuggestions(uniqueSuggestions.length > 0);
         setSelectedIndex(-1);
       } catch (error) {
@@ -127,11 +124,13 @@ export function InputWithSuggestions({
   };
 
   const handleSelectSuggestion = (suggestion: string) => {
-    onChange(suggestion);
+    // Al insertar en el input, mostramos sin guiones bajos
+    const displayValue = suggestion.replace(/_/g, ' ');
+    onChange(displayValue);
     setShowSuggestions(false);
     setSuggestions([]);
     setSelectedIndex(-1);
-    onSelectSuggestion?.(suggestion);
+    onSelectSuggestion?.(displayValue);
   };
 
   const handleClickOutside = (e: MouseEvent) => {
@@ -150,6 +149,10 @@ export function InputWithSuggestions({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Helper para mostrar la categoría de forma legible
+  const formatCategoria = (cat: string) =>
+    cat.replace(/_/g, ' ');
+
   return (
     <div className="relative w-full">
       <Textarea
@@ -161,7 +164,6 @@ export function InputWithSuggestions({
         className="min-h-[34px] md:min-h-[38px] max-h-[96px] resize-none pr-9 md:pr-10 py-2 text-xs md:text-sm leading-[1.35] border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-0 dark:text-[#efefef] dark:placeholder:text-[#8c8c8c]"
       />
 
-      {/* Sugerencias */}
       {showSuggestions && suggestions.length > 0 && (
         <div
           ref={suggestionsRef}
@@ -178,9 +180,12 @@ export function InputWithSuggestions({
               } ${index !== suggestions.length - 1 ? 'border-b border-gray-100 dark:border-gray-700' : ''}`}
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="flex-1 truncate">{suggestion.palabra}</span>
+                {/* Mostrar palabra sin guiones bajos */}
+                <span className="flex-1 truncate">
+                  {suggestion.palabra.replace(/_/g, ' ')}
+                </span>
                 <span className="text-[10px] md:text-xs opacity-60 flex-shrink-0">
-                  {suggestion.categoria}
+                  {formatCategoria(suggestion.categoria)}
                 </span>
               </div>
             </button>

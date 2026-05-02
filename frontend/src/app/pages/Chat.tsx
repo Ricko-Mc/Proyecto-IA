@@ -21,6 +21,7 @@ import {
 import { Send, BookOpen } from 'lucide-react';
 import { api } from '../../services/api';
 
+// Sin "Mixta"
 const WELCOME_CATEGORIES = [
   { id: 'abecedario', label: 'Abecedario' },
   { id: 'saludos', label: 'Saludos' },
@@ -28,7 +29,6 @@ const WELCOME_CATEGORIES = [
   { id: 'animales', label: 'Animales' },
   { id: 'alimentos', label: 'Alimentos' },
   { id: 'frases_comunes', label: 'Frases Comunes' },
-  { id: 'mixta', label: 'Mixta' },
 ];
 
 const getConversationStorageKey = () => `segua_conversations_public`;
@@ -116,25 +116,21 @@ export function Chat() {
     localStorage.setItem('segua_sidebar_collapsed', JSON.stringify(isSidebarCollapsed));
   }, [isSidebarCollapsed]);
 
-  // Ocultar la nube de bienvenida cuando hay mensajes
   useEffect(() => {
     if (messages.length > 0) {
       setShowWelcomeBubble(false);
     }
   }, [messages]);
 
-  // Manejar palabra del juego AdivinaSena que viene en los parámetros de URL
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const palabra = params.get('palabra');
     if (palabra) {
       setAutoSendWord(palabra);
-      // Limpiar el parámetro de la URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [location.search]);
 
-  // Auto-enviar palabra cuando esté lista
   const enviarMensajeRef = useRef<((mensaje: string) => Promise<void>) | null>(null);
 
   useEffect(() => {
@@ -208,37 +204,35 @@ export function Chat() {
   ) => {
     if (!mensaje.trim()) return;
 
-    // Asignar la referencia a la función para que pueda ser usada por el autoSend
     enviarMensajeRef.current = enviarMensaje;
 
-    // Detectar si el mensaje es "quiero aprender la palabra ..." o "como se dice ..." y extraer la palabra
     const patronAprender = /quiero\s+aprender\s+(?:la\s+)?palabra[\s:]+(.*)/i;
     const patronComoDice = /(?:como|cómo)\s+se\s+dice\s+(?:la\s+)?palabra[\s:]*(.*)/i;
     const patronComoDiceSimple = /(?:como|cómo)\s+se\s+dice[\s:]+(.*)/i;
-    
+
     const matchAprender = mensaje.match(patronAprender);
     const matchComoDice = mensaje.match(patronComoDice);
     const matchComoDiceSimple = mensaje.match(patronComoDiceSimple);
-    
+
     let mensajeActual = mensaje;
     let mostrarTextoUsuario = textoUsuarioVisible || mensajeActual;
-    
+
     if (matchAprender && matchAprender[1]) {
-      // Extraer la palabra del patrón "quiero aprender"
       const palabraAprender = matchAprender[1].trim();
       mensajeActual = palabraAprender;
       mostrarTextoUsuario = `Quiero aprender la palabra: ${palabraAprender}`;
     } else if (matchComoDice && matchComoDice[1]) {
-      // Extraer la palabra del patrón "como se dice la palabra"
       const palabraComoDice = matchComoDice[1].trim();
       mensajeActual = palabraComoDice;
       mostrarTextoUsuario = `¿Cómo se dice: ${palabraComoDice}?`;
     } else if (matchComoDiceSimple && matchComoDiceSimple[1]) {
-      // Extraer la palabra del patrón "como se dice" simple
       const palabraComoDice = matchComoDiceSimple[1].trim();
       mensajeActual = palabraComoDice;
       mostrarTextoUsuario = `¿Cómo se dice: ${palabraComoDice}?`;
     }
+
+    // Reemplazar guiones bajos en el texto visible al usuario
+    mostrarTextoUsuario = mostrarTextoUsuario.replace(/_/g, ' ');
 
     const userMessage: Message = {
       id: `msg-${Date.now()}`,
@@ -325,7 +319,9 @@ export function Chat() {
             type: 'system',
             text: '',
             videoUrl: urlVideoPermitida || undefined,
-            signLabel: respuesta.palabra_clave || undefined,
+            signLabel: respuesta.palabra_clave
+              ? respuesta.palabra_clave.replace(/_/g, ' ')
+              : undefined,
             noVideoAvailable: videoMissing,
             categoryPrompt: videoMissing,
             categories: videoMissing ? categoryOptions : undefined,
@@ -349,12 +345,14 @@ export function Chat() {
           };
         }
 
+        // Mensaje de juegos: botón único que navega a /games
         const gamePromptMessage: Message | null = shouldInsertPrompt
           ? {
               id: `msg-${Date.now()}-game`,
               type: 'system',
               text: '¡Vas muy bien! ¿Quieres poner a prueba lo que has aprendido?',
               gamePrompt: true,
+              games: [],         // lista vacía — el render usará el botón de navegación
             }
           : null;
 
@@ -391,7 +389,7 @@ export function Chat() {
       setConversations(prev =>
         prev.map(conv =>
           conv.id === currentConversationId
-            ? { 
+            ? {
                 ...conv,
                 lastMessage: mensajeActual,
                 name: messages.length === 0 ? mensajeActual.slice(0, 30) : conv.name,
@@ -423,8 +421,6 @@ export function Chat() {
   };
 
   const handleExploreCategory = async (categoryId: string, categoryLabel: string) => {
-    console.log('Explorando categoría:', categoryId, categoryLabel);
-    
     try {
       setMessages((prev) => [...prev, {
         id: `msg-${Date.now()}-loading`,
@@ -434,40 +430,32 @@ export function Chat() {
       }]);
 
       const resultado = await api.obtenerSignosPorCategoria(categoryId);
-      console.log('Resultado de categoría:', resultado);
-      
+
       if (!resultado || !resultado.signos) {
         throw new Error('Respuesta inválida de la API');
       }
 
       const signosArray = Array.isArray(resultado.signos) ? resultado.signos : [];
-      console.log('Signos recibidos:', signosArray);
-      
+
+      // Reemplazar guiones bajos por espacios en todas las palabras
       const palabras = signosArray
         .filter(signo => signo && signo.palabra && signo.url_video)
-        .map(signo => signo.palabra);
-
-      console.log('Palabras procesadas:', palabras, 'Total:', palabras.length);
+        .map(signo => signo.palabra.replace(/_/g, ' '));
 
       const categoryMessage: Message = {
         id: `msg-${Date.now()}-category`,
         type: 'system',
-        text: palabras.length > 0 
-          ? `Aquí están las palabras de ${categoryLabel}:` 
+        text: palabras.length > 0
+          ? `Aquí están las palabras de ${categoryLabel}:`
           : `Se encontraron ${signosArray.length} palabras en ${categoryLabel}, pero ninguna tiene video disponible.`,
         wordsList: palabras.length > 0 ? palabras : [],
       };
 
-      console.log('Mensaje a agregar:', categoryMessage);
-
       setMessages((prev) => {
         const filtered = prev.filter((m) => !m.isLoading);
-        const updated = [...filtered, categoryMessage];
-        console.log('Mensajes actualizados:', updated);
-        return updated;
+        return [...filtered, categoryMessage];
       });
     } catch (error) {
-      console.error('Error al obtener categoría:', error);
       setMessages((prev) => {
         const filtered = prev.filter((m) => !m.isLoading);
         return [...filtered, {
@@ -523,25 +511,22 @@ export function Chat() {
         </AlertDialogContent>
       </AlertDialog>
 
-      
       <WordNotFoundDialog
         word={notFoundWord}
         open={showNotFoundDialog}
         onOpenChange={setShowNotFoundDialog}
       />
 
-      
       <div className="flex-1 flex flex-col min-h-0 bg-[linear-gradient(180deg,#dff0ff_0%,#f3ecde_100%)] dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#101010_100%)] overflow-hidden">
-        
+
         <Navbar
           title="Chat"
           onToggleSidebar={() => setIsSidebarCollapsed((prev: boolean) => !prev)}
           onClearConversation={handleClearConversation}
           onSearch={handleNavbarSearch}
           activePage="chat"
-        />        
+        />
 
-        
         <div
           className="content-area flex-1 overflow-y-auto pb-20 md:pb-0 pr-1"
           style={{ scrollbarGutter: 'stable' }}
@@ -605,6 +590,8 @@ export function Chat() {
                     onSelectCategory={handleSelectCategory}
                     onOpenDictionary={handleOpenDictionary}
                     isActiveVideo={message.id === activeVideoMessageId}
+                    onSendMessage={(word: string) => enviarMensaje(word)}
+                    onNavigateToGames={() => navigate('/games')}
                   />
                 ))}
                 <div ref={messagesEndRef} />
@@ -613,12 +600,9 @@ export function Chat() {
           </div>
         </div>
 
-        
         <div className="chat-input-wrap bg-transparent p-4 md:p-7 mb-16 md:mb-0 border-t border-black/5 dark:border-white/10">
           <div className="max-w-3xl mx-auto">
-            <div
-              className="chat-input flex items-end gap-3 rounded-[16px] p-3 bg-white/72 dark:bg-[rgba(18,18,18,0.78)] border border-black/5 dark:border-white/10 backdrop-blur-md"
-            >
+            <div className="chat-input flex items-end gap-3 rounded-[16px] p-3 bg-white/72 dark:bg-[rgba(18,18,18,0.78)] border border-black/5 dark:border-white/10 backdrop-blur-md">
               <div className="flex-1 relative">
                 <InputWithSuggestions
                   value={inputText}
@@ -631,9 +615,7 @@ export function Chat() {
                   }}
                   placeholder="Escribe una palabra o frase..."
                   maxChars={maxChars}
-                  onSelectSuggestion={() => {
-                    // Opcional: hacer algo cuando se selecciona una sugerencia
-                  }}
+                  onSelectSuggestion={() => {}}
                 />
                 <div className="absolute bottom-0.5 right-1 text-[9px] md:text-xs text-muted-foreground">
                   {charCount}/{maxChars}
@@ -651,12 +633,10 @@ export function Chat() {
         </div>
       </div>
 
-      {/* Nube de chat de bienvenida */}
       {showWelcome && showWelcomeBubble && (
         <WelcomeChatBubble onDismiss={() => setShowWelcomeBubble(false)} />
       )}
 
-      {/* Navegación inferior */}
       <BottomNav />
     </div>
   );

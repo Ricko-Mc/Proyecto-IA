@@ -38,7 +38,7 @@ export function WelcomeChatBubble({ onDismiss }: WelcomeChatBubbleProps) {
           {/* Texto */}
           <div className="flex-1">
             <p className="font-semibold text-sm md:text-base text-gray-900 dark:text-white mb-2">
-              ¡Hola! 👋
+              ¡Hola!
             </p>
             <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
               Soy tu asistente para aprender lenguaje de señas.

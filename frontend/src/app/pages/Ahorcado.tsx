@@ -407,8 +407,11 @@ export function Ahorcado() {
       onNewConversation={() => navigate('/chat')}
       onRequestExit={handleRequestExit}
     >
-      <div className="w-full h-full flex flex-col justify-start items-center gap-4 px-4 pt-0 pb-4 md:px-6 md:pt-0 md:pb-6">
-        <div className="flex w-full flex-wrap items-center justify-between gap-2 mt-4 md:mt-0">
+      {/* Wrapper principal: scroll vertical, no overflow horizontal */}
+      <div className="w-full flex flex-col items-center gap-4 px-3 pt-6 pb-4 md:px-6 md:pt-10 md:pb-6 overflow-x-hidden">
+
+        {/* Barra de controles */}
+        <div className="flex w-full flex-wrap items-center justify-between gap-1 mt-2">
           <div className="flex items-center">
             <button
               type="button"
@@ -422,10 +425,10 @@ export function Ahorcado() {
           </div>
           <div className="flex flex-1 flex-wrap items-center justify-end gap-1.5 md:gap-3">
             <span className="rounded-full bg-slate-100 px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-semibold uppercase tracking-[0.16em] text-slate-700 dark:bg-slate-900 dark:text-slate-200">
-              Categoría: {activeCategoryLabel}
+              {activeCategoryLabel}
             </span>
             <span className="rounded-full bg-slate-100 px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-semibold uppercase tracking-[0.16em] text-slate-700 dark:bg-slate-900 dark:text-slate-200">
-              {Math.max(0, 6 - errors)}/6 intentos
+              {Math.max(0, 6 - errors)}/6
             </span>
             <button
               type="button"
@@ -439,103 +442,132 @@ export function Ahorcado() {
           </div>
         </div>
 
-        <div className="w-full flex-1 flex flex-col lg:flex-row gap-4 lg:gap-8 items-center lg:items-start justify-center lg:justify-start max-w-[1200px] mx-auto">
-          {/* Ahorcado y letras - centrado en móvil, izquierda en desktop */}
-          <div className="w-full lg:w-[45%] flex flex-col gap-4 items-center">
-            <div className="rounded-[28px] p-3 sm:p-4 w-full bg-transparent flex items-center justify-center min-h-[200px] sm:min-h-[260px] md:min-h-[300px] lg:min-h-[360px]">
-              <div className="h-full w-full flex items-center justify-center">
+        {/* ── ZONA PRINCIPAL ──────────────────────────────────────────────
+            Mobile:  fila horizontal [Hangman | Video] + letras abajo
+            Desktop: columna izquierda (hangman+letras) | columna derecha (video)
+        ──────────────────────────────────────────────────────────────── */}
+        <div className="w-full max-w-[1200px] mx-auto flex flex-col gap-5 mt-2 md:mt-6">
+
+          {/* Fila superior: Hangman + Video lado a lado en MOBILE y DESKTOP */}
+          <div className="flex flex-row gap-3 w-full items-stretch">
+
+            {/* Hangman — mitad izquierda en mobile, 45% en desktop */}
+            <div className="flex-1 min-w-0 flex flex-col gap-2 items-center">
+              {/* SVG hangman */}
+              <div className="w-full aspect-[220/190] max-h-[200px] sm:max-h-[240px] md:max-h-[280px] lg:max-h-[340px]">
                 <Hangman errors={errors} />
               </div>
+
+              {/* Letras de la palabra — visibles solo en desktop debajo del hangman */}
+              <div className={`hidden lg:flex flex-wrap justify-center gap-2 w-full px-2 ${won ? 'animate-celebrate' : ''}`}>
+                {won && (
+                  <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-0 overflow-visible">
+                    <span className="confetti confetti-1" />
+                    <span className="confetti confetti-2" />
+                    <span className="confetti confetti-3" />
+                    <span className="confetti confetti-4" />
+                    <span className="confetti confetti-5" />
+                    <span className="confetti confetti-6" />
+                  </div>
+                )}
+                {wordData.split('').map((letter, index) => (
+                  <div
+                    key={`${letter}-${index}`}
+                    className="relative flex h-11 min-w-[36px] items-center justify-center rounded-2xl border border-slate-200 bg-transparent text-sm font-bold text-slate-900 px-2"
+                  >
+                    {revealedLetters.has(letter) ? letter : '—'}
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className={`relative flex flex-wrap justify-center gap-2 sm:gap-3 max-w-full w-full px-2 ${won ? 'animate-celebrate' : ''}`}>
-              {won && (
-                <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-0 overflow-visible">
-                  <span className="confetti confetti-1" />
-                  <span className="confetti confetti-2" />
-                  <span className="confetti confetti-3" />
-                  <span className="confetti confetti-4" />
-                  <span className="confetti confetti-5" />
-                  <span className="confetti confetti-6" />
-                </div>
-              )}
-              {wordData.split('').map((letter, index) => (
-                <div
-                  key={`${letter}-${index}`}
-                  className="relative flex h-11 sm:h-13 md:h-14 min-w-[36px] sm:min-w-[40px] items-center justify-center rounded-2xl border border-slate-200 bg-transparent text-sm sm:text-base font-bold text-slate-900 px-2 sm:px-3"
-                >
-                  {revealedLetters.has(letter) ? letter : '—'}
-                </div>
-              ))}
-            </div>
-
-            <div className="grid gap-2 sm:gap-3 w-full px-2">
-              {KEY_ROWS.map((row, rowIndex) => (
-                <div
-                  key={rowIndex}
-                  className={`grid w-full gap-1.5 sm:gap-2 justify-center ${row.length === 7 ? 'grid-cols-7' : 'grid-cols-10'}`}
-                >
-                  {row.map((letter) => {
-                    const isUsed = guessed.has(letter);
-                    const isCorrect = guessed.has(letter) && wordData.includes(letter);
-                    const isWrong = guessed.has(letter) && !wordData.includes(letter);
-                    return (
-                      <button
-                        key={letter}
-                        type="button"
-                        disabled={isUsed || gameOver}
-                        onClick={() => handleGuess(letter)}
-                        className={`h-10 sm:h-11 md:h-12 min-w-[34px] sm:min-w-[38px] md:min-w-[40px] rounded-2xl border px-1.5 sm:px-2 text-xs sm:text-sm md:text-base font-semibold transition ${
-                          isCorrect
-                            ? 'border-emerald-400 bg-emerald-500/15 text-emerald-700'
-                            : isWrong
-                            ? 'border-rose-400 bg-rose-500/15 text-rose-700 line-through'
-                            : 'border-slate-300 bg-white text-slate-900 hover:border-slate-400 hover:bg-slate-50'
-                        }`}
-                      >
-                        {letter}
-                      </button>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Video - centrado arriba en móvil, derecha en desktop */}
-          <div className="w-full lg:w-[45%] flex flex-col gap-3 items-center lg:items-end">
-            {embedVideoUrl ? (
-              <>
-                <div className="ahorcado-video-crop overflow-hidden rounded-[16px] w-full max-w-[400px] lg:max-w-none h-[200px] sm:h-[260px] md:h-[300px] lg:h-[360px] flex items-center justify-center">
+            {/* Video — mitad derecha en mobile, 45% en desktop */}
+            <div className="flex-1 min-w-0 flex flex-col items-center justify-start">
+              {embedVideoUrl ? (
+                <div className="ahorcado-video-crop overflow-hidden rounded-[16px] w-full h-[200px] sm:h-[240px] md:h-[280px] lg:h-[340px] flex items-center justify-center">
                   <VideoPlayer videoUrl={embedVideoUrl} signLabel={wordData} active={!gameOver} showLabel={false} />
                 </div>
-                {loadingVideo && (
-                  <p className="text-sm text-slate-500">Cargando video...</p>
-                )}
-              </>
-            ) : (
-              <div className="flex min-h-[200px] sm:min-h-[260px] md:min-h-[300px] lg:min-h-[360px] w-full max-w-[400px] lg:max-w-none flex-col items-center justify-center gap-3 rounded-[24px] bg-slate-100/70 p-4 text-center text-sm text-slate-500">
-                <VideoOff className="h-8 w-8 text-slate-400" />
-                Sin video disponible
+              ) : (
+                <div className="flex w-full h-[200px] sm:h-[240px] md:h-[280px] lg:h-[340px] flex-col items-center justify-center gap-2 rounded-[20px] bg-slate-100/70 text-center text-xs text-slate-500">
+                  <VideoOff className="h-6 w-6 text-slate-400" />
+                  {loadingVideo ? 'Cargando...' : 'Sin video'}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Letras de la palabra — visibles solo en MOBILE (debajo de la fila hangman+video) */}
+          <div className={`flex lg:hidden flex-wrap justify-center gap-1.5 w-full px-2 ${won ? 'animate-celebrate' : ''}`}>
+            {won && (
+              <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-0 overflow-visible">
+                <span className="confetti confetti-1" />
+                <span className="confetti confetti-2" />
+                <span className="confetti confetti-3" />
+                <span className="confetti confetti-4" />
+                <span className="confetti confetti-5" />
+                <span className="confetti confetti-6" />
               </div>
             )}
+            {wordData.split('').map((letter, index) => (
+              <div
+                key={`${letter}-${index}`}
+                className="relative flex h-9 min-w-[30px] items-center justify-center rounded-xl border border-slate-200 bg-transparent text-xs font-bold text-slate-900 px-1.5"
+              >
+                {revealedLetters.has(letter) ? letter : '—'}
+              </div>
+            ))}
           </div>
+
+          {/* Teclado — ancho completo siempre */}
+          <div className="grid gap-1.5 w-full px-1">
+            {KEY_ROWS.map((row, rowIndex) => (
+              <div
+                key={rowIndex}
+                className={`grid w-full gap-1 sm:gap-1.5 justify-center ${row.length === 7 ? 'grid-cols-7' : 'grid-cols-10'}`}
+              >
+                {row.map((letter) => {
+                  const isUsed = guessed.has(letter);
+                  const isCorrect = guessed.has(letter) && wordData.includes(letter);
+                  const isWrong = guessed.has(letter) && !wordData.includes(letter);
+                  return (
+                    <button
+                      key={letter}
+                      type="button"
+                      disabled={isUsed || gameOver}
+                      onClick={() => handleGuess(letter)}
+                      className={`h-9 sm:h-10 md:h-11 min-w-0 w-full rounded-xl border px-0.5 text-[11px] sm:text-xs md:text-sm font-semibold transition ${
+                        isCorrect
+                          ? 'border-emerald-400 bg-emerald-500/15 text-emerald-700'
+                          : isWrong
+                          ? 'border-rose-400 bg-rose-500/15 text-rose-700 line-through'
+                          : 'border-slate-300 bg-white text-slate-900 hover:border-slate-400 hover:bg-slate-50'
+                      }`}
+                    >
+                      {letter}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+
         </div>
-      <BottomNav />
+        {/* ── FIN ZONA PRINCIPAL ── */}
+
+        <BottomNav />
       </div>
-      <style>{`.ahorcado-video-crop iframe { width: 100%; height: 100%; display: block; }
+
+      <style>{`
+        .ahorcado-video-crop iframe { width: 100%; height: 100%; display: block; }
+        .ahorcado-video-crop > * { width: 100%; height: 100%; }
 
         .animate-celebrate {
           animation: sparkle 1.5s ease-in-out both;
         }
 
         @keyframes sparkle {
-          0%, 100% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.02);
-          }
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.02); }
         }
 
         .confetti {
@@ -555,14 +587,8 @@ export function Ahorcado() {
         .confetti-6 { left: 85%; background: #f97316; animation-delay: 0.08s; }
 
         @keyframes confetti-fall {
-          0% {
-            transform: translateY(-20px) rotate(0deg);
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(140px) rotate(360deg);
-            opacity: 0;
-          }
+          0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(140px) rotate(360deg); opacity: 0; }
         }
 
         .animate-modal {
@@ -574,23 +600,13 @@ export function Ahorcado() {
         }
 
         @keyframes modal-appear {
-          from {
-            opacity: 0;
-            transform: translateY(-10px) scale(0.96);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
+          from { opacity: 0; transform: translateY(-10px) scale(0.96); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         @keyframes victory-fade {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
       `}</style>
 
@@ -701,7 +717,6 @@ export function Ahorcado() {
                 setGameOver(false);
                 setWon(false);
                 
-                // Si hay un callback pendiente de navegación, ejecutarlo
                 if (pendingExitCallback) {
                   pendingExitCallback();
                   setPendingExitCallback(null);

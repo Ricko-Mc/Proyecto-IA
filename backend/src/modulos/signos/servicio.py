@@ -4,6 +4,7 @@ from src.utilidades.puente_prolog import PuenteProlog
 from src.utilidades.youtube import construir_url_embed_youtube
 from src.utilidades.cache_ttl import CacheTTL
 
+
 class ServicioSignos:
     def __init__(self, puente_prolog: PuenteProlog):
         """Inicializa el servicio de signos con acceso a Prolog."""
@@ -76,31 +77,26 @@ class ServicioSignos:
         Optimizado para no devolver redundancias.
         """
         categorias_validas = ["abecedario", "alimentos", "animales", "colores", "frases_comunes", "saludos"]
-        
-        # Obtener el listado de signos según la categoría
+
         if categoria == "mixta":
             todos_los_signos = self.puente_prolog.obtener_todos_los_signos()
-            # Filtramos para asegurarnos de usar solo las categorías del juego
             signos_disponibles = [s for s in todos_los_signos if s.get("categoria") in categorias_validas]
         else:
             signos_disponibles = self.puente_prolog.obtener_signos_por_categoria(categoria)
 
-        # Seleccionar 10 elementos aleatorios sin repetición
         cantidad_a_seleccionar = min(10, len(signos_disponibles))
+        if cantidad_a_seleccionar == 0:
+            return []
+
         seleccion = random.sample(signos_disponibles, cantidad_a_seleccionar)
 
         pares = []
         for signo in seleccion:
             palabra = signo["palabra"]
             signo_id = signo.get("signo_id")
-            
-            # Usamos buscar para obtener la referencia de YouTube
+
             info_signo = self.buscar(palabra)
-            
-            # Obtenemos la URL del video
             url_video = info_signo.get("url_video")
-            
-            # Formateamos la palabra para que se vea bien en el frontend
             palabra_formateada = palabra.replace("_", " ").title()
 
             pares.append({
@@ -111,3 +107,51 @@ class ServicioSignos:
             })
 
         return pares
+
+
+# ============================================================
+# FUNCIÓN INDEPENDIENTE PARA COMPATIBILIDAD CON EL ENRUTADOR
+# ============================================================
+def obtener_pares_juego(categoria: str) -> list[dict]:
+    """
+    Función independiente para obtener pares de juego.
+    Esta función es utilizada por el enrutador que aún no usa la inyección de dependencias.
+    """
+    ruta_actual = os.path.dirname(os.path.abspath(__file__))
+    ruta_reglas = os.path.normpath(os.path.join(ruta_actual, "../../prolog/reglas.pl"))
+    puente = PuenteProlog(ruta_reglas)
+
+    categorias_validas = ["abecedario", "alimentos", "animales", "colores", "frases_comunes", "saludos"]
+
+    if categoria == "mixta":
+        todos_los_signos = puente.obtener_todos_los_signos()
+        signos_disponibles = [s for s in todos_los_signos if s.get("categoria") in categorias_validas]
+    else:
+        signos_disponibles = puente.obtener_signos_por_categoria(categoria)
+
+    cantidad_a_seleccionar = min(10, len(signos_disponibles))
+    if cantidad_a_seleccionar == 0:
+        return []
+
+    seleccion = random.sample(signos_disponibles, cantidad_a_seleccionar)
+
+    pares = []
+    for signo in seleccion:
+        palabra = signo.get("palabra", "")
+        signo_id = signo.get("signo_id")
+
+        info_signo = puente.buscar_signo(palabra)
+        url_video = None
+        if info_signo.get("encontrado") and info_signo.get("signo_id"):
+            referencia = puente.obtener_youtube_referencia_por_signo(info_signo["signo_id"])
+            if referencia:
+                url_video = construir_url_embed_youtube(referencia)
+
+        pares.append({
+            "signo_id": signo_id,
+            "palabra": palabra.replace("_", " ").title(),
+            "url_video": url_video,
+            "categoria": signo.get("categoria")
+        })
+
+    return pares

@@ -24,14 +24,65 @@ class AgenteIA:
         mensaje = re.sub(r"\s+", " ", mensaje).strip()
 
         patrones = [
-            (r"(?:como|que|qué)\s+(?:se\s+)?(?:dice|hace|signa|significa)\s+(?:la|el)?\s*(.+)$", None),
-            (r"(?:como|que|qué)\s+(?:es|son)\s+(?:la|el)?\s*(.+)$", None),
-            (r"(?:se[ñn]a|signo)\s+(?:de|para)\s+(.+)$", None),
+            # ── Cómo se dice / hace / signa ──────────────────────────────────
+            (r"(?:como|que|que)\s+(?:se\s+)?(?:dice|hace|signa|significa)\s+(?:la|el|los|las)?\s*(.+)$", None),
+            (r"(?:como|como)\s+(?:es|son)\s+(?:la|el|los|las)?\s*(.+)$", None),
+            (r"(?:como|como)\s+decir\s+(?:la|el|los|las)?\s*(.+)$", None),
+            (r"(?:como|como)\s+se\s+expresa\s+(?:la|el)?\s*(.+)$", None),
+            (r"(?:como|como)\s+se\s+escribe\s+(?:la|el)?\s*(.+)$", None),
+            (r"(?:como|como)\s+se\s+representa\s+(?:la|el)?\s*(.+)$", None),
+
+            # ── Seña / signo de X ─────────────────────────────────────────────
+            (r"(?:sena|signo)\s+(?:de|para|del|de la|de los|de las)\s+(.+)$", None),
+            (r"(?:cual|que)\s+(?:es\s+)?(?:la\s+)?(?:sena|signo)\s+(?:de|para|del)?\s*(.+)$", None),
+            (r"(?:muestrame|mostrame|ensename|enseñame)\s+(?:la\s+)?(?:sena|signo)\s+(?:de|para)?\s*(.+)$", None),
+            (r"(?:muestrame|mostrame|ensename)\s+(?:como\s+(?:se\s+)?(?:dice|hace|signa)\s+)?(.+)$", None),
+            (r"(?:quiero\s+(?:ver|aprender|saber|conocer))\s+(?:la\s+)?(?:sena|signo)\s+(?:de|para)?\s*(.+)$", None),
+            (r"quiero\s+aprender\s+(?:la\s+)?(?:palabra\s+)?(.+)$", None),
+            (r"quiero\s+saber\s+(?:como\s+(?:se\s+)?(?:dice|hace|signa)\s+)?(?:la|el)?\s*(.+)$", None),
+            (r"quiero\s+ver\s+(?:la\s+)?(?:sena\s+(?:de|para)\s+)?(.+)$", None),
+
+            # ── Buscar / encontrar ────────────────────────────────────────────
+            (r"busca(?:r|me)?\s+(?:la\s+)?(?:sena|signo|palabra)\s+(?:de|para)?\s*(.+)$", None),
+            (r"encuentra(?:me)?\s+(?:la\s+)?(?:sena|signo)\s+(?:de|para)?\s*(.+)$", None),
+            (r"dame\s+(?:la\s+)?(?:sena|signo|informacion)\s+(?:de|sobre|para)?\s*(.+)$", None),
+            (r"dame\s+(?:el\s+)?(?:video\s+(?:de|sobre)\s+)?(.+)$", None),
+            (r"necesito\s+(?:la\s+)?(?:sena|signo)\s+(?:de|para)?\s*(.+)$", None),
+            (r"necesito\s+(?:aprender|saber|ver)\s+(?:la\s+)?(?:sena\s+(?:de|para)\s+)?(.+)$", None),
+
+            # ── Preguntas directas ────────────────────────────────────────────
+            (r"(?:que\s+significa|que\s+es)\s+(?:la\s+)?(?:sena|signo)\s+(?:de|para)?\s*(.+)$", None),
+            (r"(?:sabes|conoces)\s+(?:la\s+)?(?:sena|signo)\s+(?:de|para)?\s*(.+)$", None),
+            (r"(?:hay|existe|tienen)\s+(?:la\s+)?(?:sena|signo)\s+(?:para|de)?\s*(.+)$", None),
+            (r"(?:puedes|podrias)\s+(?:mostrarme|ensenarme|decirme)\s+(?:como\s+(?:se\s+)?(?:dice|hace)\s+)?(?:la|el)?\s*(.+)$", None),
+            (r"(?:dime|explicame|indicame)\s+(?:como\s+(?:se\s+)?(?:dice|hace|signa)\s+)?(?:la|el)?\s*(.+)$", None),
+
+            # ── En lengua de señas / LSG / LENSEGUA ──────────────────────────
+            (r"(.+)\s+en\s+(?:lengua\s+de\s+senas|lsguatemala|lensegua|senas|lenguaje\s+de\s+senas)$", None),
+            (r"(.+)\s+en\s+senas$", None),
+            (r"(?:como\s+(?:se\s+)?(?:dice|hace|signa)\s+)?(.+)\s+en\s+(?:senas|lsguatemala|lensegua)$", None),
+
+            # ── Categorías específicas ────────────────────────────────────────
             (r"color\s+(.+)$", "colores"),
+            (r"(?:como\s+(?:se\s+)?dice\s+)?(?:el\s+)?color\s+(.+)$", "colores"),
+            (r"(?:como\s+(?:se\s+)?dice\s+la\s+)?(?:letra|caracter)\s+(.+)$", "abecedario"),
             (r"letra\s+(.+)$", "abecedario"),
-            (r"(?:como|cómo)\s+decir\s+(?:la|el)?\s*(.+)$", None),          # "como decir morado"
-            (r"(?:como|cómo)\s+(?:se\s+)?dice\s+el\s+color\s+(.+)$", "colores"),  # "como se dice el color x"
-            (r"(?:como|cómo)\s+(?:se\s+)?dice\s+la\s+letra\s+(.+)$", "abecedario"),
+            (r"(?:el\s+)?(?:saludo|saludos?)\s+(.+)$", "saludos"),
+            (r"(?:el\s+)?(?:alimento|comida|fruta|verdura)\s+(.+)$", "alimentos"),
+            (r"(?:el\s+|la\s+)?(?:animal|animales)\s+(.+)$", "animales"),
+
+            # ── Patrones cortos / coloquiales ─────────────────────────────────
+            (r"sena\s+(.+)$", None),
+            (r"signa\s+(.+)$", None),
+            (r"ensenme\s+(.+)$", None),
+            (r"muestrame\s+(.+)$", None),
+            (r"video\s+(?:de|sobre|para)\s+(.+)$", None),
+            (r"(?:que\s+tal|cual)\s+(?:es\s+)?(?:la\s+sena\s+(?:de|para)\s+)?(.+)$", None),
+
+            # ── Frases con "palabra" explícita ────────────────────────────────
+            (r"(?:la\s+)?palabra\s+(.+)$", None),
+            (r"(?:como\s+(?:se\s+)?(?:dice|hace|signa)\s+)?la\s+palabra\s+(.+)$", None),
+            (r"(?:busca|encuentra|dame)\s+la\s+palabra\s+(.+)$", None),
         ]
 
         for patron, categoria in patrones:
@@ -39,12 +90,13 @@ class AgenteIA:
             if not coincidencia:
                 continue
             palabra = coincidencia.group(1).strip()
-            palabra = re.sub(r"\s+(por favor|pls|porfa)$", "", palabra).strip()
-            palabra = re.sub(r"\s+(en\s+se[nñ]as|en\s+lensegua|por\s+favor|pls|porfa)$", "", palabra).strip()
-            palabra = re.sub(r"^(la|el|los|las)\s+", "", palabra).strip()
+            # Limpiar coletillas y artículos residuales
+            palabra = re.sub(r"\s+(por favor|pls|porfa|gracias)$", "", palabra).strip()
+            palabra = re.sub(r"\s+(en\s+senas|en\s+lensegua|en\s+lsguatemala|por\s+favor|pls|porfa)$", "", palabra).strip()
+            palabra = re.sub(r"^(la|el|los|las|un|una)\s+", "", palabra).strip()
             palabra = re.sub(r"^letra\s+", "", palabra).strip()
             palabra = re.sub(r"^color\s+", "", palabra).strip()
-            palabra = re.sub(r"^se[ñn]a\s+(?:de\s+)?", "", palabra).strip()
+            palabra = re.sub(r"^se[n]\s+(?:de\s+)?", "", palabra).strip()
             palabra = re.sub(r"^signo\s+(?:de\s+)?", "", palabra).strip()
             palabra = re.sub(r"\?$", "", palabra).strip()
             if palabra:
