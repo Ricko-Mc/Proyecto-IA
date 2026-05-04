@@ -16,7 +16,7 @@ signo(tamal, alimentos, 'ALI015').
 signo(tortilla, alimentos, 'ALI016').
 
 video_youtube('ALI001', 'https://youtu.be/LIevqr-Csg0'). % aceite
-video_youtube('ALI002', 'https://youtu.be/UruEbwWgZfE'). % atol
+video_youtube('ALI002', '-'). % atol
 video_youtube('ALI003', 'https://youtu.be/baXCGBujTlE'). % carne_de_cerdo
 video_youtube('ALI004', 'https://youtu.be/CHWzS0GoYyU'). % fideos
 video_youtube('ALI005', 'https://youtu.be/JwYp9GDb3JQ'). % frijol
