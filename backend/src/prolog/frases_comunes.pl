@@ -56,7 +56,7 @@ video_youtube('FRA022', 'https://youtu.be/xCz6Tvcl_sw?si=x0Lqm8i0Zm3Yjt1_').
 
 video_youtube('FRA023', 'https://youtu.be/LG6Nj6fWqzI?si=MWPNLK9RI_KfkKnj').
 video_youtube('FRA024', 'https://youtu.be/JPjVZoISjjI?si=qtPUmfiytGZnJIt8').
-video_youtube('FRA025', 'https://youtu.be/1UixnZTC4Cs?si=CY-6aMfQqTCTtg7X').
+video_youtube('FRA025', 'https://youtu.be/20y0bkW1CtM').
 video_youtube('FRA026', 'https://youtu.be/FM3uvW7w4w0?si=AdcRcytvNdFOw3ED').
 video_youtube('FRA027', 'https://youtu.be/Kx2m6ikcYb8?si=VseUOmPw-bjADb4F').
-video_youtube('FRA028', 'https://youtu.be/qYwMfWLCIJM?si=dyIqu91sZyMaU0PO').
+video_youtube('FRA028', 'https://youtu.be/J2xi2R6g3Ow').
