@@ -29,7 +29,7 @@ video_youtube('FRA004', 'https://youtu.be/bfbp-IekUsU').
 video_youtube('FRA005', 'https://youtu.be/w2QiWIsLEqA').
 video_youtube('FRA006', 'https://youtu.be/Qb6KkPkAWFg').
 video_youtube('FRA007', 'https://youtu.be/5FJG3GxAn9c').
-video_youtube('FRA008', 'https://youtu.be/je6eWvQ120Y').
+video_youtube('FRA008', 'https://www.youtube.com/watch?v=20y0bkW1CtM').
 video_youtube('FRA009', 'https://youtu.be/bfbp-IekUsU').
 video_youtube('FRA010', 'https://youtu.be/w2QiWIsLEqA').
 video_youtube('FRA011', 'https://youtu.be/8ouWLJw3z4E').
@@ -37,7 +37,7 @@ video_youtube('FRA012', 'https://youtu.be/VSOGNvHPWkA').
 video_youtube('FRA013', 'https://youtu.be/AM5CKJdPGCY').
 video_youtube('FRA014', 'https://youtu.be/02paHBZpUyM').
 video_youtube('FRA015', 'https://youtu.be/TnI2pGptYYk').
-video_youtube('FRA016', 'https://youtu.be/jeVu_asR_RM').
+video_youtube('FRA016', 'https://youtu.be/J2xi2R6g3Ow').
 
 video_youtube('FRA001', 'https://youtu.be/H512gQZ9cIM?si=gmUap_f8TzsLXfeO').
 video_youtube('FRA017', 'https://youtu.be/SVEND2sfPIA?si=G7nKwPx8ucDwIfRg').
@@ -49,7 +49,7 @@ video_youtube('FRA022', 'https://youtu.be/xCz6Tvcl_sw?si=x0Lqm8i0Zm3Yjt1_').
 
 video_youtube('FRA023', 'https://youtu.be/LG6Nj6fWqzI?si=MWPNLK9RI_KfkKnj').
 video_youtube('FRA024', 'https://youtu.be/JPjVZoISjjI?si=qtPUmfiytGZnJIt8').
-video_youtube('FRA025', 'https://youtu.be/1UixnZTC4Cs?si=CY-6aMfQqTCTtg7X').
+video_youtube('FRA025', 'https://www.youtube.com/watch?v=20y0bkW1CtM').
 video_youtube('FRA026', 'https://youtu.be/FM3uvW7w4w0?si=AdcRcytvNdFOw3ED').
 video_youtube('FRA027', 'https://youtu.be/Kx2m6ikcYb8?si=VseUOmPw-bjADb4F').
-video_youtube('FRA028', 'https://youtu.be/qYwMfWLCIJM?si=dyIqu91sZyMaU0PO').
+video_youtube('FRA028', 'https://youtu.be/J2xi2R6g3Ow').
