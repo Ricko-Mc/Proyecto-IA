@@ -1,6 +1,7 @@
 import { VideoPlayer } from './VideoPlayer';
 import { VideoCarousel } from './VideoCarousel';
 import { GameCarousel } from './GameCarousel';
+import { AbecedarioCompleto } from './AbecedarioCompleto';
 import { Button } from './ui/button';
 import {
   Loader2,
@@ -8,6 +9,7 @@ import {
   Clapperboard,
   BookOpen,
   ArrowRight,
+  Gamepad2,
 } from 'lucide-react';
 
 export interface Message {
@@ -22,12 +24,15 @@ export interface Message {
   noVideoAvailable?: boolean;
   suggestionWord?: string;
   videos?: Array<{ word: string; videoUrl: string }>;
+  videosCompilacion?: Array<{ palabra: string; signo_id: string; url_video: string | null }>;
   disambiguationWord?: string;
   disambiguationOptions?: Array<{ label: string; clave: string }>;
   backendError?: boolean;
   gamePrompt?: boolean;
   categoryPrompt?: boolean;
   categories?: string[];
+  wordsList?: string[];
+  games?: Array<{ id: string; label: string; desc: string }>;
 }
 
 interface ChatMessageProps {
@@ -36,6 +41,8 @@ interface ChatMessageProps {
   onSelectDisambiguation?: (word: string, clave: string, label: string) => void;
   onSelectCategory?: (category: string) => void;
   onOpenDictionary?: () => void;
+  onSendMessage?: (message: string) => void;
+  onNavigateToGames?: () => void;
   isActiveVideo?: boolean;
 }
 
@@ -55,6 +62,8 @@ export function ChatMessage({
   onSelectDisambiguation,
   onSelectCategory,
   onOpenDictionary,
+  onSendMessage,
+  onNavigateToGames,
   isActiveVideo = false,
 }: ChatMessageProps) {
   const botBubbleClass =
@@ -69,6 +78,7 @@ export function ChatMessage({
       </div>
     );
   }
+
   return (
     <div className="flex justify-start mb-6">
       <div className="w-full">
@@ -82,7 +92,13 @@ export function ChatMessage({
             <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
               {message.text}
             </p>
-            <GameCarousel />
+            <button
+              onClick={onNavigateToGames}
+              className="inline-flex items-center gap-2 rounded-[16px] bg-[#4997D0] hover:bg-[#3A7FB8] px-5 py-3 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(73,151,208,0.30)] transition-colors"
+            >
+              <Gamepad2 className="h-4 w-4" />
+              Ir a Juegos
+            </button>
           </div>
         ) : message.backendError ? (
           <div className={botBubbleClass}>
@@ -93,9 +109,7 @@ export function ChatMessage({
           </div>
         ) : message.notFound ? (
           <div className={botBubbleClass}>
-            <p className="text-sm text-destructive font-medium">
-              Palabra no encontrada
-            </p>
+            <p className="text-sm text-destructive font-medium">Palabra no encontrada</p>
             <p className="text-sm text-muted-foreground">
               Lo sentimos, "{message.notFoundWord || 'esta palabra'}" aún no tiene seña disponible en nuestro sistema.
             </p>
@@ -196,7 +210,8 @@ export function ChatMessage({
               ))}
             </div>
           </div>
-        ) : message.videos && message.videos.length > 0 ? (
+        ) : message.videosCompilacion && message.videosCompilacion.length > 0 ? (
+          // Abecedario u otras compilaciones → siempre compact en el chat
           <div className="space-y-2">
             {message.text ? (
               <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">
@@ -204,9 +219,37 @@ export function ChatMessage({
               </div>
             ) : null}
             {isActiveVideo ? (
-              <VideoCarousel items={message.videos} active={isActiveVideo} />
+              <AbecedarioCompleto
+                videos={message.videosCompilacion}
+                active={isActiveVideo}
+                compact // ← compacto en el chat
+              />
             ) : (
               <InactiveVideoPlaceholder />
+            )}
+          </div>
+        ) : message.videos && message.videos.length > 0 ? (
+          // Categorías con VideoCarousel → también compact en el chat
+          <div className="space-y-2">
+            {message.text ? (
+              <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">
+                <p className="text-sm text-foreground">{message.text}</p>
+              </div>
+            ) : null}
+            {message.videos.length > 0 ? (
+              isActiveVideo ? (
+                <VideoCarousel
+                  items={message.videos}
+                  active={isActiveVideo}
+                  compact // ← compacto en el chat
+                />
+              ) : (
+                <InactiveVideoPlaceholder />
+              )
+            ) : (
+              <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">
+                <p className="text-sm text-foreground">No hay videos disponibles en esta categoría.</p>
+              </div>
             )}
           </div>
         ) : message.videoUrl && message.signLabel ? (
@@ -221,6 +264,25 @@ export function ChatMessage({
             ) : (
               <InactiveVideoPlaceholder />
             )}
+          </div>
+        ) : message.wordsList && message.wordsList.length > 0 ? (
+          <div className="space-y-2">
+            {message.text ? (
+              <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">
+                <p className="text-sm text-foreground">{message.text}</p>
+              </div>
+            ) : null}
+            <div className="flex flex-wrap gap-2">
+              {message.wordsList.map((word, index) => (
+                <button
+                  key={index}
+                  onClick={() => onSendMessage?.(word)}
+                  className="inline-flex m-0.5 px-3 py-1.5 rounded-full bg-[#DBEAFE] hover:bg-[#BFDBFE] text-slate-700 text-sm font-medium border border-[#BFDBFE] transition-colors cursor-pointer"
+                >
+                  {word}
+                </button>
+              ))}
+            </div>
           </div>
         ) : message.text ? (
           <div className="rounded-[18px] px-4 py-3 backdrop-blur-[10px] bg-[rgba(255,255,255,0.4)] dark:bg-[rgba(18,30,46,0.68)] dark:border dark:border-[#2f435d]">

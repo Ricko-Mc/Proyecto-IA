@@ -1,5 +1,14 @@
 const DEFAULT_PARAMS = "autoplay=1&mute=1&controls=0&rel=0&modestbranding=1&playsinline=1";
 
+function getOriginParam(): string {
+  if (typeof window === 'undefined') return '';
+  try {
+    return `&origin=${encodeURIComponent(window.location.origin)}`;
+  } catch {
+    return '';
+  }
+}
+
 export function extractYouTubeId(reference: string | null | undefined): string | null {
   if (!reference) return null;
 
@@ -39,9 +48,10 @@ export function extractYouTubeId(reference: string | null | undefined): string |
 export function toYouTubeEmbedUrl(reference: string | null | undefined): string | null {
   const videoId = extractYouTubeId(reference);
   if (!videoId) return null;
+  const originParam = getOriginParam();
   return (
-    `https://www.youtube.com/embed/${videoId}?${DEFAULT_PARAMS}` +
-    `&loop=1&playlist=${videoId}`
+    `https://www.youtube-nocookie.com/embed/${videoId}?${DEFAULT_PARAMS}` +
+    `&loop=1&playlist=${videoId}&enablejsapi=1${originParam}`
   );
 }
 
@@ -59,10 +69,11 @@ export function toYouTubePlaylistEmbedUrl(
   const ordered = [...ids.slice(normalizedIndex), ...ids.slice(0, normalizedIndex)];
   const first = ordered[0];
   const playlist = ordered.join(',');
+  const originParam = getOriginParam();
 
   return (
-    `https://www.youtube.com/embed/${first}?${DEFAULT_PARAMS}` +
-    `&loop=1&playlist=${playlist}`
+    `https://www.youtube-nocookie.com/embed/${first}?${DEFAULT_PARAMS}` +
+    `&loop=1&playlist=${playlist}&enablejsapi=1${originParam}`
   );
 }
 

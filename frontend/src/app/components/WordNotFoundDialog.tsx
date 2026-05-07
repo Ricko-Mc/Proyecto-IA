@@ -61,18 +61,18 @@ export function WordNotFoundDialog({ word, open, onOpenChange }: WordNotFoundDia
             </div>
           </div>
           <DialogTitle className="text-center text-2xl">
-            {isSubmitted ? "¡Solicitud enviada!" : "Palabra no encontrada"}
+            {isSubmitted ? "¡Gracias por tu ayuda! 🎉" : "¡Oops! No encontramos esa palabra"}
           </DialogTitle>
           <DialogDescription className="text-center">
             {isSubmitted ? (
               <>
-                Gracias por tu colaboración. Nuestro equipo revisará tu solicitud
-                y trabajará para agregar esta seña al diccionario.
+                Apreciamos tu sugerencia. Nuestro equipo revisará tu solicitud
+                y haremos todo lo posible para agregar esta seña pronto.
               </>
             ) : (
               <>
-                La palabra <span className="font-semibold">"{word}"</span> aún no está
-                disponible en nuestro diccionario.
+                La seña para <span className="font-semibold">"{word}"</span> no está en nuestro diccionario todavía,
+                ¡pero con tu ayuda podemos lograrlo! 💪
               </>
             )}
           </DialogDescription>
@@ -82,10 +82,10 @@ export function WordNotFoundDialog({ word, open, onOpenChange }: WordNotFoundDia
           <div className="space-y-4">
             <div className="bg-muted rounded-lg p-4">
               <p className="text-sm text-foreground mb-3">
-                ¿Te gustaría solicitar que agreguemos esta palabra?
+                ¿Quieres ayudarnos a mejorar? Cuéntanos sobre esta palabra y haremos todo lo posible por agregarla. 😊
               </p>
               <Textarea
-                placeholder="Opcional: Agrega contexto o comentarios sobre esta palabra..."
+                placeholder="Ejemplo: ¿En qué contexto se usa? ¿Cómo debería ser la seña?..."
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 className="min-h-[100px] resize-none"

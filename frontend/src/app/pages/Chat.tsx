@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { Sidebar, Conversation } from '../components/Sidebar';
 import { Navbar } from '../components/Navbar';
 import { ChatMessage, Message } from '../components/ChatMessage';
 import { WordNotFoundDialog } from '../components/WordNotFoundDialog';
+import { WelcomeChatBubble } from '../components/WelcomeChatBubble';
+import { InputWithSuggestions } from '../components/InputWithSuggestions';
 import { BottomNav } from '../components/BottomNav';
 import { Button } from '../components/ui/button';
-import { Textarea } from '../components/ui/textarea';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,12 +21,14 @@ import {
 import { Send, BookOpen } from 'lucide-react';
 import { api } from '../../services/api';
 
-const WELCOME_PHRASES = [
-  "Hola, ¿cómo estás?",
-  "Buenos días",
-  "Gracias",
-  "Por favor",
-  "Te quiero"
+// Sin "Mixta"
+const WELCOME_CATEGORIES = [
+  { id: 'abecedario', label: 'Abecedario' },
+  { id: 'saludos', label: 'Saludos' },
+  { id: 'colores', label: 'Colores' },
+  { id: 'animales', label: 'Animales' },
+  { id: 'alimentos', label: 'Alimentos' },
+  { id: 'frases_comunes', label: 'Frases Comunes' },
 ];
 
 const getConversationStorageKey = () => `segua_conversations_public`;
@@ -38,6 +41,7 @@ const PUBLIC_USER = {
 
 export function Chat() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState<typeof PUBLIC_USER>(PUBLIC_USER);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string>('');
@@ -54,6 +58,8 @@ export function Chat() {
   const [correctResponseCount, setCorrectResponseCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [conversationToDelete, setConversationToDelete] = useState('');
+  const [autoSendWord, setAutoSendWord] = useState<string>('');
+  const [showWelcomeBubble, setShowWelcomeBubble] = useState(true);
 
   useEffect(() => {
     const conversationsKey = getConversationStorageKey();
@@ -110,16 +116,42 @@ export function Chat() {
     localStorage.setItem('segua_sidebar_collapsed', JSON.stringify(isSidebarCollapsed));
   }, [isSidebarCollapsed]);
 
+  useEffect(() => {
+    if (messages.length > 0) {
+      setShowWelcomeBubble(false);
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const palabra = params.get('palabra');
+    if (palabra) {
+      setAutoSendWord(palabra);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [location.search]);
+
+  const enviarMensajeRef = useRef<((mensaje: string) => Promise<void>) | null>(null);
+
+  useEffect(() => {
+    if (autoSendWord && enviarMensajeRef.current) {
+      enviarMensajeRef.current(autoSendWord);
+      setAutoSendWord('');
+    }
+  }, [autoSendWord]);
+
   const handleNewConversation = () => {
     setCurrentConversationId('');
     setMessages([]);
     setInsertedGamePrompt(false);
+    setShowWelcomeBubble(true);
   };
 
   const handleSelectConversation = (id: string) => {
     setCurrentConversationId(id);
     setMessages([]);
     setInsertedGamePrompt(false);
+    setShowWelcomeBubble(false);
   };
 
   const handleDeleteConversation = () => {
@@ -141,6 +173,7 @@ export function Chat() {
   const handleClearConversation = () => {
     setMessages([]);
     setInsertedGamePrompt(false);
+    setShowWelcomeBubble(true);
     if (currentConversationId) {
       setConversations(prev =>
         prev.map(conv =>
@@ -171,12 +204,40 @@ export function Chat() {
   ) => {
     if (!mensaje.trim()) return;
 
-    const mensajeActual = mensaje;
+    enviarMensajeRef.current = enviarMensaje;
+
+    const patronAprender = /quiero\s+aprender\s+(?:la\s+)?palabra[\s:]+(.*)/i;
+    const patronComoDice = /(?:como|cómo)\s+se\s+dice\s+(?:la\s+)?palabra[\s:]*(.*)/i;
+    const patronComoDiceSimple = /(?:como|cómo)\s+se\s+dice[\s:]+(.*)/i;
+
+    const matchAprender = mensaje.match(patronAprender);
+    const matchComoDice = mensaje.match(patronComoDice);
+    const matchComoDiceSimple = mensaje.match(patronComoDiceSimple);
+
+    let mensajeActual = mensaje;
+    let mostrarTextoUsuario = textoUsuarioVisible || mensajeActual;
+
+    if (matchAprender && matchAprender[1]) {
+      const palabraAprender = matchAprender[1].trim();
+      mensajeActual = palabraAprender;
+      mostrarTextoUsuario = `Quiero aprender la palabra: ${palabraAprender}`;
+    } else if (matchComoDice && matchComoDice[1]) {
+      const palabraComoDice = matchComoDice[1].trim();
+      mensajeActual = palabraComoDice;
+      mostrarTextoUsuario = `¿Cómo se dice: ${palabraComoDice}?`;
+    } else if (matchComoDiceSimple && matchComoDiceSimple[1]) {
+      const palabraComoDice = matchComoDiceSimple[1].trim();
+      mensajeActual = palabraComoDice;
+      mostrarTextoUsuario = `¿Cómo se dice: ${palabraComoDice}?`;
+    }
+
+    // Reemplazar guiones bajos en el texto visible al usuario
+    mostrarTextoUsuario = mostrarTextoUsuario.replace(/_/g, ' ');
 
     const userMessage: Message = {
       id: `msg-${Date.now()}`,
       type: 'user',
-      text: textoUsuarioVisible || mensajeActual,
+      text: mostrarTextoUsuario,
     };
 
     const loadingMessage: Message = {
@@ -236,7 +297,14 @@ export function Chat() {
         const filtered = prev.filter((m) => !m.isLoading);
 
         let systemMessage: Message;
-        if (respuesta.tipo_respuesta === 'desambiguacion') {
+        if (respuesta.tipo_respuesta === 'compilacion') {
+          systemMessage = {
+            id: `msg-${Date.now()}-response`,
+            type: 'system',
+            text: respuesta.respuesta_ia,
+            videosCompilacion: respuesta.videos_compilacion || [],
+          };
+        } else if (respuesta.tipo_respuesta === 'desambiguacion') {
           systemMessage = {
             id: `msg-${Date.now()}-response`,
             type: 'system',
@@ -251,7 +319,9 @@ export function Chat() {
             type: 'system',
             text: '',
             videoUrl: urlVideoPermitida || undefined,
-            signLabel: respuesta.palabra_clave || undefined,
+            signLabel: respuesta.palabra_clave
+              ? respuesta.palabra_clave.replace(/_/g, ' ')
+              : undefined,
             noVideoAvailable: videoMissing,
             categoryPrompt: videoMissing,
             categories: videoMissing ? categoryOptions : undefined,
@@ -275,12 +345,14 @@ export function Chat() {
           };
         }
 
+        // Mensaje de juegos: botón único que navega a /games
         const gamePromptMessage: Message | null = shouldInsertPrompt
           ? {
               id: `msg-${Date.now()}-game`,
               type: 'system',
               text: '¡Vas muy bien! ¿Quieres poner a prueba lo que has aprendido?',
               gamePrompt: true,
+              games: [],         // lista vacía — el render usará el botón de navegación
             }
           : null;
 
@@ -317,7 +389,7 @@ export function Chat() {
       setConversations(prev =>
         prev.map(conv =>
           conv.id === currentConversationId
-            ? { 
+            ? {
                 ...conv,
                 lastMessage: mensajeActual,
                 name: messages.length === 0 ? mensajeActual.slice(0, 30) : conv.name,
@@ -340,10 +412,6 @@ export function Chat() {
     await enviarMensaje(word, clave, label);
   };
 
-  const handleTryPhrase = (phrase: string) => {
-    setInputText(phrase);
-  };
-
   const handleOpenDictionary = () => {
     navigate('/dictionary');
   };
@@ -352,16 +420,63 @@ export function Chat() {
     navigate(`/dictionary?category=${encodeURIComponent(category)}`);
   };
 
+  const handleExploreCategory = async (categoryId: string, categoryLabel: string) => {
+    try {
+      setMessages((prev) => [...prev, {
+        id: `msg-${Date.now()}-loading`,
+        type: 'system',
+        text: '',
+        isLoading: true,
+      }]);
+
+      const resultado = await api.obtenerSignosPorCategoria(categoryId);
+
+      if (!resultado || !resultado.signos) {
+        throw new Error('Respuesta inválida de la API');
+      }
+
+      const signosArray = Array.isArray(resultado.signos) ? resultado.signos : [];
+
+      // Reemplazar guiones bajos por espacios en todas las palabras
+      const palabras = signosArray
+        .filter(signo => signo && signo.palabra && signo.url_video)
+        .map(signo => signo.palabra.replace(/_/g, ' '));
+
+      const categoryMessage: Message = {
+        id: `msg-${Date.now()}-category`,
+        type: 'system',
+        text: palabras.length > 0
+          ? `Aquí están las palabras de ${categoryLabel}:`
+          : `Se encontraron ${signosArray.length} palabras en ${categoryLabel}, pero ninguna tiene video disponible.`,
+        wordsList: palabras.length > 0 ? palabras : [],
+      };
+
+      setMessages((prev) => {
+        const filtered = prev.filter((m) => !m.isLoading);
+        return [...filtered, categoryMessage];
+      });
+    } catch (error) {
+      setMessages((prev) => {
+        const filtered = prev.filter((m) => !m.isLoading);
+        return [...filtered, {
+          id: `msg-${Date.now()}-error`,
+          type: 'system',
+          text: `Error al cargar las palabras de ${categoryLabel}. Por favor, intenta de nuevo.`,
+        }];
+      });
+    }
+  };
+
   const showWelcome = messages.length === 0;
   const charCount = inputText.length;
   const maxChars = 500;
   const activeVideoMessageId = [...messages]
     .reverse()
-    .find((message) => message.type === 'system' && (Boolean(message.videoUrl) || Boolean(message.videos?.length)))?.id;
+    .find((message) => message.type === 'system' && (Boolean(message.videoUrl) || Boolean(message.videos?.length) || Boolean(message.videosCompilacion?.length)))?.id;
 
   return (
     <div className="flex h-screen w-screen rounded-none overflow-hidden bg-[#f7f8fa] dark:bg-[rgba(10,10,10,0.82)]">
-      <div className={`h-full ${isSidebarCollapsed ? 'w-16' : 'w-80'} transition-all duration-200 ease-in-out`}>
+      <div className={`hidden md:block h-full ${isSidebarCollapsed ? 'w-16' : 'w-80'} transition-all duration-200 ease-in-out`}>
         <Sidebar
           conversations={conversations}
           currentConversationId={currentConversationId}
@@ -396,25 +511,22 @@ export function Chat() {
         </AlertDialogContent>
       </AlertDialog>
 
-      
       <WordNotFoundDialog
         word={notFoundWord}
         open={showNotFoundDialog}
         onOpenChange={setShowNotFoundDialog}
       />
 
-      
       <div className="flex-1 flex flex-col min-h-0 bg-[linear-gradient(180deg,#dff0ff_0%,#f3ecde_100%)] dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#101010_100%)] overflow-hidden">
-        
+
         <Navbar
           title="Chat"
           onToggleSidebar={() => setIsSidebarCollapsed((prev: boolean) => !prev)}
           onClearConversation={handleClearConversation}
           onSearch={handleNavbarSearch}
           activePage="chat"
-        />        
+        />
 
-        
         <div
           className="content-area flex-1 overflow-y-auto pb-20 md:pb-0 pr-1"
           style={{ scrollbarGutter: 'stable' }}
@@ -441,17 +553,17 @@ export function Chat() {
                   </p>
                   <div className="space-y-1.5 md:space-y-2">
                     <p className="text-xs md:text-sm font-medium text-muted-foreground" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                      Prueba con estas frases:
+                      Explora estas categorías:
                     </p>
-                    <div className="grid grid-cols-2 md:flex md:flex-wrap gap-1.5 md:gap-2 justify-center px-1">
-                      {WELCOME_PHRASES.map((phrase, index) => (
+                    <div className="flex flex-wrap gap-2 justify-center px-2 py-1">
+                      {WELCOME_CATEGORIES.map((category, index) => (
                         <Button
                           key={index}
                           variant="outline"
-                          onClick={() => handleTryPhrase(phrase)}
-                          className="border-[#4997D0]/70 dark:border-[#3f3f3f] bg-white/70 dark:bg-white/5 text-[#4997D0] dark:text-[#dcdcdc] backdrop-blur-sm hover:bg-[#4997D0] dark:hover:bg-[#2a2a2a] hover:text-white text-[11px] md:text-xs h-7 md:h-8 py-1 px-2 md:px-3"
+                          onClick={() => handleExploreCategory(category.id, category.label)}
+                          className="border-[#4997D0]/70 dark:border-[#3f3f3f] bg-white/70 dark:bg-white/5 text-[#4997D0] dark:text-[#dcdcdc] backdrop-blur-sm hover:bg-[#4997D0] dark:hover:bg-[#2a2a2a] hover:text-white text-[11px] md:text-xs h-7 md:h-8 py-1 px-2 md:px-3 whitespace-nowrap"
                         >
-                          {phrase}
+                          {category.label}
                         </Button>
                       ))}
                     </div>
@@ -478,6 +590,8 @@ export function Chat() {
                     onSelectCategory={handleSelectCategory}
                     onOpenDictionary={handleOpenDictionary}
                     isActiveVideo={message.id === activeVideoMessageId}
+                    onSendMessage={(word: string) => enviarMensaje(word)}
+                    onNavigateToGames={() => navigate('/games')}
                   />
                 ))}
                 <div ref={messagesEndRef} />
@@ -486,16 +600,13 @@ export function Chat() {
           </div>
         </div>
 
-        
         <div className="chat-input-wrap bg-transparent p-4 md:p-7 mb-16 md:mb-0 border-t border-black/5 dark:border-white/10">
           <div className="max-w-3xl mx-auto">
-            <div
-              className="chat-input flex items-end gap-3 rounded-[16px] p-3 bg-white/72 dark:bg-[rgba(18,18,18,0.78)] border border-black/5 dark:border-white/10 backdrop-blur-md"
-            >
+            <div className="chat-input flex items-end gap-3 rounded-[16px] p-3 bg-white/72 dark:bg-[rgba(18,18,18,0.78)] border border-black/5 dark:border-white/10 backdrop-blur-md">
               <div className="flex-1 relative">
-                <Textarea
+                <InputWithSuggestions
                   value={inputText}
-                  onChange={(e) => setInputText(e.target.value.slice(0, maxChars))}
+                  onChange={setInputText}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -503,7 +614,8 @@ export function Chat() {
                     }
                   }}
                   placeholder="Escribe una palabra o frase..."
-                  className="min-h-[34px] md:min-h-[38px] max-h-[96px] resize-none pr-9 md:pr-10 py-2 text-xs md:text-sm leading-[1.35] border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-0 dark:text-[#efefef] dark:placeholder:text-[#8c8c8c]"
+                  maxChars={maxChars}
+                  onSelectSuggestion={() => {}}
                 />
                 <div className="absolute bottom-0.5 right-1 text-[9px] md:text-xs text-muted-foreground">
                   {charCount}/{maxChars}
@@ -521,7 +633,10 @@ export function Chat() {
         </div>
       </div>
 
-      
+      {showWelcome && showWelcomeBubble && (
+        <WelcomeChatBubble onDismiss={() => setShowWelcomeBubble(false)} />
+      )}
+
       <BottomNav />
     </div>
   );

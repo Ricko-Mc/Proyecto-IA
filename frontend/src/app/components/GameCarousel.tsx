@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { Play, Sparkles } from 'lucide-react';
+import { Play, Sparkles, Gamepad } from 'lucide-react';
 import { Button } from './ui/button';
 import { useNavigate } from 'react-router';
 
@@ -41,8 +41,8 @@ const GAME_CARDS: GameCard[] = [
     id: 'memoria-visual',
     title: 'Memoria visual',
     description: 'Relaciona señas con palabras.',
-    cta: 'Proximamente',
-    enabled: false,
+    cta: 'Jugar',
+    enabled: true,
     accent: '#40d7cf',
     imageSrc: '/memoria%20visual.png',
   },
@@ -90,7 +90,7 @@ export function GameCarousel() {
   );
 
   return (
-    <div className="game-carousel relative w-full h-full min-h-[520px] rounded-[30px] p-4 md:p-6 bg-transparent border border-white/15 dark:border-white/10 overflow-hidden flex flex-col justify-center">
+    <div className="game-carousel relative w-full h-[calc(100vh-72px)] md:h-full md:min-h-[520px] rounded-[30px] p-4 md:p-6 bg-transparent border border-white/15 dark:border-white/10 overflow-hidden flex flex-col justify-center">
 
       <div className="relative z-10 flex items-center justify-center mb-2 md:mb-3">
         <div className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs md:text-sm font-medium bg-white/70 dark:bg-white/10 text-slate-700 dark:text-slate-200">
@@ -103,8 +103,57 @@ export function GameCarousel() {
         Practica lo aprendido con dinamicas interactivas en Lengua de Señas de Guatemala.
       </p>
 
+      <div className="md:hidden mt-3 flex flex-col gap-2 px-1 overflow-hidden" style={{ height: 'calc(100vh - 220px)' }}>
+        {GAME_CARDS.map((card) => (
+          <div
+            key={card.id}
+            onClick={() => navigate(`/games/${card.id}`)}
+            className="relative w-full overflow-hidden rounded-[24px] shadow-[0_10px_24px_rgba(15,23,42,0.12)] cursor-pointer active:scale-[0.98] transition-transform"
+            style={{ height: 'calc((100vh - 220px) / 3)' }}
+          >
+            {card.imageSrc && (
+              <img
+                src={card.imageSrc}
+                alt={`Vista previa de ${card.title}`}
+                className="absolute inset-0 h-full w-full object-cover object-center"
+              />
+            )}
+
+            <div className={`absolute inset-0 ${
+              card.id === 'adivina-sena'
+                ? 'bg-gradient-to-t from-purple-700/80 via-purple-500/40 to-purple-300/10'
+                : card.id === 'ahorcado'
+                ? 'bg-gradient-to-t from-blue-700/80 via-blue-500/40 to-blue-300/10'
+                : 'bg-gradient-to-t from-cyan-700/80 via-cyan-500/40 to-cyan-300/10'
+            }`} />
+
+            <div className="relative z-10 flex h-full flex-col justify-end p-4">
+              <h3 className="text-lg font-bold text-white leading-tight drop-shadow-md">
+                {card.title}
+              </h3>
+              <p className="mt-1 text-[13px] text-white/85 leading-snug line-clamp-2 drop-shadow-sm">
+                {card.description}
+              </p>
+
+              <div className="mt-2">
+                {card.id === 'adivina-sena' ? (
+                  <span className="inline-flex items-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30 px-3 py-1 text-[11px] font-semibold text-white">
+                    Recomendado
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 px-3 py-1 text-[11px] font-semibold text-white">
+                    <Gamepad className="h-3 w-3" />
+                    Jugar
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <div
-        className="relative mx-auto w-full h-full overflow-x-hidden overflow-y-visible pt-10 pb-8 md:pt-12 md:pb-10 select-none cursor-grab"
+        className="hidden md:block relative mx-auto w-full h-full overflow-x-hidden overflow-y-visible pt-16 pb-8 md:pt-20 md:pb-10 select-none cursor-grab"
         onMouseDown={(event) => handleDragStart(event.clientX)}
         onMouseMove={(event) => handleDragMove(event.clientX)}
         onMouseUp={handleDragEnd}
@@ -214,7 +263,7 @@ export function GameCarousel() {
         </div>
       </div>
 
-      <div className="relative z-10 dots mt-1.5 md:mt-2 flex justify-center gap-2">
+      <div className="hidden md:flex relative z-10 dots mt-1.5 md:mt-2 justify-center gap-2">
         {GAME_CARDS.map((card, i) => (
           <button
             key={card.id}

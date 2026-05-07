@@ -5,6 +5,7 @@ interface LazyYouTubeFrameProps {
   src: string;
   title: string;
   className?: string;
+  thumbnailUrl?: string | null;
   active?: boolean;
 }
 
@@ -18,7 +19,7 @@ function obtenerVideoIdDeEmbed(url: string): string | null {
   }
 }
 
-export function LazyYouTubeFrame({ src, title, className, active = true }: LazyYouTubeFrameProps) {
+export function LazyYouTubeFrame({ src, title, className, thumbnailUrl, active = true }: LazyYouTubeFrameProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loaded, setLoaded] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -51,25 +52,39 @@ export function LazyYouTubeFrame({ src, title, className, active = true }: LazyY
   }, [src]);
 
   const videoId = obtenerVideoIdDeEmbed(src);
-  const thumbnailUrl = videoId
-    ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
-    : null;
+  const resolvedThumbnailUrl =
+    thumbnailUrl || (videoId ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : null);
   const fallbackThumbnailUrl = videoId
     ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
     : null;
 
   const iframeSrc = (() => {
     if (!isVisible && !active) return '';
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
     try {
       const url = new URL(src);
-      if (url.hostname.includes('youtube.com')) {
-        url.hostname = 'www.youtube-nocookie.com';
-      }
-      url.searchParams.set('autoplay', '1');
+      // Cambiar youtube.com a youtube-nocookie.com
+      url.hostname = url.hostname.replace('youtube.com', 'youtube-nocookie.com');
+      url.searchParams.set('autoplay', active ? '1' : '0');
       url.searchParams.set('mute', '1');
+      url.searchParams.set('enablejsapi', '1');
+      if (origin) {
+        url.searchParams.set('origin', origin);
+      }
       return url.toString();
     } catch {
-      return src.replace(/https?:\/\/(?:www\.)?youtube\.com\/embed\//, 'https://www.youtube-nocookie.com/embed/');
+      // Fallback para URLs inválidas
+      const base = src.replace(
+        /https?:\/\/(www\.)?youtube\.com\/embed\//,
+        'https://www.youtube-nocookie.com/embed/'
+      );
+      const params = [
+        'autoplay=' + (active ? '1' : '0'),
+        'mute=1',
+        'enablejsapi=1',
+        origin ? 'origin=' + encodeURIComponent(origin) : ''
+      ].filter(Boolean);
+      return base + (base.includes('?') ? '&' : '?') + params.join('&');
     }
   })();
 
@@ -90,9 +105,9 @@ export function LazyYouTubeFrame({ src, title, className, active = true }: LazyY
           zIndex: 1,
         }}
       >
-        {thumbnailUrl ? (
+        {resolvedThumbnailUrl ? (
           <img
-            src={thumbnailUrl}
+            src={resolvedThumbnailUrl}
             alt={title}
             className="absolute inset-0 w-full h-full object-cover"
             width={480}
@@ -137,10 +152,12 @@ export function LazyYouTubeFrame({ src, title, className, active = true }: LazyY
               visibility: loaded ? 'visible' : 'hidden',
               transition: 'opacity 150ms ease-in-out',
             }}
-            allow="autoplay; encrypted-media"
+            sandbox="allow-scripts allow-same-origin allow-presentation allow-autoplay allow-popups"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
             loading="eager"
             referrerPolicy="strict-origin-when-cross-origin"
             onLoad={() => setLoaded(true)}
+            onError={() => setLoaded(true)}
           />
         </>
       )}

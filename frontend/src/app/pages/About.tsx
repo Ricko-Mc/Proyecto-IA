@@ -1,12 +1,9 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Sidebar } from '../components/Sidebar';
-import { Navbar } from '../components/Navbar';
-import { Users } from 'lucide-react';
+import { MainLayout } from '../layouts/MainLayout';
+import { BottomNav } from '../components/BottomNav';
 
 export function About() {
   const navigate = useNavigate();
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const equipo = [
     'Gustavo Ariel Barrientos García',
@@ -24,57 +21,45 @@ export function About() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#f7f8fa] dark:bg-[rgba(10,10,10,0.82)]">
-      <div className={`h-full ${isSidebarCollapsed ? 'w-16' : 'w-80'} transition-all duration-200 ease-in-out`}>
-        <Sidebar
-          conversations={[]}
-          currentConversationId=""
-          userName="Visitante SEGUA"
-          userEmail="public@segua.local"
-          avatarUrl={null}
-          onNewConversation={handleNewConversation}
-          onSelectConversation={() => undefined}
-          onDeleteConversation={() => undefined}
-          isCollapsed={isSidebarCollapsed}
-        />
-      </div>
-      <div className="flex-1 flex flex-col min-h-0 bg-[linear-gradient(180deg,#dff0ff_0%,#f3ecde_100%)] dark:bg-[linear-gradient(180deg,#0a0a0a_0%,#101010_100%)] overflow-hidden">
-        <Navbar
-          title="Acerca de SEGUA"
-          onToggleSidebar={() => setIsSidebarCollapsed((prev) => !prev)}
-          showClearButton={false}
-        />
+    <MainLayout
+      title="Acerca de"
+      activePage="about"
+      onNewConversation={handleNewConversation}
+      showClearButton={false}
+    >
+      <div className="content-area flex-1 overflow-hidden pb-16 pt-4">
+        <div className="flex h-full flex-col justify-center px-4 sm:px-6">
+          <div className="flex justify-center">
+            <img
+              src="/umg.png"
+              alt="Universidad Mariano Gálvez"
+              className="h-12 w-auto md:h-14"
+            />
+          </div>
+          <div className="mt-4 text-center">
+            <h1 className="text-xl md:text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
+              Equipo de Desarrollo
+            </h1>
+            <p className="mt-1 text-xs md:text-sm text-slate-600 dark:text-slate-300">
+              Universidad Mariano Gálvez de Guatemala
+            </p>
+          </div>
 
-        <div className="content-area flex-1 overflow-y-auto pb-8 pt-6">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6">
-            <div className="flex justify-center">
-              <img
-                src="/umg.png"
-                alt="Universidad Mariano Gálvez"
-                className="h-20 w-auto"
-              />
-            </div>
-            <div className="mt-6 text-center">
-              <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white">
-                Equipo de Desarrollo
-              </h1>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                Universidad Mariano Gálvez de Guatemala
-              </p>
-            </div>
-
-            <div className="mt-8 space-y-2">
-              {equipo.map((nombre) => (
-                <div key={nombre} className="flex items-center gap-3 text-sm text-slate-900 dark:text-white">
-                  <Users className="h-5 w-5 text-[#4997D0]" />
-                  <span>{nombre}</span>
-                </div>
-              ))}
-            </div>
-
+          <div className="mt-4 grid grid-cols-1 gap-1 md:gap-2 text-center text-slate-900 dark:text-white">
+            {equipo.map((nombre, index) => (
+              <div key={nombre} className="flex flex-col items-center gap-1 py-1">
+                <span className="text-sm md:text-base font-semibold leading-tight">
+                  {nombre}
+                </span>
+                <span className="text-[11px] md:text-xs text-slate-500 dark:text-slate-400">
+                  5090-22-{index + 1}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
-    </div>
+      <BottomNav />
+    </MainLayout>
   );
 }

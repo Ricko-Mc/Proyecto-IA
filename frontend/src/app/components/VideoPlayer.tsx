@@ -12,6 +12,12 @@ export function VideoPlayer({ videoUrl, signLabel, active = true, showLabel = tr
   const embedUrl = toYouTubeEmbedUrl(videoUrl);
   const thumbnailUrl = toYouTubeThumbnailUrl(videoUrl);
 
+  const hasLongWord = signLabel
+    .split(/\s+/)
+    .some((word) => word.replace(/[^A-Za-zÀ-ÿ0-9_]/g, '').length > 6);
+  const labelClass = hasLongWord ? 'text-sm md:text-base' : 'text-base md:text-lg';
+  const labelMaxWidth = hasLongWord ? '7.5em' : '6.5em';
+
   if (!embedUrl) {
     return (
       <div className="w-full max-w-sm md:max-w-2xl">
@@ -43,13 +49,13 @@ export function VideoPlayer({ videoUrl, signLabel, active = true, showLabel = tr
             style={{ pointerEvents: 'none' }}
           >
             <span
-              className="text-white font-bold text-base md:text-lg text-left uppercase"
+              className={`text-white font-bold ${labelClass} text-left uppercase`}
               style={{
                 fontFamily: 'Poppins, Arial, sans-serif',
                 wordBreak: 'break-word',
                 overflowWrap: 'break-word',
                 whiteSpace: 'pre-line',
-                maxWidth: '4.5em',
+                maxWidth: labelMaxWidth,
                 display: 'inline-block',
                 textShadow: [
                   '0 2px 12px rgba(0,0,0,0.85)',

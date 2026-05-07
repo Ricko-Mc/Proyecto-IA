@@ -1,34 +1,27 @@
-
-
-signo(como_estas, frases_comunes, 'FRA001').
-signo(muchas_gracias, frases_comunes, 'FRA002').
-signo(perdon, frases_comunes, 'FRA003').
-signo(buen_provecho, frases_comunes, 'FRA004').
-signo(te_quiero, frases_comunes, 'FRA005').
-signo(hasta_luego, frases_comunes, 'FRA006').
-signo(buen_dia, frases_comunes, 'FRA007').
-signo(que_tal, frases_comunes, 'FRA008').
-signo(con_permiso, frases_comunes, 'FRA009').
-signo(no_se, frases_comunes, 'FRA010').
-signo(si, frases_comunes, 'FRA011').
-signo(disculpa, frases_comunes, 'FRA012').
-signo(gracias, frases_comunes, 'FRA013').
-signo(no, frases_comunes, 'FRA014').
-signo(no_importa, frases_comunes, 'FRA015').
-signo(permiso, frases_comunes, 'FRA016').
-signo(dios_te_bendiga, frases_comunes, 'FRA017').
-signo(feliz_cumpleanos, frases_comunes, 'FRA018').
-signo(mi_nombre, frases_comunes, 'FRA019').
-signo(mi_apodo_es, frases_comunes, 'FRA020').
-signo(aplausos, frases_comunes, 'FRA021').
-signo(frases_cortesia, frases_comunes, 'FRA022').
-signo(tal_vez, frases_comunes, 'FRA023').
-signo(ok, frases_comunes, 'FRA024').
-signo(entendiste, frases_comunes, 'FRA025').
-signo(me_gusta, frases_comunes, 'FRA026').
-signo(me_equivoque, frases_comunes, 'FRA027').
-signo(mucho_gusto, frases_comunes, 'FRA028').
-
+signo(aplausos, frases_comunes, 'FRA001').
+signo(buen_provecho, frases_comunes, 'FRA002').
+signo(como_estas, frases_comunes, 'FRA003').
+signo(con_permiso, frases_comunes, 'FRA004').
+signo(de_nada, frases_comunes, 'FRA005').
+signo(dios_te_bendiga, frases_comunes, 'FRA006').
+signo(disculpa, frases_comunes, 'FRA007').
+signo(entendiste, frases_comunes, 'FRA008').
+signo(feliz_cumpleanos, frases_comunes, 'FRA009').
+signo(frases_cortesia, frases_comunes, 'FRA010').
+signo(gracias, frases_comunes, 'FRA011').
+signo(me_equivoque, frases_comunes, 'FRA012').
+signo(me_gusta, frases_comunes, 'FRA013').
+signo(mi_apodo_es, frases_comunes, 'FRA014').
+signo(mi_nombre, frases_comunes, 'FRA015').
+signo(mucho_gusto, frases_comunes, 'FRA016').
+signo(no, frases_comunes, 'FRA017').
+signo(no_importa, frases_comunes, 'FRA018').
+signo(no_se, frases_comunes, 'FRA019').
+signo(ok, frases_comunes, 'FRA020').
+signo(permiso, frases_comunes, 'FRA021').
+signo(porfavor, frases_comunes, 'FRA022').
+signo(si, frases_comunes, 'FRA023').
+signo(tal_vez, frases_comunes, 'FRA024').
 
 video_youtube('FRA002', 'https://youtu.be/5FJG3GxAn9c').
 video_youtube('FRA003', 'https://youtu.be/je6eWvQ120Y').
@@ -56,7 +49,7 @@ video_youtube('FRA022', 'https://youtu.be/xCz6Tvcl_sw?si=x0Lqm8i0Zm3Yjt1_').
 
 video_youtube('FRA023', 'https://youtu.be/LG6Nj6fWqzI?si=MWPNLK9RI_KfkKnj').
 video_youtube('FRA024', 'https://youtu.be/JPjVZoISjjI?si=qtPUmfiytGZnJIt8').
-video_youtube('FRA025', 'https://youtu.be/20y0bkW1CtM').
+video_youtube('FRA025', 'https://youtu.be/1UixnZTC4Cs?si=CY-6aMfQqTCTtg7X').
 video_youtube('FRA026', 'https://youtu.be/FM3uvW7w4w0?si=AdcRcytvNdFOw3ED').
 video_youtube('FRA027', 'https://youtu.be/Kx2m6ikcYb8?si=VseUOmPw-bjADb4F').
-video_youtube('FRA028', 'https://youtu.be/J2xi2R6g3Ow').
+video_youtube('FRA028', 'https://youtu.be/qYwMfWLCIJM?si=dyIqu91sZyMaU0PO').

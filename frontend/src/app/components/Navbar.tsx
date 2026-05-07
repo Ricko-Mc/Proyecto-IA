@@ -255,7 +255,7 @@ export function Navbar({
           <Button
             variant="ghost"
             size="icon"
-            className="h-10 w-10 rounded-full text-[#516276] dark:text-[#e4e4e4] hover:bg-transparent hover:text-[#111f33] dark:hover:text-white"
+            className="hidden md:inline-flex h-10 w-10 rounded-full text-[#516276] dark:text-[#e4e4e4] hover:bg-transparent hover:text-[#111f33] dark:hover:text-white"
             onClick={onToggleSidebar}
           >
             <Menu className="w-4 h-4" />
